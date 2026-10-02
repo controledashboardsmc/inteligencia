@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central de Inteligência · Metrocasa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wine:#5C0A10;
+    --wine-deep:#42070C;
+    --red:#C41420;
+    --pink:#F8E8E9;
+    --pink-line:#EAD0D2;
+    --ink:#231414;
+    --ink-soft:#6B5758;
+    --paper:#FBF7F6;
+    --white:#FFFFFF;
+    --ring: rgba(196,20,32,0.35);
+    --radius:14px;
+    --maxw:1280px;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3,.display{font-family:'Space Grotesk',system-ui,sans-serif;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;}
+
+  /* Skip link / focus */
+  a:focus-visible, button:focus-visible, input:focus-visible{
+    outline:2px solid var(--red);
+    outline-offset:2px;
+    border-radius:6px;
+  }
+
+  /* ===== HEADER ===== */
+  header.hub-header{
+    background:linear-gradient(135deg,var(--wine) 0%,var(--wine-deep) 100%);
+    color:var(--white);
+    position:relative;
+    overflow:hidden;
+  }
+  header.hub-header::after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(90deg, transparent 0%, transparent 92%, rgba(255,255,255,0.06) 92%, rgba(255,255,255,0.06) 93%, transparent 93%),
+      linear-gradient(90deg, transparent 0%, transparent 96%, rgba(255,255,255,0.05) 96%, rgba(255,255,255,0.05) 97%, transparent 97%);
+    pointer-events:none;
+  }
+  .header-inner{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:28px 32px 34px;
+    position:relative;
+    z-index:1;
+  }
+  .brand-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    margin-bottom:26px;
+    flex-wrap:wrap;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .brand-mark{
+    width:44px;height:44px;
+    border-radius:10px;
+    background:var(--red);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:15px;
+    letter-spacing:0.02em;
+    flex-shrink:0;
+    box-shadow:0 4px 14px rgba(0,0,0,0.25);
+  }
+  .brand-text .name{
+    font-size:13px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    opacity:0.75;
+    font-weight:600;
+  }
+  .brand-text .tagline{
+    font-size:12px;
+    opacity:0.55;
+    margin-top:1px;
+  }
+  .hub-title-block{
+    text-align:right;
+  }
+  .hub-title-block .eyebrow{
+    font-size:11px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    opacity:0.65;
+    font-weight:600;
+  }
+  .header-headline{
+    font-size:clamp(28px,4vw,40px);
+    font-weight:700;
+    line-height:1.08;
+    max-width:640px;
+    margin:0 0 10px;
+    letter-spacing:-0.01em;
+  }
+  .header-sub{
+    font-size:15px;
+    opacity:0.72;
+    max-width:560px;
+    line-height:1.5;
+    margin:0 0 24px;
+  }
+
+  /* Search */
+  .search-wrap{
+    max-width:520px;
+    position:relative;
+  }
+  .search-wrap svg{
+    position:absolute;
+    left:16px; top:50%;
+    transform:translateY(-50%);
+    opacity:0.55;
+    pointer-events:none;
+  }
+  #search-input{
+    width:100%;
+    padding:14px 18px 14px 46px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.18);
+    background:rgba(255,255,255,0.08);
+    color:var(--white);
+    font-size:15px;
+    backdrop-filter:blur(6px);
+    transition:background .15s ease, border-color .15s ease;
+  }
+  #search-input::placeholder{color:rgba(255,255,255,0.55);}
+  #search-input:focus{
+    background:rgba(255,255,255,0.14);
+    border-color:rgba(255,255,255,0.4);
+    outline:none;
+  }
+
+  /* ===== MAIN ===== */
+  main{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:36px 32px 80px;
+  }
+
+  .section-heading{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin:44px 0 18px;
+  }
+  .section-heading:first-child{margin-top:0;}
+  .section-heading h2{
+    font-size:19px;
+    font-weight:700;
+    margin:0;
+    color:var(--wine);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .section-heading .count{
+    font-size:12px;
+    font-weight:600;
+    color:var(--ink-soft);
+    background:var(--pink);
+    padding:3px 10px;
+    border-radius:20px;
+  }
+  .section-desc{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:2px 0 0;
+  }
+
+  /* Favorites strip */
+  #favorites-section{display:none;}
+  .fav-strip{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .fav-chip{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--white);
+    border:1px solid var(--pink-line);
+    padding:9px 14px 9px 10px;
+    border-radius:10px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--wine);
+    transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+  }
+  .fav-chip:hover{
+    border-color:var(--red);
+    box-shadow:0 4px 12px rgba(92,10,16,0.08);
+    transform:translateY(-1px);
+  }
+  .fav-chip .star{color:var(--red); font-size:14px;}
+
+  /* Grid */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:18px;
+  }
+
+  .card{
+    background:var(--white);
+    border:1px solid var(--pink-line);
+    border-radius:var(--radius);
+    padding:22px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    position:relative;
+    transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+  }
+  .card:hover{
+    border-color:var(--red);
+    box-shadow:0 10px 30px rgba(92,10,16,0.09);
+    transform:translateY(-2px);
+  }
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .card-icon{
+    width:38px;height:38px;
+    border-radius:9px;
+    background:var(--pink);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+    color:var(--wine);
+  }
+  .fav-btn{
+    background:none;
+    border:none;
+    cursor:pointer;
+    color:var(--pink-line);
+    padding:4px;
+    line-height:1;
+    border-radius:6px;
+    transition:color .15s ease;
+  }
+  .fav-btn:hover{color:var(--red);}
+  .fav-btn.is-fav{color:var(--red);}
+
+  .card h3{
+    font-size:16.5px;
+    font-weight:700;
+    margin:0;
+    line-height:1.3;
+    color:var(--ink);
+  }
+  .card p{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    line-height:1.55;
+    margin:0;
+    flex-grow:1;
+  }
+  .card-meta{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:2px;
+  }
+  .tag{
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--wine);
+    background:var(--pink);
+    padding:4px 9px;
+    border-radius:6px;
+  }
+  .platform-tag{
+    font-size:11px;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:5px;
+  }
+  .platform-tag .dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--ink-soft);
+  }
+  .platform-tag.warn{color:#9A5B0B;}
+  .platform-tag.warn .dot{background:#C47C15;}
+
+  .access-btn{
+    margin-top:4px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    background:var(--wine);
+    color:var(--white);
+    padding:11px 16px;
+    border-radius:9px;
+    font-size:13.5px;
+    font-weight:600;
+    transition:background .15s ease, transform .1s ease;
+  }
+  .access-btn:hover{background:var(--red);}
+  .access-btn:active{transform:scale(0.98);}
+  .access-btn svg{transition:transform .15s ease;}
+  .access-btn:hover svg{transform:translateX(2px);}
+
+  /* Empty state */
+  #empty-state{
+    display:none;
+    text-align:center;
+    padding:70px 20px;
+    color:var(--ink-soft);
+  }
+  #empty-state .glyph{
+    font-size:34px;
+    margin-bottom:12px;
+    opacity:0.4;
+  }
+  #empty-state h3{
+    color:var(--ink);
+    font-size:17px;
+    margin:0 0 6px;
+  }
+  #empty-state p{font-size:13.5px; margin:0;}
+
+  footer{
+    border-top:1px solid var(--pink-line);
+    margin-top:20px;
+    padding:22px 32px;
+    max-width:var(--maxw);
+    margin-left:auto;
+    margin-right:auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  footer .foot-brand{
+    font-size:12px;
+    font-weight:700;
+    color:var(--wine);
+    letter-spacing:0.02em;
+  }
+  footer .foot-note{
+    font-size:11.5px;
+    color:var(--ink-soft);
+  }
+
+  @media (max-width:640px){
+    .header-inner{padding:22px 18px 26px;}
+    .brand-row{flex-direction:column;align-items:flex-start;}
+    .hub-title-block{text-align:left;}
+    main{padding:28px 18px 60px;}
+    .grid{grid-template-columns:1fr;}
+    footer{padding:18px;flex-direction:column;align-items:flex-start;}
+  }
+  @media (min-width:1600px){
+    :root{--maxw:1440px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+
+  /* ===== DASHBOARD FULLSCREEN VIEW ===== */
+  html.dash-open, html.dash-open body{
+    height:100%;
+    overflow:hidden;
+  }
+  #dashboard-view{
+    display:none;
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    height:100dvh;
+    background:var(--ink);
+    z-index:1000;
+  }
+  html.dash-open #dashboard-view{ display:block; }
+  html.dash-open header.hub-header,
+  html.dash-open main,
+  html.dash-open footer{ display:none; }
+
+  #dashboard-view iframe{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    border:0;
+    display:block;
+  }
+
+  .back-btn{
+    position:fixed;
+    top:16px;
+    left:16px;
+    z-index:1010;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--wine);
+    color:var(--white);
+    border:1px solid rgba(255,255,255,0.14);
+    padding:10px 16px 10px 12px;
+    border-radius:10px;
+    font-size:13.5px;
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    box-shadow:0 6px 20px rgba(0,0,0,0.28);
+    backdrop-filter:blur(4px);
+    transition:background .15s ease, transform .12s ease, box-shadow .15s ease;
+  }
+  .back-btn:hover{
+    background:var(--red);
+    box-shadow:0 8px 24px rgba(0,0,0,0.34);
+  }
+  .back-btn:active{ transform:scale(0.97); }
+  .back-btn svg{ flex-shrink:0; }
+
+  .dash-title-chip{
+    position:fixed;
+    top:16px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:1005;
+    background:rgba(35,20,20,0.72);
+    color:var(--white);
+    font-size:12.5px;
+    font-weight:600;
+    padding:9px 16px;
+    border-radius:20px;
+    backdrop-filter:blur(6px);
+    max-width:min(60vw, 480px);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    pointer-events:none;
+    opacity:0.9;
+  }
+
+  #dash-fallback{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:14px;
+    background:var(--ink);
+    color:rgba(255,255,255,0.85);
+    text-align:center;
+    padding:32px;
+    z-index:1002;
+  }
+  #dash-fallback.show{ display:flex; }
+  #dash-fallback h3{ margin:0; font-size:18px; color:var(--white); }
+  #dash-fallback p{ margin:0; font-size:13.5px; color:rgba(255,255,255,0.6); max-width:420px; line-height:1.5; }
+  #dash-fallback a{
+    margin-top:6px;
+    background:var(--red);
+    color:var(--white);
+    padding:11px 20px;
+    border-radius:9px;
+    font-size:13.5px;
+    font-weight:600;
+  }
+
+  @media (max-width:640px){
+    .back-btn{ top:10px; left:10px; padding:9px 14px 9px 10px; }
+    .dash-title-chip{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hub-header">
+  <div class="header-inner">
+    <div class="brand-row">
+      <div class="brand">
+        <div class="brand-mark">MC</div>
+        <div class="brand-text">
+          <div class="name">Metrocasa</div>
+          <div class="tagline">Você + perto</div>
+        </div>
+      </div>
+      <div class="hub-title-block">
+        <div class="eyebrow">Central de dashboards</div>
+      </div>
+    </div>
+
+    <h1 class="header-headline">Central de Inteligência Metrocasa</h1>
+    <p class="header-sub">Todos os relatórios de vendas, leads e território em um único ponto de acesso. Encontre o painel certo e abra em segundos.</p>
+
+    <div class="search-wrap">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search-input" type="text" placeholder="Buscar por nome, categoria ou palavra-chave…" autocomplete="off">
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section id="favorites-section">
+    <div class="section-heading">
+      <h2>★ Mais acessados</h2>
+    </div>
+    <div class="fav-strip" id="fav-strip"></div>
+  </section>
+
+  <div id="results-wrap"></div>
+
+  <div id="empty-state">
+    <div class="glyph">◇</div>
+    <h3>Nenhum dashboard encontrado</h3>
+    <p>Tente buscar por outro termo — por exemplo "vendas", "leads" ou "mapa".</p>
+  </div>
+
+</main>
+
+<footer>
+  <div class="foot-brand">metrocasa / Você + perto</div>
+  <div class="foot-note">Central de Inteligência · uso interno</div>
+</footer>
+
+<div id="dashboard-view">
+  <button class="back-btn" id="back-btn" aria-label="Voltar ao HUB">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Voltar
+  </button>
+  <div class="dash-title-chip" id="dash-title-chip"></div>
+  <iframe id="dash-iframe" title="Dashboard" allow="fullscreen" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  <div id="dash-fallback">
+    <h3>O dashboard não carregou aqui</h3>
+    <p>Este link pode não permitir exibição dentro de outra página. Abra em uma nova aba para visualizá-lo normalmente.</p>
+    <a id="dash-fallback-link" href="#" target="_blank" rel="noopener noreferrer">Abrir em nova aba →</a>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   CONFIGURAÇÃO DOS DASHBOARDS
+   Para adicionar um novo dashboard, basta adicionar um objeto
+   a este array. Nada mais no arquivo precisa ser tocado.
+   =========================================================
+   Campos:
+   id          - identificador único (string, sem espaços)
+   nome        - nome exibido no card
+   descricao   - descrição curta
+   categoria   - id da categoria (ver CATEGORIES abaixo)
+   link        - URL do dashboard
+   plataforma  - 'powerbi' | 'lookerstudio' | 'site' (define o rótulo e o comportamento de acesso)
+   keywords    - array de palavras-chave extras para a busca
+   aviso       - (opcional) nota de risco/infra a exibir no card
+   ========================================================= */
+
+const CATEGORIES = [
+  { id:'vendas',  label:'Vendas & Estoque',       desc:'Performance comercial, VGV, metas e posição de estoque.' },
+  { id:'leads',   label:'Leads & CRM',            desc:'Geração, origem e distribuição de leads por canal.' },
+  { id:'metaads', label:'Meta Ads',               desc:'Performance e comparativos de campanhas no Meta Ads.' },
+  { id:'territorio', label:'Inteligência Territorial', desc:'Visão geográfica e operação de canais digitais.' },
+];
+
+const DASHBOARDS = [
+  {
+    id:'vendas-estoque',
+    nome:'Vendas Geral e Estoque',
+    descricao:'Acompanhamento consolidado de vendas e posição de estoque por empreendimento.',
+    categoria:'vendas',
+    link:'https://app.powerbi.com/view?r=eyJrIjoiMWU2MmNlYTYtNDgxZi00ZWQ1LTkwYjktN2I3ZjNlZDRkYTkxIiwidCI6ImM3NGViY2JkLWE4MGYtNDYwYy1hMDUzLTEwZDViNmY1ZWQwNSJ9',
+    plataforma:'powerbi',
+    keywords:['vgv','estoque','unidades','vendas']
+  },
+  {
+    id:'vendas-campanha',
+    nome:'Vendas por Campanha (Salesforce)',
+    descricao:'Resultado de vendas segmentado por campanha de origem no Salesforce.',
+    categoria:'vendas',
+    link:'https://app.powerbi.com/view?r=eyJrIjoiMDQ4NWM0YjAtN2RlMy00NTA2LWIwNGEtZWE3OTU1YTFjNzFjIiwidCI6ImM3NGViY2JkLWE4MGYtNDYwYy1hMDUzLTEwZDViNmY1ZWQwNSJ9',
+    plataforma:'powerbi',
+    keywords:['salesforce','campanha','crm','vendas']
+  },
+  {
+    id:'analise-estoque-mc',
+    nome:'Análise de Estoque MC Interativo',
+    descricao:'Painel interativo de análise de estoque por empreendimento, com filtros dinâmicos.',
+    categoria:'vendas',
+    link:'https://controle-pessoal-eduardo-mkt-oliver.github.io/blip/estoque.html',
+    plataforma:'site',
+    keywords:['estoque','interativo','unidades','análise'],
+    aviso:'Hospedado em conta pessoal (GitHub) — não é domínio oficial Metrocasa. Risco de indisponibilidade fora do controle do time.'
+  },
+  {
+    id:'analise-credito-salesforce',
+    nome:'Análise de Crédito x Salesforce',
+    descricao:'Comparativo entre análises de crédito e os registros correspondentes no Salesforce.',
+    categoria:'leads',
+    link:'https://app.powerbi.com/view?r=eyJrIjoiMmIyMzg4MmUtYTRiZC00ZGZlLWI0YTYtOWFiMGUzMGJlNWUzIiwidCI6ImM3NGViY2JkLWE4MGYtNDYwYy1hMDUzLTEwZDViNmY1ZWQwNSJ9',
+    plataforma:'powerbi',
+    keywords:['crédito','salesforce','análise','crm']
+  },
+  {
+    id:'meta-ads-comparativo-mes',
+    nome:'Meta Ads Comparativo Mês',
+    descricao:'Comparativo mensal de performance das campanhas no Meta Ads.',
+    categoria:'metaads',
+    link:'https://controle-pessoal-eduardo-mkt-oliver.github.io/blip/metaads.html',
+    plataforma:'site',
+    keywords:['meta','ads','comparativo','mês','campanhas'],
+    aviso:'Hospedado em conta pessoal (GitHub) — não é domínio oficial Metrocasa. Risco de indisponibilidade fora do controle do time.'
+  },
+  {
+    id:'estoque-envelopes',
+    nome:'Estoque de Envelopes',
+    descricao:'Controle e acompanhamento do estoque de envelopes.',
+    categoria:'vendas',
+    link:'https://controle-pessoal-eduardo-mkt-oliver.github.io/blip/envelopes.html',
+    plataforma:'site',
+    keywords:['estoque','envelopes'],
+    aviso:'Hospedado em conta pessoal (GitHub) — não é domínio oficial Metrocasa. Risco de indisponibilidade fora do controle do time.'
+  },
+  {
+    id:'leads-salesforce',
+    nome:'Leads Salesforce',
+    descricao:'Volume, origem e qualificação de leads capturados via Salesforce.',
+    categoria:'leads',
+    link:'https://app.powerbi.com/view?r=eyJrIjoiM2NlZjYzMGEtYWRlYS00ZmQ3LWE1ZDMtYjkzYWM4MDY3MDY2IiwidCI6ImM3NGViY2JkLWE4MGYtNDYwYy1hMDUzLTEwZDViNmY1ZWQwNSJ9',
+    plataforma:'powerbi',
+    keywords:['salesforce','leads','crm']
+  },
+  {
+    id:'leads-blip',
+    nome:'Leads Blip',
+    descricao:'Leads recebidos e tratados via WhatsApp / Blip.',
+    categoria:'leads',
+    link:'https://app.powerbi.com/view?r=eyJrIjoiNGE2Njk3NTctZjZjNC00ZTA2LTgxZTctOTkyYjYyMjA4YWIxIiwidCI6ImM3NGViY2JkLWE4MGYtNDYwYy1hMDUzLTEwZDViNmY1ZWQwNSJ9',
+    plataforma:'powerbi',
+    keywords:['blip','whatsapp','leads']
+  },
+  {
+    id:'leads-meta-salesforce',
+    nome:'Leads Meta x Salesforce',
+    descricao:'Comparativo de leads originados no Meta Ads frente aos registrados no Salesforce.',
+    categoria:'leads',
+    link:'https://controle-pessoal-eduardo-mkt-oliver.github.io/blip/leads.html',
+    plataforma:'site',
+    keywords:['meta','ads','salesforce','leads'],
+    aviso:'Hospedado em conta pessoal (GitHub) — não é domínio oficial Metrocasa. Risco de indisponibilidade fora do controle do time.'
+  },
+  {
+    id:'etv-canal-blip',
+    nome:'ETV, Canal de Distribuição e Blip',
+    descricao:'Operação de canais digitais: ETV, distribuição de leads e atendimento via Blip.',
+    categoria:'territorio',
+    link:'https://construtora-metrocasa.github.io/metromais/etv/',
+    plataforma:'site',
+    keywords:['etv','canal','distribuição','blip']
+  },
+  {
+    id:'mapa-empreendimentos',
+    nome:'Mapa de Empreendimentos',
+    descricao:'Visão geográfica de todos os empreendimentos ativos e em lançamento.',
+    categoria:'territorio',
+    link:'https://datastudio.google.com/reporting/8adb5a29-de87-401b-b375-57555bf32119/page/p_bhckdsctud',
+    plataforma:'lookerstudio',
+    keywords:['mapa','geografia','empreendimentos','território']
+  },
+];
+
+const PLATFORM_LABEL = {
+  powerbi:'Power BI',
+  lookerstudio:'Looker Studio',
+  site:'Portal web'
+};
+
+/* ========================= RENDER ========================= */
+
+const ICONS = {
+  vendas: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>',
+  leads: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  metaads: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 15c1.5-4 2.5-6 4-6s2.5 2 4 6"/></svg>',
+  territorio: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>'
+};
+
+const ARROW = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+const STAR_FILLED = '★';
+
+let favorites = [];
+try{ favorites = JSON.parse(localStorage.getItem('mc_hub_favorites') || '[]'); }catch(e){ favorites = []; }
+
+function saveFavorites(){
+  try{ localStorage.setItem('mc_hub_favorites', JSON.stringify(favorites)); }catch(e){}
+}
+
+function toggleFavorite(id){
+  const idx = favorites.indexOf(id);
+  if(idx>-1){ favorites.splice(idx,1); } else { favorites.push(id); }
+  saveFavorites();
+  renderAll(document.getElementById('search-input').value);
+}
+
+function cardHTML(d){
+  const isFav = favorites.includes(d.id);
+  const warn = d.aviso ? `<div class="platform-tag warn" title="${escapeHtml(d.aviso)}"><span class="dot"></span>${PLATFORM_LABEL[d.plataforma]} · aviso</div>` : `<div class="platform-tag"><span class="dot"></span>${PLATFORM_LABEL[d.plataforma]}</div>`;
+  return `
+  <article class="card" data-id="${d.id}">
+    <div class="card-top">
+      <div class="card-icon">${ICONS[d.categoria] || ''}</div>
+      <button class="fav-btn ${isFav?'is-fav':''}" aria-label="Favoritar" onclick="toggleFavorite('${d.id}')">${STAR_FILLED}</button>
+    </div>
+    <h3>${escapeHtml(d.nome)}</h3>
+    <p>${escapeHtml(d.descricao)}</p>
+    <div class="card-meta">
+      <span class="tag">${escapeHtml(CATEGORIES.find(c=>c.id===d.categoria).label)}</span>
+      ${warn}
+    </div>
+    <a class="access-btn" href="${d.link}" onclick="return openDashboard(event, '${d.id}')">Acessar dashboard ${ARROW}</a>
+  </article>`;
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function matchesQuery(d, q){
+  if(!q) return true;
+  const hay = [d.nome, d.descricao, CATEGORIES.find(c=>c.id===d.categoria).label, ...(d.keywords||[])].join(' ').toLowerCase();
+  return hay.includes(q.toLowerCase());
+}
+
+function renderFavorites(){
+  const section = document.getElementById('favorites-section');
+  const strip = document.getElementById('fav-strip');
+  const favDashboards = DASHBOARDS.filter(d => favorites.includes(d.id));
+  if(favDashboards.length === 0){
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+  strip.innerHTML = favDashboards.map(d => `
+    <a class="fav-chip" href="${d.link}" onclick="return openDashboard(event, '${d.id}')">
+      <span class="star">${STAR_FILLED}</span>${escapeHtml(d.nome)}
+    </a>`).join('');
+}
+
+function renderAll(query){
+  const wrap = document.getElementById('results-wrap');
+  const empty = document.getElementById('empty-state');
+  const q = (query || '').trim();
+
+  let anyResults = false;
+  let html = '';
+
+  CATEGORIES.forEach(cat => {
+    const items = DASHBOARDS.filter(d => d.categoria === cat.id && matchesQuery(d, q));
+    if(items.length === 0) return;
+    anyResults = true;
+    html += `
+      <section>
+        <div class="section-heading">
+          <h2>${escapeHtml(cat.label)} <span class="count">${items.length}</span></h2>
+        </div>
+        <p class="section-desc">${escapeHtml(cat.desc)}</p>
+        <div class="grid" style="margin-top:14px;">
+          ${items.map(cardHTML).join('')}
+        </div>
+      </section>`;
+  });
+
+  wrap.innerHTML = html;
+  empty.style.display = anyResults ? 'none' : 'block';
+  renderFavorites();
+}
+
+document.getElementById('search-input').addEventListener('input', (e) => {
+  renderAll(e.target.value);
+});
+
+/* ===== FULLSCREEN DASHBOARD VIEW ===== */
+
+let dashLoadTimer = null;
+
+function openDashboard(evt, id){
+  if(evt) evt.preventDefault();
+  const d = DASHBOARDS.find(x => x.id === id);
+  if(!d) return false;
+
+  const iframe = document.getElementById('dash-iframe');
+  const fallback = document.getElementById('dash-fallback');
+  const fallbackLink = document.getElementById('dash-fallback-link');
+  const titleChip = document.getElementById('dash-title-chip');
+
+  fallback.classList.remove('show');
+  titleChip.textContent = d.nome;
+  fallbackLink.href = d.link;
+
+  // Reset then set src so onload always fires fresh
+  iframe.src = 'about:blank';
+  fallback.classList.remove('show');
+
+  document.documentElement.classList.add('dash-open');
+  document.getElementById('back-btn').focus();
+
+  // update URL state without reload, so back/forward + reload keep context
+  history.pushState({ dashId: id }, '', '#dashboard=' + encodeURIComponent(id));
+
+  let loaded = false;
+  iframe.onload = () => {
+    // First onload fires for about:blank; ignore that one
+    if(iframe.src === 'about:blank') return;
+    loaded = true;
+    clearTimeout(dashLoadTimer);
+  };
+
+  requestAnimationFrame(() => {
+    iframe.src = d.link;
+    clearTimeout(dashLoadTimer);
+    dashLoadTimer = setTimeout(() => {
+      // Best-effort check: if same-origin access throws or doc looks empty, most X-Frame-Options
+      // blocks won't throw (browser just renders blank), so this is a heuristic timeout fallback.
+      if(!loaded){
+        fallback.classList.add('show');
+      }
+    }, 4500);
+  });
+
+  return false;
+}
+
+function closeDashboard(){
+  document.documentElement.classList.remove('dash-open');
+  document.getElementById('dash-iframe').src = 'about:blank';
+  document.getElementById('dash-fallback').classList.remove('show');
+  clearTimeout(dashLoadTimer);
+  if(location.hash.startsWith('#dashboard=')){
+    history.pushState({}, '', location.pathname + location.search);
+  }
+}
+
+document.getElementById('back-btn').addEventListener('click', closeDashboard);
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && document.documentElement.classList.contains('dash-open')){
+    closeDashboard();
+  }
+});
+
+window.addEventListener('popstate', (e) => {
+  if(e.state && e.state.dashId){
+    openDashboard(null, e.state.dashId);
+  } else {
+    closeDashboard();
+  }
+});
+
+// Support deep-link / reload while inside a dashboard
+function initFromHash(){
+  const m = location.hash.match(/^#dashboard=(.+)$/);
+  if(m){
+    const id = decodeURIComponent(m[1]);
+    if(DASHBOARDS.find(d => d.id === id)){
+      openDashboard(null, id);
+    }
+  }
+}
+
+renderAll('');
+initFromHash();
+</script>
+
+</body>
+</html>
