@@ -1,1 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Metrocasa · Estoque × Vendas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<style>
+  :root{--red:#E2231A;--red-deep:#A50F12;--red-soft:#FCE9E8;--gold:#C9A227;--ink:#16161A;--ink-2:#3B3B42;--muted:#7A7A85;--line:#E7E7EC;--surface:#FFFFFF;--bg:#F4F4F6;--bg-2:#ECECEF;--good:#1B7A3D;--good-bg:#E7F6EC;--warn:#9A6212;--warn-bg:#FFF4E5;--shadow:0 1px 2px rgba(0,0,0,.04),0 12px 32px -12px rgba(20,20,26,.18);}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 16px calc(env(safe-area-inset-bottom) + 48px)}
+  .logo{font-family:'Sora',sans-serif;font-weight:800;letter-spacing:-.03em;line-height:1}.logo .plus{color:var(--red)}
+  .topbar{background:linear-gradient(135deg,var(--ink),#26262E);color:#fff;position:relative;overflow:hidden;border-radius:0 0 22px 22px;padding:calc(env(safe-area-inset-top) + 20px) 22px 20px;box-shadow:var(--shadow);margin:0 -16px 20px}
+  .topbar::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--red)}
+  .tb-row{display:flex;align-items:center;gap:13px;max-width:1240px;margin:0 auto}
+  .tb-row .mark{width:44px;height:44px;border-radius:12px;flex:0 0 auto}
+  .tb-title .logo{font-size:21px}.tb-title .st{font-size:12px;color:rgba(255,255,255,.6);font-weight:500;margin-top:2px}
+  .tb-actions{margin-left:auto;display:flex;gap:8px}
+  .tb-btn{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;border-radius:10px;height:40px;padding:0 14px;font-family:'Sora',sans-serif;font-weight:600;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+  .tb-btn svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .tb-btn.spinning svg{animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+  .srcs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .src{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;border-radius:999px;padding:6px 12px}
+  .src .d{width:8px;height:8px;border-radius:50%}
+  .src.snap{background:var(--bg-2);color:var(--ink-2)}.src.snap .d{background:var(--muted)}
+  .src.live{background:var(--good-bg);color:var(--good)}.src.live .d{background:#27AE60}
+  .src.warn{background:var(--warn-bg);color:var(--warn)}.src.warn .d{background:#E0902F}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-bottom:14px}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--red)}
+  .kpi.ink::before{background:var(--ink)}.kpi.gold::before{background:var(--gold)}.kpi.good::before{background:var(--good)}
+  .kpi .kl{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  .kpi .kv{font-family:'Sora',sans-serif;font-weight:700;font-size:24px;letter-spacing:-.02em;margin-top:6px;line-height:1}
+  .kpi .kv.sm{font-size:19px}
+  .kpi .ks{font-size:11.5px;color:var(--ink-2);margin-top:6px}.kpi .ks b{color:var(--red-deep)}
+  .searchbar{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 14px;box-shadow:var(--shadow);margin-bottom:12px;height:50px}
+  .searchbar svg{width:19px;height:19px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;flex:0 0 auto}
+  .searchbar input{flex:1;border:none;outline:none;font-family:inherit;font-size:15px;background:transparent;color:var(--ink)}
+  .searchbar input::placeholder{color:var(--muted)}
+  .searchbar button{border:none;background:var(--bg-2);color:var(--ink-2);width:26px;height:26px;border-radius:50%;font-size:17px;line-height:1;cursor:pointer;flex:0 0 auto}
+  .filters{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px;display:flex;gap:14px;flex-wrap:wrap}
+  .fg{flex:1 1 180px;min-width:150px;display:flex;flex-direction:column;gap:6px}
+  .fg label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  .fg select{width:100%;height:40px;border:1px solid var(--line);border-radius:10px;padding:0 11px;font-family:inherit;font-size:13.5px;background:var(--bg);cursor:pointer}
+  .sortbar{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .sortbar .sortlabel{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;flex:0 0 auto}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font-size:12px;font-weight:600;color:var(--ink-2);cursor:pointer;transition:.14s;font-family:'Sora',sans-serif}
+  .chip:hover{border-color:var(--red);color:var(--red)}.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}.chip.all.on{background:var(--red);border-color:var(--red)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:15px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+  .card-head{padding:15px 18px 2px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .card-head h3{font-family:'Sora',sans-serif;font-weight:700;font-size:14.5px}.card-head .sub{font-size:11px;color:var(--muted);font-weight:600}
+  .card-body{padding:12px 16px 16px}.span2{grid-column:1/-1}
+  .chart-h{position:relative;height:300px}.scroll{max-height:600px;overflow-y:auto;padding-right:6px;scrollbar-width:thin}
+  #barWrap{position:relative;min-height:240px}
+  .barhint{font-size:11px;color:var(--muted);margin-top:8px}.barhint b{color:var(--ink-2)}
+  table{width:100%;border-collapse:collapse}
+  thead th{text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;padding:9px 12px;border-bottom:1px solid var(--line);cursor:pointer;user-select:none;white-space:nowrap}
+  thead th:first-child{text-align:left}thead th:hover{color:var(--ink)}thead th .ar{opacity:.5;font-size:9px}
+  tbody td{padding:9px 12px;font-size:13px;border-top:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+  tbody td:first-child{text-align:left;font-weight:600;font-family:'Sora',sans-serif}
+  tbody tr:hover{background:var(--red-soft)}
+  tfoot td{padding:10px 12px;font-size:13px;text-align:right;border-top:2px solid var(--ink);font-family:'Sora',sans-serif;font-weight:700}
+  tfoot td:first-child{text-align:left}
+  .pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif}
+  .pill.g{background:var(--good-bg);color:var(--good)}.pill.a{background:var(--warn-bg);color:var(--warn)}.pill.r{background:var(--red-soft);color:var(--red-deep)}
+  .tag{display:inline-block;background:var(--bg-2);color:var(--ink-2);border-radius:999px;padding:1px 8px;font-size:10.5px;font-weight:700;font-family:'Sora',sans-serif}
+  .tag.on{background:var(--good-bg);color:var(--good)}
+  .empty{padding:40px;text-align:center;color:var(--muted)}.empty b{display:block;color:var(--ink-2);font-family:'Sora',sans-serif;margin-bottom:5px;font-size:15px}
+  .note{background:var(--warn-bg);border:1px solid #F0C97A;border-radius:12px;padding:12px 15px;font-size:12.5px;color:#6b4a12;margin-bottom:16px;line-height:1.5}
+  footer{margin-top:22px;text-align:center;font-size:11px;color:var(--muted);line-height:1.7}footer b{color:var(--ink-2)}
+  @media (max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><div class="tb-row">
+    <svg class="mark" viewBox="0 0 512 512" id="mk"></svg>
+    <div class="tb-title"><div class="logo">metrocasa<span class="plus">+</span></div><div class="st">Análise de Estoque · por projeto</div></div>
+    <div class="tb-actions"><button class="tb-btn" id="btnRefresh"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>Atualizar</button></div>
+  </div></div>
 
+  <div class="srcs" id="srcs"></div>
+  <div id="note"></div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="searchbar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="fBusca" placeholder="Buscar empreendimento pelo nome…" autocomplete="off"><button id="fBuscaX" title="Limpar" style="display:none">×</button></div>
+
+  <div class="filters">
+    <div class="fg"><label>Região</label><select id="fReg"><option value="">Todas</option></select></div>
+    <div class="fg"><label>Anúncio Ads</label><select id="fAds"><option value="">Todos</option></select></div>
+    <div class="fg"><label>Tipologia</label><select id="fTip"><option value="">Todas</option></select></div>
+  </div>
+  <div class="sortbar"><span class="sortlabel">Ordenar por</span><div class="chips" id="fSort"></div></div>
+
+  <div class="grid2">
+    <div class="card span2"><div class="card-head"><h3 id="barTitle">Ranking</h3><span class="sub" id="barSub"></span></div><div class="card-body"><div class="scroll"><div id="barWrap"><canvas id="cBar"></canvas></div></div><div class="barhint">Dica: os botões <b>Ordenar por</b> acima trocam a métrica do ranking.</div></div></div>
+    <div class="card"><div class="card-head"><h3>Estoque por região</h3></div><div class="card-body"><div class="chart-h"><canvas id="cReg"></canvas></div></div></div>
+    <div class="card"><div class="card-head"><h3>Vendas mês anterior por região</h3></div><div class="card-body"><div class="chart-h"><canvas id="cRegV"></canvas></div></div></div>
+  </div>
+
+  <div class="card"><div class="card-head"><h3>Detalhamento</h3><span class="sub" id="tblSub"></span></div><div class="card-body" id="tbl"></div></div>
+
+  <footer><b>Metrocasa · Marketing</b> — Relatório Análise de Estoque · atualiza ao vivo</footer>
+</div>
+
+<script>
+const PUB="https://docs.google.com/spreadsheets/d/e/2PACX-1vT4GUXAGRajwIUcDU-QXAgxhfZy7VdaXUyZJkcrLogWPTft_OuGbG-OB_JqoIfgqCH5yTFbXY8an7_u/pub?gid=637889805&single=true&output=csv";
+const POLL_MS=300000;
+const ESPERADO=23; // empreendimentos esperados (ajuste se mudar)
+
+/* snapshot lido da imagem (fallback até o ao vivo responder) */
+const SNAP=[
+  {emp:"ORATORIO",estoque:99,tipologia:"99 1D + OFFICE",categoria:"40 HIS-1 / 55 HIS-2 / 4 R2V",regiao:"ZONA LESTE",vendasJul:11,ads:"EM PRODUÇÃO",meta:20,vendasAgo:0},
+  {emp:"ESTACAO VILA TOLSTOI",estoque:96,tipologia:"96 1D + OFFICE",categoria:"3 R2V / 93 HIS-2",regiao:"ZONA LESTE",vendasJul:10,ads:"EM PRODUÇÃO",meta:19,vendasAgo:0},
+  {emp:"PARQUE INDEPENDENCIA",estoque:96,tipologia:"96 1D + OFFICE",categoria:"7 NR / 62 HIS-1 / 27 HIS-2",regiao:"ZONA SUL",vendasJul:42,ads:"EM PRODUÇÃO",meta:19,vendasAgo:1},
+  {emp:"VILA CARRAO",estoque:114,tipologia:"114 1D + OFFICE",categoria:"56 HIS-1 / 58 HIS-2",regiao:"ZONA LESTE",vendasJul:27,ads:"EM PRODUÇÃO",meta:23,vendasAgo:1}
+];
+let DATA=[...SNAP], src={k:'snap',t:'Snapshot da imagem (4 de N)'}, totalVendasAgo=12, dataRef="10/08/2026", mesAnt="mês anterior", mesAtu="mês atual", partial=true;
+let sortKey='vendasJul', sortDir=-1, fReg='', fAds='', fBusca='', fTip='';
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const num=n=>Math.round(n||0).toLocaleString('pt-BR');
+const pct=(n,t)=>t?(n/t*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%':'—';
+const fpct=r=>(r*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
+const LANCAMENTOS=0; // lançamentos no período — não há coluna na planilha; ajuste se passar a existir
+const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+function brNum(s){if(typeof s==='number')return s;const m=String(s).replace(/[^\d,.-]/g,'').replace(/\.(?=\d{3}\b)/g,'').replace(',','.');const n=parseFloat(m);return isNaN(n)?0:n;}
+// extrai o TIPO da tipologia, removendo o número inicial (que é o estoque). "99 1D + OFFICE" -> "1D + OFFICE"
+// TIPOLOGIAS vem como "1D (98), 1D + OFFICE (10)": tipo + (quantidade), vários separados por vírgula.
+// Mantém o dígito inicial (1D = 1 dormitório) e remove só a quantidade entre parênteses.
+function tipoTipos(s){
+  return String(s||'')
+    .split(',')
+    .map(x=>x.replace(/\(.*?\)/g,'')        // remove "(quantidade)"
+             .replace(/\s*\+\s*/g,' + ')     // padroniza espaços do +
+             .replace(/\s+/g,' ').trim().toUpperCase())
+    .filter(Boolean);
+}
+function tipoTipo(s){return tipoTipos(s)[0]||'—';}
+const PAL=['#E2231A','#16161A','#C9A227','#6B7280','#A50F12','#E89A93','#3B3B42','#9AA0A6','#D65A52','#5C6470'];
+let CH={};
+if(window.ChartDataLabels){Chart.register(window.ChartDataLabels);Chart.defaults.set('plugins.datalabels',{display:false});}
+function mkChart(id,cfg){const c=$(id);if(typeof Chart==='undefined'){if(c){c.style.display='none';let ph=c.parentElement.querySelector('.chph');if(!ph){ph=document.createElement('div');ph.className='empty chph';ph.style.padding='24px';ph.innerHTML='<b>Gráfico indisponível</b>Sem conexão para carregar o Chart.js.';c.parentElement.appendChild(ph);}}return;}try{if(CH[id])CH[id].destroy();CH[id]=new Chart(c,cfg);}catch(e){}}
+function parseCSV(t){const rows=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}else{if(c==='"')q=true;else if(c===','){row.push(f);f='';}else if(c==='\n'){row.push(f);rows.push(row);row=[];f='';}else if(c==='\r'){}else f+=c;}}if(f.length||row.length){row.push(f);rows.push(row);}return rows;}
+
+/* rótulos dos campos dentro de cada quadro (tolerante a variações) */
+const FIELD=[
+  {key:'estoque',  test:h=>h.includes('ESTOQUE')},
+  {key:'tipologia',test:h=>h.includes('TIPOLOGIA')},
+  {key:'categoria',test:h=>h.includes('CATEGORIA')},
+  {key:'regiao',   test:h=>h.includes('REGIAO')},
+  {key:'vendasJul',test:h=>(h.includes('VENDAS')&&h.includes('JULHO'))||(h.includes('VENDASNOMES'))||(h.includes('VENDAS')&&h.includes('MES')&&!h.includes('AGOSTO'))},
+  {key:'ads',      test:h=>h.includes('ANUNCIO')||h.includes('ADS')},
+  {key:'meta',     test:h=>h.includes('META')},
+  {key:'vendasAgo',test:h=>(h.includes('VENDAS')&&h.includes('AGOSTO'))||(h.includes('VENDAS')&&h.includes('VALIDAD'))}
+];
+function fieldKey(label){const h=norm(label);for(const f of FIELD)if(f.test(h))return f.key;return null;}
+const NUMK=new Set(['estoque','vendasJul','meta','vendasAgo']);
+
+/* parser de TABELA (aba ANALISE DE ESTOQUE) — mapeia por NOME de coluna, robusto a reordenação */
+function fromTable(grid){
+  const H=grid.map(r=>r.map(c=>String(c==null?'':c).trim()));
+  let hi=-1;
+  for(let i=0;i<H.length;i++){const s=H[i].map(norm);
+    if(s.some(x=>x==='PROJETO'||x==='QUANTIDADE'||x.includes('PROJETO'))){hi=i;break;}}
+  if(hi<0)return [];
+  const hdr=H[hi].map(norm);
+  const col=fn=>hdr.findIndex(fn);
+  const cEmp=col(h=>h.includes('PROJETO')||h.includes('EMPREEND'));
+  const cEst=col(h=>h.includes('QUANTIDADE')||h.includes('ESTOQUE'));
+  const cCat=col(h=>h.includes('CATUSO')||h.includes('CATEGORIA'));
+  const cReg=col(h=>h.includes('REGIAO'));
+  const cTip=col(h=>h.includes('TIPOLOGIA'));
+  const cJul=col(h=>h.includes('ANTERIOR')||(h.includes('VENDAS')&&h.includes('JULHO')));
+  const cAds=col(h=>h.includes('ANUNCIO')||h.includes('ADS'));
+  const cMeta=col(h=>h.includes('META'));
+  const cAgo=col(h=>(h.includes('ATUAL')&&!h.includes('META'))||(h.includes('VENDAS')&&h.includes('AGOSTO')&&!h.includes('META')));
+  const out=[];
+  for(let r=hi+1;r<H.length;r++){const row=H[r];if(!row)continue;
+    const emp=(cEmp>=0?row[cEmp]:'').trim();
+    if(!emp)continue;
+    const en=norm(emp);
+    if(en.startsWith('TOTAL')||en.includes('RELATORIO'))continue;
+    // captura total de vendas agosto se aparecer numa linha de total
+    out.push({emp,
+      estoque:brNum(cEst>=0?row[cEst]:0),
+      categoria:cCat>=0?row[cCat]:'',
+      regiao:cReg>=0?row[cReg]:'',
+      tipologia:cTip>=0?row[cTip]:'',
+      vendasJul:brNum(cJul>=0?row[cJul]:0),
+      ads:cAds>=0?row[cAds]:'',
+      meta:brNum(cMeta>=0?row[cMeta]:0),
+      vendasAgo:brNum(cAgo>=0?row[cAgo]:0)});
+  }
+  const seen=new Set(),clean=[];
+  out.forEach(o=>{const k=norm(o.emp);if(!seen.has(k)){seen.add(k);clean.push(o);}});
+  return clean;
+}
+
+const mk=el=>{el.innerHTML=`<defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E2231A"/><stop offset="1" stop-color="#A50F12"/></linearGradient><mask id="lm"><rect width="512" height="512" fill="black"/><g fill="white"><rect x="134" y="360" width="244" height="22" rx="8"/><rect x="150" y="306" width="58" height="70" rx="9"/><rect x="227" y="256" width="58" height="120" rx="9"/><rect x="304" y="196" width="58" height="180" rx="9"/><rect x="322" y="144" width="22" height="56" rx="7"/><rect x="305" y="157" width="56" height="22" rx="7"/></g></mask></defs><rect width="512" height="512" rx="115" fill="url(#lg)"/><rect width="512" height="512" fill="white" mask="url(#lm)"/>`;};
+
+/* -------- filtros/ordenação -------- */
+const SORTS=[['vendasJul','Vd ant.'],['vendasAgo','Vd atual'],['estoque','Estoque'],['meta','Meta atual'],['vso','VSO'],['gap','Gap meta'],['emp','Nome']];
+function filtered(){const nq=fBusca?norm(fBusca):'';return DATA.filter(d=>(!fReg||d.regiao===fReg)&&(!fAds||d.ads===fAds)&&(!fTip||tipoTipos(d.tipologia).includes(fTip))&&(!nq||norm(d.emp).includes(nq)));}
+function withCalc(d){const oferta=(d.estoque||0)+(d.vendasJul||0)+LANCAMENTOS;const vso=oferta?d.vendasJul/oferta:0;return{...d,vso,oferta,gap:(d.meta||0)-(d.vendasAgo||0)};}
+function sorted(){const arr=filtered().map(withCalc);arr.sort((a,b)=>{let x=a[sortKey],y=b[sortKey];if(sortKey==='emp'){return (''+x).localeCompare(''+y,'pt')*sortDir;}return ((x||0)-(y||0))*sortDir;});return arr;}
+
+function render(){
+  $('srcs').innerHTML=`<span class="src ${src.k}"><span class="d"></span>${esc(src.t)}</span>`+
+    `<span class="src ${src.k==='live'&&DATA.length<ESPERADO?'warn':'snap'}"><span class="d"></span>${DATA.length}${src.k==='live'?' de '+ESPERADO:''} empreendimento(s)${src.k==='live'&&DATA.length<ESPERADO?' — faltam '+(ESPERADO-DATA.length):''}</span>`+
+    (dataRef?`<span class="src snap"><span class="d"></span>Ref. ${esc(dataRef)}</span>`:'');
+  $('note').innerHTML=partial?`<div class="note"><b>Vendas do mês atual ainda parciais.</b> O mês corrente sofre atraso de registro (as validadas chegam 5–7 dias depois). Por isso a leitura de velocidade usa o <b>${esc(mesAnt)}</b> (fechado); "Vendas ${esc(mesAtu)}" e "Gap meta" ainda vão subir.</div>`:'';
+  // popular selects
+  const regs=[...new Set(DATA.map(d=>d.regiao).filter(Boolean))].sort();
+  const ads=[...new Set(DATA.map(d=>d.ads).filter(Boolean))].sort();
+  const tips=[...new Set(DATA.flatMap(d=>tipoTipos(d.tipologia)))].sort();
+  $('fReg').innerHTML='<option value="">Todas</option>'+regs.map(r=>`<option ${r===fReg?'selected':''}>${esc(r)}</option>`).join('');
+  $('fAds').innerHTML='<option value="">Todos</option>'+ads.map(a=>`<option ${a===fAds?'selected':''}>${esc(a)}</option>`).join('');
+  $('fTip').innerHTML='<option value="">Todas</option>'+tips.map(t=>`<option ${t===fTip?'selected':''}>${esc(t)}</option>`).join('');
+  $('fSort').innerHTML=SORTS.map(([k,l])=>`<button class="chip ${sortKey===k?'on':''}" data-k="${k}">${esc(l)}</button>`).join('');
+  $('fSort').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const k=b.getAttribute('data-k');if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=(k==='emp')?1:-1;}render();});
+
+  const rows=sorted();
+  const tEst=rows.reduce((a,d)=>a+d.estoque,0);
+  const tJul=rows.reduce((a,d)=>a+d.vendasJul,0);
+  const tMeta=rows.reduce((a,d)=>a+(d.meta||0),0);
+  const tAgo=rows.reduce((a,d)=>a+(d.vendasAgo||0),0);
+  const tOferta=rows.reduce((a,d)=>a+d.estoque+d.vendasJul+LANCAMENTOS,0);
+  const vsoTot=tOferta?tJul/tOferta:0;
+
+  $('kpis').innerHTML=`
+    <div class="kpi"><div class="kl">Estoque total</div><div class="kv">${num(tEst)}</div><div class="ks">${rows.length} empreend.</div></div>
+    <div class="kpi good"><div class="kl">Vendas totais</div><div class="kv">${num(tJul+tAgo)}</div><div class="ks"><b>${num(tJul)}</b> ant. + <b>${num(tAgo)}</b> atual</div></div>
+    <div class="kpi ink"><div class="kl">Vendas ${esc(mesAnt)}</div><div class="kv">${num(tJul)}</div><div class="ks">mês fechado</div></div>
+    <div class="kpi gold"><div class="kl">VSO ${esc(mesAnt)}</div><div class="kv">${fpct(vsoTot)}</div><div class="ks">vendas ÷ oferta do período</div></div>
+    <div class="kpi"><div class="kl">Vendas ${esc(mesAtu)}</div><div class="kv">${num(tAgo)}</div><div class="ks">${partial?'<b>parcial</b> · ':''}${pct(tAgo,tMeta)} da meta</div></div>
+    <div class="kpi good"><div class="kl">Meta ${esc(mesAtu)}</div><div class="kv">${num(tMeta)}</div><div class="ks">faltam ${num(Math.max(tMeta-tAgo,0))}</div></div>`;
+
+  // TABELA primeiro (nunca depende do Chart.js)
+  const th=(k,l,r=true)=>`<th data-k="${k}" style="${r?'':'text-align:left'}">${esc(l)} ${sortKey===k?`<span class="ar">${sortDir<0?'▼':'▲'}</span>`:''}</th>`;
+  let body='';rows.forEach(d=>{const vso=d.vso, cls=vso>=0.2?'g':vso>=0.1?'a':'r';
+    body+=`<tr><td>${esc(d.emp)}</td><td>${num(d.estoque)}</td><td>${esc(d.regiao||'—')}</td><td style="text-align:left">${esc(d.tipologia||'—')}</td><td>${num(d.vendasJul)}</td><td><span class="pill ${cls}">${fpct(d.vso)}</span></td><td>${num(d.meta)}</td><td>${num(d.vendasAgo)}</td><td>${num(d.gap)}</td><td><span class="tag ${/PRODUC|SIM|ATIVO/i.test(d.ads)?'on':''}">${esc(d.ads||'—')}</span></td></tr>`;});
+  $('tblSub').textContent=`${rows.length} de ${DATA.length}`;
+  $('tbl').innerHTML=`<table><thead><tr>${th('emp','Empreendimento',false)}${th('estoque','Estoque')}<th style="text-align:left">Região</th><th style="text-align:left">Tipologia</th>${th('vendasJul','Vd ant.')}${th('vso','VSO')}${th('meta','Meta atual')}${th('vendasAgo','Vd atual')}${th('gap','Gap')}<th style="text-align:left">Ads</th></tr></thead><tbody>${body}</tbody><tfoot><tr><td>Total</td><td>${num(tEst)}</td><td></td><td></td><td>${num(tJul)}</td><td>${fpct(vsoTot)}</td><td>${num(tMeta)}</td><td>${num(tAgo)}</td><td>${num(tMeta-tAgo)}</td><td></td></tr></tfoot></table>`;
+  $('tbl').querySelectorAll('th[data-k]').forEach(h=>h.onclick=()=>{const k=h.getAttribute('data-k');if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=(k==='emp')?1:-1;}render();});
+
+  // GRÁFICOS (isolados)
+  try{
+  // GRÁFICO: ranking por 1 métrica (a que está ordenada) — legível com muitos projetos
+  const MET={
+    vendasJul:{label:'Vendas '+mesAnt,color:'#E2231A',get:d=>d.vendasJul,fmt:v=>num(v)},
+    vendasAgo:{label:'Vendas '+mesAtu,color:'#16161A',get:d=>d.vendasAgo,fmt:v=>num(v)},
+    estoque:{label:'Estoque',color:'#9AA0A6',get:d=>d.estoque,fmt:v=>num(v)},
+    meta:{label:'Meta '+mesAtu,color:'#1B7A3D',get:d=>d.meta,fmt:v=>num(v)},
+    vso:{label:'VSO '+mesAnt,color:'#C9A227',get:d=>d.vso,fmt:v=>(v*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%'},
+    gap:{label:'Gap meta',color:'#A50F12',get:d=>d.gap,fmt:v=>num(v)}
+  };
+  const cm=MET[sortKey]||MET.vendasJul;
+  $('barTitle').textContent='Ranking · '+cm.label;
+  $('barSub').textContent=`${rows.length} projeto(s)`;
+  const bw=$('barWrap');if(bw)bw.style.height=Math.max(240,rows.length*26+34)+'px';
+  mkChart('cBar',{type:'bar',data:{labels:rows.map(d=>d.emp),datasets:[{
+    label:cm.label,data:rows.map(cm.get),backgroundColor:cm.color,borderRadius:4,barPercentage:0.74,categoryPercentage:0.86,
+    datalabels:{display:true,anchor:'end',align:'end',color:cm.color,font:{family:'Sora',weight:'700',size:10},formatter:v=>v?cm.fmt(v):''}
+  }]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,layout:{padding:{right:48}},
+    plugins:{legend:{display:false},tooltip:{callbacks:{
+      title:c=>c[0].label,
+      label:c=>cm.label+': '+cm.fmt(c.raw),
+      afterBody:c=>{const d=rows[c[0].dataIndex];return ['','Tipologia: '+(d.tipologia||'—'),'Cat. uso: '+(d.categoria||'—'),'Estoque: '+num(d.estoque),'Vd '+mesAnt+': '+num(d.vendasJul),'Vd '+mesAtu+': '+num(d.vendasAgo),'Meta '+mesAtu+': '+num(d.meta),'VSO: '+fpct(d.vso!=null?d.vso:0)];}
+    }}},
+    scales:{x:{beginAtZero:true,grid:{color:'#EEE'},ticks:{color:'#7A7A85'},grace:'8%'},
+      y:{grid:{display:false},ticks:{font:{family:'Sora',size:10.5,weight:'600'},color:'#16161A',autoSkip:false,crossAlign:'far'}}}}});
+  const byReg={},byRegV={};rows.forEach(d=>{byReg[d.regiao]=(byReg[d.regiao]||0)+d.estoque;byRegV[d.regiao]=(byRegV[d.regiao]||0)+d.vendasJul;});
+  const regL=Object.keys(byReg);
+  donut('cReg',regL,regL.map(r=>byReg[r]));
+  donut('cRegV',regL,regL.map(r=>byRegV[r]));
+  }catch(e){}
+}
+function donut(id,labels,data){const T=data.reduce((a,b)=>a+b,0);mkChart(id,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:PAL,borderColor:'#fff',borderWidth:2,datalabels:{display:true,color:'#fff',font:{family:'Sora',weight:'700',size:11},formatter:v=>v>=(T*0.05)?v:''}}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{font:{size:11},color:'#3B3B42',boxWidth:10,usePointStyle:true,padding:8}},tooltip:{callbacks:{label:c=>' '+c.label+': '+num(c.parsed)+' · '+pct(c.parsed,T)}}}}});}
+
+$('fReg').onchange=e=>{fReg=e.target.value;render();};
+$('fAds').onchange=e=>{fAds=e.target.value;render();};
+$('fTip').onchange=e=>{fTip=e.target.value;render();};
+$('fBusca').oninput=e=>{fBusca=e.target.value;$('fBuscaX').style.display=fBusca?'block':'none';render();};
+$('fBuscaX').onclick=()=>{fBusca='';$('fBusca').value='';$('fBuscaX').style.display='none';$('fBusca').focus();render();};
+
+async function loadLive(){$('btnRefresh').classList.add('spinning');
+  try{const res=await fetch(PUB+'&_='+Date.now());if(!res.ok)throw 0;const txt=await res.text();if(txt.trim().startsWith('<'))throw 0;
+    const recs=fromTable(parseCSV(txt));
+    if(recs.length){DATA=recs;src={k:'live',t:'Ao vivo · '+recs.length+' empreendimentos'};
+      // agosto parcial: considera parcial se soma de vendasAgo << meta
+      const tA=recs.reduce((a,d)=>a+(d.vendasAgo||0),0),tM=recs.reduce((a,d)=>a+(d.meta||0),0);
+      partial=tA< tM*0.5;
+    } else throw 0;}
+  catch(e){if(src.k!=='live')src={k:'warn',t:'Snapshot da imagem — sem acesso ao vivo'};}
+  finally{$('btnRefresh').classList.remove('spinning');render();}}
+
+mk($('mk'));render();$('btnRefresh').onclick=loadLive;loadLive();
+setInterval(loadLive,POLL_MS);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadLive();});
+// Se o Chart.js não carregou pela CDN principal, tenta uma reserva e re-renderiza
+if(typeof Chart==='undefined'){
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+  s.onload=()=>{if(window.ChartDataLabels){try{Chart.register(window.ChartDataLabels);Chart.defaults.set('plugins.datalabels',{display:false});}catch(e){}}render();};
+  document.head.appendChild(s);
+}
+</script>
+</body>
+</html>
