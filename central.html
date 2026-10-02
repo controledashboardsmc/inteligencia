@@ -591,7 +591,7 @@
 const CATEGORIES = [
   { id:'vendas',  label:'Vendas & Estoque',       desc:'Performance comercial, VGV, metas e posição de estoque.' },
   { id:'leads',   label:'Leads & CRM',            desc:'Geração, origem e distribuição de leads por canal.' },
-  { id:'metaads', label:'Meta Ads',               desc:'Performance e comparativos de campanhas no Meta Ads.' },
+  { id:'metaads', label:'Mídia Paga',             desc:'Performance e comparativos de campanhas em mídia paga (Meta Ads, Google Ads).' },
   { id:'territorio', label:'Inteligência Territorial', desc:'Visão geográfica e operação de canais digitais.' },
 ];
 
@@ -654,6 +654,16 @@ const DASHBOARDS = [
     aviso:'Hospedado em conta pessoal (GitHub) — não é domínio oficial Metrocasa. Risco de indisponibilidade fora do controle do time.'
   },
   {
+    id:'google-ads',
+    nome:'Google Ads',
+    descricao:'Performance das campanhas de Google Ads.',
+    categoria:'metaads',
+    link:'https://app.powerbi.com/groups/me/reports/e808bbdc-d52b-4167-a1e0-e2e086b61811/d88a7e7200c66169ce86?language=pt-BR&experience=power-bi',
+    plataforma:'powerbi',
+    keywords:['google ads', 'google', 'ads', 'campanhas'],
+    aviso:'Link de relatório autenticado do Power BI Service (não é link público "Publicar na web"). Pode exigir login com permissão no workspace e pode não renderizar dentro do iframe.'
+  },
+  {
     id:'leads-salesforce',
     nome:'Leads Salesforce',
     descricao:'Volume, origem e qualificação de leads capturados via Salesforce.',
@@ -689,15 +699,6 @@ const DASHBOARDS = [
     link:'https://construtora-metrocasa.github.io/metromais/etv/',
     plataforma:'site',
     keywords:['etv','canal','distribuição','blip']
-  },
-  {
-    id:'mapa-empreendimentos',
-    nome:'Mapa de Empreendimentos',
-    descricao:'Visão geográfica de todos os empreendimentos ativos e em lançamento.',
-    categoria:'territorio',
-    link:'https://datastudio.google.com/reporting/8adb5a29-de87-401b-b375-57555bf32119/page/p_bhckdsctud',
-    plataforma:'lookerstudio',
-    keywords:['mapa','geografia','empreendimentos','território']
   },
 ];
 
