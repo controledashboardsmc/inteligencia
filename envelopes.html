@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Metrocasa · Controle de Estoque de Envelopes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--red:#E2231A;--red-deep:#A50F12;--red-soft:#FCE9E8;--gold:#C9A227;--ink:#16161A;--ink-2:#3B3B42;--muted:#7A7A85;--line:#E7E7EC;--surface:#FFFFFF;--bg:#F4F4F6;--bg-2:#ECECEF;--good:#1B7A3D;--good-bg:#E7F6EC;--warn:#9A6212;--warn-bg:#FFF4E5;--shadow:0 1px 2px rgba(0,0,0,.04),0 12px 32px -12px rgba(20,20,26,.18);}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 16px calc(env(safe-area-inset-bottom) + 48px)}
+  .logo{font-family:'Sora',sans-serif;font-weight:800;letter-spacing:-.03em;line-height:1}.logo .plus{color:var(--red)}
+  .topbar{background:linear-gradient(135deg,var(--ink),#26262E);color:#fff;position:relative;overflow:hidden;border-radius:0 0 22px 22px;padding:calc(env(safe-area-inset-top) + 20px) 22px 20px;box-shadow:var(--shadow);margin:0 -16px 20px}
+  .topbar::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--red)}
+  .tb-row{display:flex;align-items:center;gap:13px;max-width:1080px;margin:0 auto}
+  .tb-row .mark{width:44px;height:44px;border-radius:12px;flex:0 0 auto}
+  .tb-title .logo{font-size:21px}.tb-title .st{font-size:12px;color:rgba(255,255,255,.6);font-weight:500;margin-top:2px}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:16px}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--muted)}
+  .kpi.ink::before{background:var(--ink)}.kpi.red::before{background:var(--red)}
+  .kpi .kl{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  .kpi .kv{font-family:'Sora',sans-serif;font-weight:700;font-size:30px;letter-spacing:-.02em;margin-top:6px;line-height:1}
+  .kpi.red .kv{color:var(--red-deep)}
+  .kpi .ks{font-size:11.5px;color:var(--ink-2);margin-top:6px}
+  .kpi.red.low::before{background:var(--gold)}.kpi.red.low .kv{color:var(--warn)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px 17px}
+  .card h3{font-family:'Sora',sans-serif;font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:8px;margin-bottom:3px}
+  .card h3 .ic{width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .card h3 .ic svg{width:15px;height:15px;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .card .desc{font-size:11.5px;color:var(--muted);margin-bottom:13px;line-height:1.4}
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}
+  .field label{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700}
+  input,select{width:100%;height:44px;border:1px solid var(--line);border-radius:11px;padding:0 13px;font-family:inherit;font-size:15px;background:var(--bg);color:var(--ink)}
+  input:focus,select:focus{outline:none;border-color:var(--red);background:#fff}
+  input[type=number]{font-family:'Sora',sans-serif;font-weight:600}
+  .btn{width:100%;height:46px;border:none;border-radius:11px;font-family:'Sora',sans-serif;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.12s}
+  .btn svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .btn.red{background:var(--red);color:#fff}.btn.red:hover{background:var(--red-deep)}
+  .btn.dark{background:var(--ink);color:#fff}.btn.dark:hover{background:#000}
+  .btn:active{transform:translateY(1px)}
+  .msg{font-size:12px;font-weight:600;margin-top:9px;min-height:16px}
+  .msg.err{color:var(--red-deep)}.msg.ok{color:var(--good)}
+  .card-full{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
+  .card-full .ch{padding:15px 18px 4px;display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .card-full .ch h3{font-family:'Sora',sans-serif;font-weight:700;font-size:15px}
+  .card-full .ch .sub{font-size:11.5px;color:var(--muted);font-weight:600}
+  .cb{padding:8px 10px 12px}
+  table{width:100%;border-collapse:collapse}
+  thead th{text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+  thead th:first-child{text-align:left}
+  tbody td{padding:10px 12px;font-size:13.5px;border-top:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;vertical-align:middle}
+  tbody td:first-child{text-align:left;font-weight:600;font-family:'Sora',sans-serif}
+  tbody tr:hover{background:var(--red-soft)}
+  .barwrap{display:flex;align-items:center;gap:9px;justify-content:flex-end}
+  .bar{height:8px;border-radius:5px;background:var(--bg-2);width:120px;overflow:hidden;flex:0 0 auto}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--red-deep));border-radius:5px}
+  .pctnum{min-width:48px;text-align:right;font-weight:700;font-family:'Sora',sans-serif;font-size:12.5px}
+  .qtd0{color:var(--muted);font-weight:500}
+  tfoot td{padding:11px 12px;font-size:13.5px;text-align:right;border-top:2px solid var(--ink);font-family:'Sora',sans-serif;font-weight:700;font-variant-numeric:tabular-nums}
+  tfoot td:first-child{text-align:left}
+  .hist{list-style:none;display:flex;flex-direction:column}
+  .hist li{display:flex;align-items:center;gap:11px;padding:10px 8px;border-top:1px solid var(--line);font-size:13px}
+  .hist li:first-child{border-top:none}
+  .tag{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;flex:0 0 auto;text-transform:uppercase;letter-spacing:.03em}
+  .tag.in{background:var(--good-bg);color:var(--good)}.tag.out{background:var(--red-soft);color:var(--red-deep)}
+  .hist .who{font-weight:600;font-family:'Sora',sans-serif}
+  .hist .qt{font-family:'Sora',sans-serif;font-weight:700;font-variant-numeric:tabular-nums}
+  .hist .qt.in{color:var(--good)}.hist .qt.out{color:var(--red-deep)}
+  .hist .when{color:var(--muted);font-size:11.5px;margin-left:auto}
+  .hist .del{border:1px solid var(--line);background:#fff;color:var(--muted);width:28px;height:28px;border-radius:8px;cursor:pointer;flex:0 0 auto;font-size:15px;line-height:1}
+  .hist .del:hover{border-color:var(--red);color:var(--red)}
+  .empty{padding:26px;text-align:center;color:var(--muted);font-size:13px}.empty b{display:block;color:var(--ink-2);font-family:'Sora',sans-serif;margin-bottom:4px;font-size:14.5px}
+  .toolbar{display:flex;justify-content:flex-end;margin-bottom:16px}
+  .link-danger{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-weight:600;text-decoration:underline;text-underline-offset:2px}
+  .link-danger:hover{color:var(--red-deep)}
+  footer{margin-top:20px;text-align:center;font-size:11px;color:var(--muted);line-height:1.7}footer b{color:var(--ink-2)}
+  @media (max-width:720px){.kpis{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}.bar{width:80px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><div class="tb-row">
+    <svg class="mark" viewBox="0 0 512 512" id="mk"></svg>
+    <div class="tb-title"><div class="logo">metrocasa<span class="plus">+</span></div><div class="st">Controle de estoque · Envelopes</div></div>
+  </div></div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="kl">Total recebido</div><div class="kv" id="kRecebido">0</div><div class="ks">envelopes que entraram no estoque</div></div>
+    <div class="kpi ink"><div class="kl">Total entregue</div><div class="kv" id="kEntregue">0</div><div class="ks">distribuído às equipes</div></div>
+    <div class="kpi red" id="kEstoqueCard"><div class="kl">Em estoque</div><div class="kv" id="kEstoque">0</div><div class="ks" id="kEstoqueSub">disponível agora</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3><span class="ic" style="background:var(--good-bg)"><svg viewBox="0 0 24 24" stroke="#1B7A3D"><path d="M12 5v14M5 12h14"/></svg></span>Entrada de estoque</h3>
+      <div class="desc">Registre o pedido recebido — e use de novo sempre que chegarem mais envelopes.</div>
+      <div class="field"><label>Quantidade recebida</label><input type="number" id="inEntrada" min="1" step="1" placeholder="ex.: 5000" inputmode="numeric"></div>
+      <button class="btn dark" id="btnEntrada"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Adicionar ao estoque</button>
+      <div class="msg" id="msgEntrada"></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="ic" style="background:var(--red-soft)"><svg viewBox="0 0 24 24" stroke="#A50F12"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>Registrar entrega</h3>
+      <div class="desc">Escolha a equipe e digite quantos envelopes está entregando. A baixa é automática no estoque.</div>
+      <div class="field"><label>Equipe</label><select id="selEquipe"></select></div>
+      <div class="field"><label>Quantidade entregue</label><input type="number" id="inEntrega" min="1" step="1" placeholder="digite a quantidade" inputmode="numeric"></div>
+      <button class="btn red" id="btnEntrega"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Registrar entrega</button>
+      <div class="msg" id="msgEntrega"></div>
+    </div>
+  </div>
+
+  <div class="card-full">
+    <div class="ch"><h3>Por equipe</h3><span class="sub" id="tblSub">quantidade retirada e % do total recebido</span></div>
+    <div class="cb" id="tbl"></div>
+  </div>
+
+  <div class="card-full">
+    <div class="ch"><h3>Histórico de movimentações</h3><span class="sub" id="histSub"></span></div>
+    <div class="cb" id="hist"></div>
+  </div>
+
+  <div class="toolbar"><button class="link-danger" id="btnReset">Zerar tudo</button></div>
+
+  <footer><b>Metrocasa · Marketing</b> — controle de estoque de envelopes · os dados ficam salvos neste navegador</footer>
+</div>
+
+<script>
+const EQUIPES=['Antonella','Arthur','Alan','Bella','Betel','Duarte','Maithe','Jean','Felix','Hermes','Vasques','Seixas','Veronica','Samuel'];
+const KEY='metrocasa_envelopes_v1';
+let MOV=[]; // {id, tipo:'entrada'|'entrega', equipe, qtd, ts}
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const num=n=>Math.round(n||0).toLocaleString('pt-BR');
+const pct=(n,t)=>t>0?(n/t*100):0;
+const fpct=r=>r.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
+function whenTxt(ts){const d=new Date(ts);return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+
+function load(){try{const r=localStorage.getItem(KEY);if(r)MOV=JSON.parse(r)||[];}catch(e){MOV=[];}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(MOV));}catch(e){}}
+
+function totais(){
+  let rec=0,ent=0;const eq={};EQUIPES.forEach(e=>eq[e]=0);
+  MOV.forEach(m=>{if(m.tipo==='entrada')rec+=m.qtd;else{ent+=m.qtd;if(eq[m.equipe]==null)eq[m.equipe]=0;eq[m.equipe]+=m.qtd;}});
+  return {rec,ent,estoque:rec-ent,eq};
+}
+
+const mk=el=>{el.innerHTML=`<defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E2231A"/><stop offset="1" stop-color="#A50F12"/></linearGradient><mask id="lm"><rect width="512" height="512" fill="black"/><g fill="white"><rect x="134" y="360" width="244" height="22" rx="8"/><rect x="150" y="306" width="58" height="70" rx="9"/><rect x="227" y="256" width="58" height="120" rx="9"/><rect x="304" y="196" width="58" height="180" rx="9"/><rect x="322" y="144" width="22" height="56" rx="7"/><rect x="305" y="157" width="56" height="22" rx="7"/></g></mask></defs><rect width="512" height="512" rx="115" fill="url(#lg)"/><rect width="512" height="512" fill="white" mask="url(#lm)"/>`;};
+
+function render(){
+  const t=totais();
+  $('kRecebido').textContent=num(t.rec);
+  $('kEntregue').textContent=num(t.ent);
+  $('kEstoque').textContent=num(t.estoque);
+  const card=$('kEstoqueCard');
+  const low=t.rec>0&&t.estoque<=t.rec*0.1;
+  card.classList.toggle('low',low);
+  $('kEstoqueSub').textContent = t.estoque<=0 ? (t.rec>0?'estoque esgotado':'nenhuma entrada registrada') : (low?'estoque baixo':'disponível agora');
+
+  // tabela por equipe
+  const linhas=EQUIPES.map(e=>({e,q:t.eq[e]||0})).sort((a,b)=>b.q-a.q||a.e.localeCompare(b.e,'pt'));
+  let body='';
+  linhas.forEach(r=>{const p=pct(r.q,t.rec);
+    body+=`<tr><td>${esc(r.e)}</td><td class="${r.q?'':'qtd0'}">${num(r.q)}</td><td><div class="barwrap"><span class="pctnum ${r.q?'':'qtd0'}">${r.q?fpct(p):'—'}</span><span class="bar"><i style="width:${Math.min(p,100)}%"></i></span></div></td></tr>`;});
+  $('tbl').innerHTML=`<table><thead><tr><th>Equipe</th><th>Envelopes</th><th style="text-align:right">% do recebido</th></tr></thead><tbody>${body}</tbody><tfoot><tr><td>Total entregue</td><td>${num(t.ent)}</td><td style="text-align:right">${t.rec?fpct(pct(t.ent,t.rec)):'—'}</td></tr></tfoot></table>`;
+  $('tblSub').textContent=t.rec>0?`quantidade retirada e % de ${num(t.rec)} recebidos`:'quantidade retirada e % do total recebido';
+
+  // histórico
+  $('histSub').textContent=MOV.length?`${MOV.length} movimentação(ões)`:'';
+  if(!MOV.length){$('hist').innerHTML='<div class="empty"><b>Nenhuma movimentação ainda</b>Registre a entrada do pedido para começar.</div>';return;}
+  const ord=[...MOV].sort((a,b)=>b.ts-a.ts);
+  $('hist').innerHTML='<ul class="hist">'+ord.map(m=>{
+    const isIn=m.tipo==='entrada';
+    return `<li><span class="tag ${isIn?'in':'out'}">${isIn?'Entrada':'Entrega'}</span>`+
+      `<span class="who">${isIn?'Estoque':esc(m.equipe)}</span>`+
+      `<span class="qt ${isIn?'in':'out'}">${isIn?'+':'−'}${num(m.qtd)}</span>`+
+      `<span class="when">${whenTxt(m.ts)}</span>`+
+      `<button class="del" title="Remover" data-id="${m.id}">×</button></li>`;
+  }).join('')+'</ul>';
+  $('hist').querySelectorAll('.del').forEach(b=>b.onclick=()=>{
+    const id=b.getAttribute('data-id');
+    MOV=MOV.filter(m=>String(m.id)!==String(id));save();render();
+  });
+}
+
+function flash(el,txt,ok){el.className='msg '+(ok?'ok':'err');el.textContent=txt;if(ok)setTimeout(()=>{if(el.textContent===txt)el.textContent='';},2600);}
+
+function addEntrada(){
+  const v=Math.floor(Number($('inEntrada').value));
+  if(!v||v<=0){flash($('msgEntrada'),'Digite uma quantidade válida.',false);return;}
+  MOV.push({id:Date.now()+'-'+Math.random().toString(36).slice(2,6),tipo:'entrada',qtd:v,ts:Date.now()});
+  save();$('inEntrada').value='';render();flash($('msgEntrada'),`+${num(v)} envelopes adicionados ao estoque.`,true);
+}
+function addEntrega(){
+  const eq=$('selEquipe').value;
+  const v=Math.floor(Number($('inEntrega').value));
+  if(!eq){flash($('msgEntrega'),'Selecione a equipe.',false);return;}
+  if(!v||v<=0){flash($('msgEntrega'),'Digite uma quantidade válida.',false);return;}
+  const t=totais();
+  if(v>t.estoque){flash($('msgEntrega'),`Estoque insuficiente — há apenas ${num(t.estoque)} envelope(s).`,false);return;}
+  MOV.push({id:Date.now()+'-'+Math.random().toString(36).slice(2,6),tipo:'entrega',equipe:eq,qtd:v,ts:Date.now()});
+  save();$('inEntrega').value='';render();$('inEntrega').focus();flash($('msgEntrega'),`Entrega de ${num(v)} para ${eq} registrada.`,true);
+}
+
+mk($('mk'));
+$('selEquipe').innerHTML='<option value="">Selecione a equipe…</option>'+EQUIPES.map(e=>`<option>${esc(e)}</option>`).join('');
+load();render();
+$('btnEntrada').onclick=addEntrada;
+$('btnEntrega').onclick=addEntrega;
+$('inEntrada').addEventListener('keydown',e=>{if(e.key==='Enter')addEntrada();});
+$('inEntrega').addEventListener('keydown',e=>{if(e.key==='Enter')addEntrega();});
+$('btnReset').onclick=()=>{if(confirm('Isso apaga todas as entradas e entregas registradas. Continuar?')){MOV=[];save();render();}};
+</script>
+</body>
+</html>
