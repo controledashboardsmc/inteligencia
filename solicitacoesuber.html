@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Metrocasa · Solicitações de Uber</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--red:#E2231A;--red-deep:#A50F12;--red-soft:#FCE9E8;--gold:#C9A227;--ink:#16161A;--ink-2:#3B3B42;--muted:#7A7A85;--line:#E7E7EC;--surface:#FFFFFF;--bg:#F4F4F6;--bg-2:#ECECEF;--good:#1B7A3D;--good-bg:#E7F6EC;--warn:#9A6212;--warn-bg:#FFF4E5;--shadow:0 1px 2px rgba(0,0,0,.04),0 12px 32px -12px rgba(20,20,26,.18);}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 16px calc(env(safe-area-inset-bottom) + 48px)}
+  .logo{font-family:'Sora',sans-serif;font-weight:800;letter-spacing:-.03em;line-height:1}.logo .plus{color:var(--red)}
+  .topbar{background:linear-gradient(135deg,var(--ink),#26262E);color:#fff;position:relative;overflow:hidden;border-radius:0 0 22px 22px;padding:calc(env(safe-area-inset-top) + 20px) 22px 20px;box-shadow:var(--shadow);margin:0 -16px 16px}
+  .topbar::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--red)}
+  .tb-row{display:flex;align-items:center;gap:13px;max-width:1120px;margin:0 auto}
+  .tb-row .mark{width:44px;height:44px;border-radius:12px;flex:0 0 auto}
+  .tb-title .logo{font-size:21px}.tb-title .st{font-size:12px;color:rgba(255,255,255,.6);font-weight:500;margin-top:2px}
+  .status{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:600;border-radius:999px;padding:7px 13px;margin-bottom:16px;width:fit-content}
+  .status .d{width:8px;height:8px;border-radius:50%}
+  .status.ok{background:var(--good-bg);color:var(--good)}.status.ok .d{background:#27AE60}
+  .status.local{background:var(--warn-bg);color:var(--warn)}.status.local .d{background:#E0902F}
+  .status.err{background:var(--red-soft);color:var(--red-deep)}.status.err .d{background:var(--red)}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);margin-bottom:16px}
+  .card .ch{padding:15px 18px 3px;display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .card .ch h3{font-family:'Sora',sans-serif;font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+  .card .ch .sub{font-size:11.5px;color:var(--muted);font-weight:600}
+  .ic{width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;background:var(--red-soft)}
+  .ic svg{width:15px;height:15px;stroke:#A50F12;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .cb{padding:14px 18px 18px}
+  .form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field.full{grid-column:1/-1}
+  .two{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:13px}
+  .field label{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700}
+  .field label .req{color:var(--red)}
+  input,select,textarea{width:100%;height:44px;border:1px solid var(--line);border-radius:11px;padding:0 13px;font-family:inherit;font-size:14.5px;background:var(--bg);color:var(--ink)}
+  textarea{height:auto;min-height:74px;padding:11px 13px;resize:vertical;line-height:1.45}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--red);background:#fff}
+  .btn{height:46px;border:none;border-radius:11px;font-family:'Sora',sans-serif;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.12s;padding:0 20px}
+  .btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .btn.red{background:var(--red);color:#fff;width:100%}.btn.red:hover{background:var(--red-deep)}
+  .btn.ghost{background:#fff;color:var(--ink-2);border:1px solid var(--line)}.btn.ghost:hover{border-color:var(--red);color:var(--red)}
+  .btn.dark{background:var(--ink);color:#fff}.btn.dark:hover{background:#000}
+  .btn:active{transform:translateY(1px)}
+  .msg{font-size:12.5px;font-weight:600;margin-top:11px;min-height:16px}.msg.err{color:var(--red-deep)}.msg.ok{color:var(--good)}
+  .formfoot{margin-top:14px}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:16px}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:15px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--red)}
+  .kpi.ink::before{background:var(--ink)}.kpi.gold::before{background:var(--gold)}
+  .kpi .kl{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  .kpi .kv{font-family:'Sora',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.02em;margin-top:5px;line-height:1}
+  .kpi .ks{font-size:11px;color:var(--ink-2);margin-top:5px}
+  .filterbar{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+  .filterbar .field{flex:0 0 auto;min-width:150px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  table{width:100%;border-collapse:collapse}
+  thead th{text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+  thead th:first-child{text-align:left}
+  tbody td{padding:9px 12px;font-size:13.5px;border-top:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;vertical-align:middle}
+  tbody td:first-child{text-align:left;font-weight:600;font-family:'Sora',sans-serif}
+  tbody tr:hover{background:var(--red-soft)}
+  tfoot td{padding:10px 12px;font-size:13px;text-align:right;border-top:2px solid var(--ink);font-family:'Sora',sans-serif;font-weight:700;font-variant-numeric:tabular-nums}
+  tfoot td:first-child{text-align:left}
+  .barwrap{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+  .bar{height:7px;border-radius:5px;background:var(--bg-2);width:90px;overflow:hidden;flex:0 0 auto}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--red-deep))}
+  .pctnum{min-width:44px;text-align:right;font-weight:700;font-family:'Sora',sans-serif;font-size:12px}
+  .detail{overflow-x:auto}
+  .detail table{min-width:860px}
+  .detail td,.detail th,.detail thead th{text-align:left}
+  .detail td.motivo{max-width:260px;white-space:normal;font-weight:400;font-family:'Inter',sans-serif;font-size:12.5px;color:var(--ink-2)}
+  .chip{display:inline-block;background:var(--bg-2);color:var(--ink-2);border-radius:999px;padding:2px 9px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif}
+  .del{border:1px solid var(--line);background:#fff;color:var(--muted);width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:15px;line-height:1}
+  .del:hover{border-color:var(--red);color:var(--red)}
+  .empty{padding:30px;text-align:center;color:var(--muted);font-size:13px}.empty b{display:block;color:var(--ink-2);font-family:'Sora',sans-serif;margin-bottom:4px;font-size:14.5px}
+  footer{margin-top:20px;text-align:center;font-size:11px;color:var(--muted);line-height:1.7}footer b{color:var(--ink-2)}
+  @media (max-width:820px){.form-grid{grid-template-columns:1fr}.kpis{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><div class="tb-row">
+    <svg class="mark" viewBox="0 0 512 512" id="mk"></svg>
+    <div class="tb-title"><div class="logo">metrocasa<span class="plus">+</span></div><div class="st">Solicitações de corridas · Uber</div></div>
+  </div></div>
+
+  <div class="status" id="status"><span class="d"></span><span id="statusTxt">—</span></div>
+
+  <div class="card">
+    <div class="ch"><h3><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>Nova solicitação</h3></div>
+    <div class="cb">
+      <div class="form-grid">
+        <div class="field"><label>Data da viagem <span class="req">*</span></label><input type="date" id="fData"></div>
+        <div class="field"><label>Setor <span class="req">*</span></label><select id="fSetor"></select></div>
+        <div class="field"><label>Solicitante <span class="req">*</span></label><select id="fSolic"></select></div>
+        <div class="field full"><label>Motivo da viagem <span class="req">*</span></label><textarea id="fMotivo" placeholder="Descreva o motivo da corrida…"></textarea></div>
+        <div class="two">
+          <div class="field"><label>Endereço de partida <span class="req">*</span></label><input type="text" id="fPartida" placeholder="De onde sai"></div>
+          <div class="field"><label>Endereço de destino <span class="req">*</span></label><input type="text" id="fDestino" placeholder="Para onde vai"></div>
+        </div>
+      </div>
+      <div class="formfoot">
+        <button class="btn red" id="btnSalvar"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Registrar solicitação</button>
+        <div class="msg" id="msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="kl">Solicitações no período</div><div class="kv" id="kPeriodo">0</div><div class="ks" id="kPeriodoSub">todas as datas</div></div>
+    <div class="kpi ink"><div class="kl">Total geral</div><div class="kv" id="kTotal">0</div><div class="ks">desde o início</div></div>
+    <div class="kpi gold"><div class="kl">Solicitantes ativos</div><div class="kv" id="kAtivos">0</div><div class="ks">no período</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h3><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span>Filtro de período</h3><span class="sub">afeta as tabelas e a exportação</span></div>
+    <div class="cb">
+      <div class="filterbar">
+        <div class="field"><label>De</label><input type="date" id="fDe"></div>
+        <div class="field"><label>Até</label><input type="date" id="fAte"></div>
+        <button class="btn ghost" id="btnLimpar">Limpar filtro</button>
+        <button class="btn ghost" id="btnAtualizar" style="display:none">Atualizar</button>
+        <button class="btn dark" id="btnExport" style="margin-left:auto"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"/></svg>Exportar (CSV)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="margin-bottom:0"><div class="ch"><h3>Por solicitante</h3><span class="sub">viagens no período</span></div><div class="cb" id="tblSolic"></div></div>
+    <div class="card" style="margin-bottom:0"><div class="ch"><h3>Por setor</h3><span class="sub">viagens no período</span></div><div class="cb" id="tblSetor"></div></div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="ch"><h3>Solicitações registradas</h3><span class="sub" id="detSub"></span></div>
+    <div class="cb detail" id="detalhe"></div>
+  </div>
+
+  <footer><b>Metrocasa · Marketing</b> — solicitações de corridas Uber</footer>
+</div>
+
+<iframe name="postTarget" id="postTarget" style="display:none" title="envio"></iframe>
+<form id="postForm" method="POST" target="postTarget" style="display:none" accept-charset="UTF-8">
+  <input name="data"><input name="setor"><input name="solic"><input name="motivo"><input name="partida"><input name="destino">
+</form>
+
+<script>
+/* ===================== CONFIGURAÇÃO ======================
+   Para compartilhar com a equipe (todos gravando na MESMA base),
+   cole as duas URLs abaixo. Enquanto estiverem vazias, o painel
+   funciona em "modo local" (dados só neste navegador) para teste.
+   Passo a passo: ver instruções que enviei no chat.            */
+const APPS_SCRIPT_URL = '';   // ← cole a URL do Web App (/exec) para o formulário SALVAR na planilha
+const CSV_URL         = '';   // vazio = modo local (dados só neste navegador)
+/* ========================================================= */
+
+const SETORES=['TRADE','VIDEO','CRIAÇÃO','CONTEUDO','PERFORMANCE','DADOS','FINANCEIRO','VENDAS'];
+const SOLICITANTES=['EDUARDO','LAURA','JOAO','JESSE','IGOR','JOAO PEDRO','SAMANTHA','JAMILY','LUAN','REBECA','MARCELA','ISABELLY','ARIELLA'];
+const KEY='metrocasa_uber_v1';
+const CAN_READ  = !!CSV_URL;
+const CAN_WRITE = !!APPS_SCRIPT_URL;
+let REQS=[]; let loadErr=false;
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const num=n=>Math.round(n||0).toLocaleString('pt-BR');
+const fpct=r=>r.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
+const normH=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+const pad=n=>String(n).padStart(2,'0');
+function brDate(iso){if(!iso)return '';const p=String(iso).split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:iso;}
+function hoje(){const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function normData(s){s=String(s||'').trim();if(!s)return '';
+  let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return m[1]+'-'+pad(m[2])+'-'+pad(m[3]);
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);if(m){let d=+m[1],mo=+m[2],y=+m[3];if(y<100)y+=2000;return y+'-'+pad(mo)+'-'+pad(d);}
+  const dt=new Date(s);if(!isNaN(dt))return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate());
+  return s;}
+function parseCSV(t){const rows=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}else{if(c==='"')q=true;else if(c===','){row.push(f);f='';}else if(c==='\n'){row.push(f);rows.push(row);row=[];f='';}else if(c==='\r'){}else f+=c;}}if(f.length||row.length){row.push(f);rows.push(row);}return rows;}
+
+function load(){try{const r=localStorage.getItem(KEY);if(r)REQS=JSON.parse(r)||[];}catch(e){REQS=[];}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(REQS));}catch(e){}}
+
+function parseSheet(grid){
+  if(!grid.length)return [];
+  const H=grid[0].map(normH);
+  const col=(...alts)=>H.findIndex(h=>alts.some(a=>h.includes(a)));
+  const iData=col('DATAVIAGEM','DATA'),iSetor=col('SETOR'),iSolic=col('SOLICITANTE'),
+        iPart=col('PARTIDA'),iDest=col('DESTINO'),iMot=col('MOTIVO');
+  const g=(row,i)=>i>=0&&row[i]!=null?String(row[i]).trim():'';
+  const out=[];
+  for(let r=1;r<grid.length;r++){const row=grid[r];if(!row)continue;
+    const data=normData(g(row,iData)),solic=g(row,iSolic),setor=g(row,iSetor);
+    if(!solic&&!setor&&!data)continue;
+    out.push({id:'sheet-'+r,data,setor,solic,partida:g(row,iPart),destino:g(row,iDest),motivo:g(row,iMot),ts:0});
+  }
+  return out;
+}
+async function fetchSheet(){
+  try{const res=await fetch(CSV_URL+(CSV_URL.includes('?')?'&':'?')+'_='+Date.now());
+    if(!res.ok)throw 0;const txt=await res.text();if(txt.trim().startsWith('<'))throw 0;
+    const grid=parseCSV(txt).filter(r=>r.some(c=>String(c).trim()));
+    REQS=parseSheet(grid);loadErr=false;
+  }catch(e){loadErr=true;}
+  render();
+}
+
+function filtered(){const de=$('fDe').value,ate=$('fAte').value;
+  return REQS.filter(r=>(!de||r.data>=de)&&(!ate||r.data<=ate));}
+
+const mk=el=>{el.innerHTML=`<defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E2231A"/><stop offset="1" stop-color="#A50F12"/></linearGradient><mask id="lm"><rect width="512" height="512" fill="black"/><g fill="white"><rect x="134" y="360" width="244" height="22" rx="8"/><rect x="150" y="306" width="58" height="70" rx="9"/><rect x="227" y="256" width="58" height="120" rx="9"/><rect x="304" y="196" width="58" height="180" rx="9"/><rect x="322" y="144" width="22" height="56" rx="7"/><rect x="305" y="157" width="56" height="22" rx="7"/></g></mask></defs><rect width="512" height="512" rx="115" fill="url(#lg)"/><rect width="512" height="512" fill="white" mask="url(#lm)"/>`;};
+
+function statusRender(){
+  const el=$('status'),tx=$('statusTxt');
+  if(CAN_READ){
+    if(loadErr){el.className='status err';tx.textContent='Não consegui ler a planilha — confirme que ela está publicada em CSV (não só como página web)';}
+    else if(!CAN_WRITE){el.className='status local';tx.textContent='Lendo a planilha, mas o ENVIO ainda não está configurado — falta o link de gravação (Apps Script) para o formulário salvar';}
+    else{el.className='status ok';tx.textContent='Conectado à planilha — solicitações compartilhadas com a equipe';}
+  }else{el.className='status local';tx.textContent='Modo local — os dados ficam só neste navegador';}
+}
+
+function tabelaContagem(elId,chaves,fn,rows,total){
+  const cont={};chaves.forEach(k=>cont[k]=0);
+  rows.forEach(r=>{const k=fn(r);if(!k)return;if(cont[k]==null)cont[k]=0;cont[k]++;});
+  const lin=Object.keys(cont).map(k=>({k,n:cont[k]})).sort((a,b)=>b.n-a.n||a.k.localeCompare(b.k,'pt'));
+  let body='';lin.forEach(r=>{const p=total?r.n/total*100:0;
+    body+=`<tr><td>${esc(r.k)}</td><td style="${r.n?'':'color:var(--muted);font-weight:500'}">${num(r.n)}</td><td><div class="barwrap"><span class="pctnum" style="${r.n?'':'color:var(--muted)'}">${r.n?fpct(p):'—'}</span><span class="bar"><i style="width:${Math.min(p,100)}%"></i></span></div></td></tr>`;});
+  $(elId).innerHTML=`<table><thead><tr><th>${elId==='tblSolic'?'Solicitante':'Setor'}</th><th>Viagens</th><th style="text-align:right">%</th></tr></thead><tbody>${body}</tbody><tfoot><tr><td>Total</td><td>${num(total)}</td><td style="text-align:right">${total?'100%':'—'}</td></tr></tfoot></table>`;
+}
+
+function render(){
+  statusRender();
+  const f=filtered(),total=f.length;
+  $('kPeriodo').textContent=num(total);
+  $('kTotal').textContent=num(REQS.length);
+  $('kAtivos').textContent=num(new Set(f.map(r=>r.solic).filter(Boolean)).size);
+  const de=$('fDe').value,ate=$('fAte').value;
+  $('kPeriodoSub').textContent=(de||ate)?`${de?brDate(de):'início'} a ${ate?brDate(ate):'hoje'}`:'todas as datas';
+
+  tabelaContagem('tblSolic',SOLICITANTES,r=>r.solic,f,total);
+  tabelaContagem('tblSetor',SETORES,r=>r.setor,f,total);
+
+  $('detSub').textContent=total?`${num(total)} solicitação(ões) no período`:'';
+  if(!f.length){$('detalhe').innerHTML='<div class="empty"><b>Nenhuma solicitação no período</b>Registre a primeira acima ou ajuste o filtro de data.</div>';return;}
+  const ord=[...f].sort((a,b)=>(a.data<b.data?1:a.data>b.data?-1:(b.ts||0)-(a.ts||0)));
+  const podeApagar=!CAN_READ;
+  let body='';ord.forEach(r=>{
+    body+=`<tr><td style="white-space:nowrap">${brDate(r.data)}</td><td><span class="chip">${esc(r.setor)}</span></td><td style="font-weight:600;font-family:'Sora',sans-serif">${esc(r.solic)}</td><td>${esc(r.partida)}</td><td>${esc(r.destino)}</td><td class="motivo">${esc(r.motivo)}</td>${podeApagar?`<td style="text-align:center"><button class="del" data-id="${r.id}" title="Remover">×</button></td>`:'<td></td>'}</tr>`;});
+  $('detalhe').innerHTML=`<table><thead><tr><th>Data</th><th>Setor</th><th>Solicitante</th><th>Partida</th><th>Destino</th><th>Motivo</th><th></th></tr></thead><tbody>${body}</tbody></table>`;
+  if(podeApagar)$('detalhe').querySelectorAll('.del').forEach(b=>b.onclick=()=>{const id=b.getAttribute('data-id');REQS=REQS.filter(r=>String(r.id)!==String(id));save();render();});
+}
+
+function flash(txt,ok){const el=$('msg');el.className='msg '+(ok?'ok':'err');el.textContent=txt;if(ok)setTimeout(()=>{if(el.textContent===txt)el.textContent='';},3000);}
+function clearInputs(){$('fMotivo').value='';$('fPartida').value='';$('fDestino').value='';}
+
+function salvar(){
+  const data=$('fData').value,setor=$('fSetor').value,solic=$('fSolic').value,
+        motivo=$('fMotivo').value.trim(),partida=$('fPartida').value.trim(),destino=$('fDestino').value.trim();
+  if(!data){flash('Informe a data da viagem.',false);return;}
+  if(!setor){flash('Selecione o setor.',false);return;}
+  if(!solic){flash('Selecione o solicitante.',false);return;}
+  if(!motivo){flash('Descreva o motivo da viagem.',false);return;}
+  if(!partida){flash('Informe o endereço de partida.',false);return;}
+  if(!destino){flash('Informe o endereço de destino.',false);return;}
+
+  if(CAN_WRITE){
+    const fm=$('postForm');fm.data.value=data;fm.setor.value=setor;fm.solic.value=solic;
+    fm.motivo.value=motivo;fm.partida.value=partida;fm.destino.value=destino;fm.submit();
+    clearInputs();flash(`Solicitação de ${solic} (${setor}) enviada. A tabela atualiza em instantes.`,true);
+    setTimeout(fetchSheet,3000);setTimeout(fetchSheet,9000);
+  }else if(CAN_READ){
+    flash('Falta configurar o link de gravação (Apps Script) para salvar na planilha. Veja as instruções.',false);
+  }else{
+    REQS.push({id:Date.now()+'-'+Math.random().toString(36).slice(2,6),data,setor,solic,motivo,partida,destino,ts:Date.now()});
+    save();clearInputs();render();flash(`Solicitação de ${solic} (${setor}) registrada.`,true);
+  }
+}
+
+function csvCell(v){v=String(v==null?'':v);if(/[;"\n\r]/.test(v))v='"'+v.replace(/"/g,'""')+'"';return v;}
+function exportar(){
+  const f=filtered().sort((a,b)=>(a.data<b.data?-1:a.data>b.data?1:(a.ts||0)-(b.ts||0)));
+  if(!f.length){flash('Nada para exportar no período selecionado.',false);return;}
+  const head=['Data da viagem','Setor','Solicitante','Endereço de partida','Endereço de destino','Motivo da viagem'];
+  const linhas=[head.join(';')];
+  f.forEach(r=>linhas.push([brDate(r.data),r.setor,r.solic,r.partida,r.destino,r.motivo].map(csvCell).join(';')));
+  const csv='\ufeff'+linhas.join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download='solicitacoes_uber_'+hoje()+'.csv';document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},100);
+}
+
+// init
+mk($('mk'));
+if(APPS_SCRIPT_URL)$('postForm').action=APPS_SCRIPT_URL;
+$('fSetor').innerHTML='<option value="">Selecione o setor…</option>'+SETORES.map(s=>`<option>${esc(s)}</option>`).join('');
+$('fSolic').innerHTML='<option value="">Selecione o solicitante…</option>'+SOLICITANTES.map(s=>`<option>${esc(s)}</option>`).join('');
+$('fData').value=hoje();
+$('btnSalvar').onclick=salvar;
+$('btnExport').onclick=exportar;
+$('btnLimpar').onclick=()=>{$('fDe').value='';$('fAte').value='';render();};
+$('fDe').onchange=render;$('fAte').onchange=render;
+if(CAN_READ){
+  $('btnAtualizar').style.display='';$('btnAtualizar').onclick=fetchSheet;
+  fetchSheet();setInterval(fetchSheet,60000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)fetchSheet();});
+}else{
+  load();render();
+}
+</script>
+</body>
+</html>
