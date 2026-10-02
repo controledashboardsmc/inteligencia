@@ -36,6 +36,16 @@
   .field{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}
   .field label{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700}
   input,select{width:100%;height:44px;border:1px solid var(--line);border-radius:11px;padding:0 13px;font-family:inherit;font-size:15px;background:var(--bg);color:var(--ink)}
+  .eqrow{display:flex;gap:8px}.eqrow select{flex:1}
+  .eqadd{flex:0 0 auto;width:44px;height:44px;border:1px solid var(--line);border-radius:11px;background:var(--bg);color:var(--ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+  .eqadd svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round}
+  .eqadd:hover{border-color:var(--red);color:var(--red);background:#fff}
+  .eqnew{display:none;gap:8px;margin-top:8px}.eqnew.on{display:flex}.eqnew input{flex:1}
+  .btn-mini{flex:0 0 auto;height:44px;border:none;border-radius:11px;padding:0 14px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;cursor:pointer}
+  .btn-mini.red{background:var(--red);color:#fff}.btn-mini.red:hover{background:var(--red-deep)}
+  .btn-mini.ghost{background:#fff;color:var(--ink-2);border:1px solid var(--line)}.btn-mini.ghost:hover{border-color:var(--red);color:var(--red)}
+  .eqdel{border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;margin-left:6px;padding:0 3px}
+  .eqdel:hover{color:var(--red)}
   input:focus,select:focus{outline:none;border-color:var(--red);background:#fff}
   input[type=number]{font-family:'Sora',sans-serif;font-weight:600}
   .btn{width:100%;height:46px;border:none;border-radius:11px;font-family:'Sora',sans-serif;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.12s}
@@ -107,7 +117,11 @@
     <div class="card">
       <h3><span class="ic" style="background:var(--red-soft)"><svg viewBox="0 0 24 24" stroke="#A50F12"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>Registrar entrega</h3>
       <div class="desc">Escolha a equipe e digite quantos envelopes está entregando. A baixa é automática no estoque.</div>
-      <div class="field"><label>Equipe</label><select id="selEquipe"></select></div>
+      <div class="field"><label>Equipe</label>
+        <div class="eqrow"><select id="selEquipe"></select><button class="eqadd" id="btnAddEq" title="Acrescentar equipe"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button></div>
+        <div class="eqnew" id="addEqRow"><input type="text" id="inNovaEq" placeholder="Nome da nova equipe" autocomplete="off"><button class="btn-mini red" id="btnConfirmEq">Adicionar</button><button class="btn-mini ghost" id="btnCancelEq">Cancelar</button></div>
+        <div class="msg" id="msgEq" style="margin-top:6px"></div>
+      </div>
       <div class="field"><label>Quantidade entregue</label><input type="number" id="inEntrega" min="1" step="1" placeholder="digite a quantidade" inputmode="numeric"></div>
       <button class="btn red" id="btnEntrega"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Registrar entrega</button>
       <div class="msg" id="msgEntrega"></div>
@@ -130,8 +144,15 @@
 </div>
 
 <script>
-const EQUIPES=['Antonella','Arthur','Alan','Bella','Betel','Duarte','Maithe','Jean','Felix','Hermes','Vasques','Seixas','Veronica','Samuel'];
+const BASE_EQUIPES=['Antonella','Arthur','Alan','Bella','Betel','Duarte','Maithe','Jean','Felix','Hermes','Vasques','Seixas','Veronica','Samuel'];
 const KEY='metrocasa_envelopes_v1';
+const EQ_KEY='metrocasa_envelopes_equipes_v1';
+let EXTRA=[];                       // equipes acrescentadas
+let EQUIPES=BASE_EQUIPES.slice();   // base + extras (montado em loadEquipes)
+const normEq=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim().replace(/\s+/g,' ');
+function loadEquipes(){try{const r=localStorage.getItem(EQ_KEY);if(r)EXTRA=JSON.parse(r)||[];}catch(e){EXTRA=[];}EQUIPES=BASE_EQUIPES.concat(EXTRA);}
+function saveEquipes(){try{localStorage.setItem(EQ_KEY,JSON.stringify(EXTRA));}catch(e){}}
+function fillSelect(sel){const cur=$('selEquipe').value;$('selEquipe').innerHTML='<option value="">Selecione a equipe…</option>'+EQUIPES.map(e=>`<option ${e===(sel||cur)?'selected':''}>${esc(e)}</option>`).join('');}
 let MOV=[]; // {id, tipo:'entrada'|'entrega', equipe, qtd, ts}
 
 const $=id=>document.getElementById(id);
@@ -165,9 +186,11 @@ function render(){
   // tabela por equipe
   const linhas=EQUIPES.map(e=>({e,q:t.eq[e]||0})).sort((a,b)=>b.q-a.q||a.e.localeCompare(b.e,'pt'));
   let body='';
-  linhas.forEach(r=>{const p=pct(r.q,t.rec);
-    body+=`<tr><td>${esc(r.e)}</td><td class="${r.q?'':'qtd0'}">${num(r.q)}</td><td><div class="barwrap"><span class="pctnum ${r.q?'':'qtd0'}">${r.q?fpct(p):'—'}</span><span class="bar"><i style="width:${Math.min(p,100)}%"></i></span></div></td></tr>`;});
+  linhas.forEach(r=>{const p=pct(r.q,t.rec);const extra=EXTRA.includes(r.e);
+    const delBtn=(extra&&r.q===0)?`<button class="eqdel" data-eq="${esc(r.e)}" title="Remover equipe">×</button>`:'';
+    body+=`<tr><td>${esc(r.e)}${delBtn}</td><td class="${r.q?'':'qtd0'}">${num(r.q)}</td><td><div class="barwrap"><span class="pctnum ${r.q?'':'qtd0'}">${r.q?fpct(p):'—'}</span><span class="bar"><i style="width:${Math.min(p,100)}%"></i></span></div></td></tr>`;});
   $('tbl').innerHTML=`<table><thead><tr><th>Equipe</th><th>Envelopes</th><th style="text-align:right">% do recebido</th></tr></thead><tbody>${body}</tbody><tfoot><tr><td>Total entregue</td><td>${num(t.ent)}</td><td style="text-align:right">${t.rec?fpct(pct(t.ent,t.rec)):'—'}</td></tr></tfoot></table>`;
+  $('tbl').querySelectorAll('.eqdel').forEach(b=>b.onclick=()=>removeEquipe(b.getAttribute('data-eq')));
   $('tblSub').textContent=t.rec>0?`quantidade retirada e % de ${num(t.rec)} recebidos`:'quantidade retirada e % do total recebido';
 
   // histórico
@@ -207,11 +230,29 @@ function addEntrega(){
   save();$('inEntrega').value='';render();$('inEntrega').focus();flash($('msgEntrega'),`Entrega de ${num(v)} para ${eq} registrada.`,true);
 }
 
+function addEquipe(){
+  const nome=$('inNovaEq').value.trim().replace(/\s+/g,' ');
+  if(!nome){flash($('msgEq'),'Digite o nome da equipe.',false);return;}
+  if(EQUIPES.some(e=>normEq(e)===normEq(nome))){flash($('msgEq'),'Essa equipe já existe.',false);return;}
+  EXTRA.push(nome);saveEquipes();EQUIPES=BASE_EQUIPES.concat(EXTRA);
+  fillSelect(nome);$('inNovaEq').value='';$('addEqRow').classList.remove('on');
+  render();flash($('msgEq'),`Equipe "${nome}" acrescentada.`,true);
+}
+function removeEquipe(nome){
+  const t=totais();if((t.eq[nome]||0)>0){alert('Não dá para remover: essa equipe já tem envelopes registrados.');return;}
+  EXTRA=EXTRA.filter(e=>e!==nome);saveEquipes();EQUIPES=BASE_EQUIPES.concat(EXTRA);
+  fillSelect();render();
+}
+
 mk($('mk'));
-$('selEquipe').innerHTML='<option value="">Selecione a equipe…</option>'+EQUIPES.map(e=>`<option>${esc(e)}</option>`).join('');
+loadEquipes();fillSelect();
 load();render();
 $('btnEntrada').onclick=addEntrada;
 $('btnEntrega').onclick=addEntrega;
+$('btnAddEq').onclick=()=>{const r=$('addEqRow');r.classList.toggle('on');if(r.classList.contains('on'))$('inNovaEq').focus();};
+$('btnConfirmEq').onclick=addEquipe;
+$('btnCancelEq').onclick=()=>{$('addEqRow').classList.remove('on');$('inNovaEq').value='';$('msgEq').textContent='';};
+$('inNovaEq').addEventListener('keydown',e=>{if(e.key==='Enter')addEquipe();if(e.key==='Escape')$('btnCancelEq').click();});
 $('inEntrada').addEventListener('keydown',e=>{if(e.key==='Enter')addEntrada();});
 $('inEntrega').addEventListener('keydown',e=>{if(e.key==='Enter')addEntrega();});
 $('btnReset').onclick=()=>{if(confirm('Isso apaga todas as entradas e entregas registradas. Continuar?')){MOV=[];save();render();}};
