@@ -43,6 +43,24 @@ button{cursor:pointer}
 :focus-visible{outline:3px solid var(--brand);outline-offset:2px}
 .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
 
+
+/* Navegação lateral */
+[hidden]{display:none!important}
+:root{--side-bg:#16181D;--side-ink:#8D93A1;--side-ativo:#FFFFFF;--side-w:96px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--side-bg:#0B0C0F}}
+:root[data-theme="dark"]{--side-bg:#0B0C0F}
+.side{position:fixed;left:0;top:0;bottom:0;width:var(--side-w);background:var(--side-bg);display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 0;z-index:20}
+.side-marca{width:18px;height:18px;border-radius:4px;background:var(--brand);margin-bottom:26px}
+.nav-btn{position:relative;width:76px;border:0;background:none;color:var(--side-ink);display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 0 10px;border-radius:14px;font-size:.74rem;font-weight:700;transition:color .15s,background-color .15s}
+.nav-btn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.nav-btn:hover{color:var(--side-ativo);background:rgba(255,255,255,.06)}
+.nav-btn[aria-current="page"]{color:var(--side-ativo);background:rgba(255,255,255,.1)}
+.nav-btn[aria-current="page"]::before{content:"";position:absolute;left:-10px;top:14px;bottom:14px;width:4px;border-radius:0 4px 4px 0;background:var(--brand)}
+.app{margin-left:var(--side-w);min-height:100vh;background:var(--bg);transition:background-color .2s}
+.app[data-aba="painel"],.app[data-aba="historico"]{background:var(--surface)}
+.pagina{padding:32px 24px 64px}
+.pagina .painel-topo{margin-bottom:20px}
+
 /* Topo */
 .top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 0;border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:12px}
@@ -101,7 +119,8 @@ button{cursor:pointer}
 .qtd-box input::-webkit-outer-spin-button,.qtd-box input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .qtd-box input:focus{outline:none}
 .qtd-atalhos{display:inline-flex;gap:8px;margin-left:14px;vertical-align:middle;flex-wrap:wrap}
-.painel-controles{display:flex;gap:10px;flex-wrap:wrap}
+.painel-controles{display:flex;gap:10px;flex-wrap:wrap;min-width:0;max-width:100%}
+.painel-controles .seg{min-width:0}
 td.num-col{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
 .dica{font-size:.88rem;color:var(--muted);margin:10px 0 0;min-height:1.4em}
 
@@ -119,11 +138,11 @@ td.num-col{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
 .vazio{color:var(--muted);font-size:.92rem}
 
 /* Painel */
-.painel{background:var(--surface);padding:44px 0 64px}
 .painel-topo{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:12px}
 .painel-topo h2{font-size:2rem;font-weight:800;letter-spacing:-.03em;margin:0}
-.seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px}
-.seg button{border:0;background:none;border-radius:999px;padding:7px 14px;font-size:.88rem;font-weight:600;color:var(--muted)}
+.seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg button{white-space:nowrap;flex:0 0 auto;border:0;background:none;border-radius:999px;padding:7px 14px;font-size:.88rem;font-weight:600;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .resumo{font-size:1.15rem;max-width:68ch;margin:0 0 28px;color:var(--ink)}
 .resumo b{font-weight:800}
@@ -181,6 +200,15 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
   .lateral{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:28px}
   .cards{grid-template-columns:minmax(0,1fr)}
 }
+@media (max-width:760px){
+  :root{--side-w:0px}
+  .side{top:auto;right:0;width:auto;height:68px;flex-direction:row;justify-content:space-around;padding:0 8px;border-top:1px solid rgba(255,255,255,.08)}
+  .side-marca{display:none}
+  .nav-btn{flex:1;max-width:120px;padding:9px 0 8px}
+  .nav-btn[aria-current="page"]::before{left:28%;right:28%;top:-1px;bottom:auto;width:auto;height:3px;border-radius:0 0 3px 3px}
+  .app{padding-bottom:84px}
+  .toast{bottom:84px}
+}
 @media (max-width:640px){
   .wrap{padding:0 16px}
   .pessoas{grid-template-columns:repeat(2,1fr)}
@@ -195,6 +223,14 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
 </head>
 <body>
 
+<nav class="side" aria-label="Navegação">
+  <div class="side-marca" aria-hidden="true"></div>
+  <button type="button" class="nav-btn" data-aba="lancar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M12 8.5v7M8.5 12h7"/></svg><span>Lançar</span></button>
+  <button type="button" class="nav-btn" data-aba="painel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V12M12 20V5M19 20v-9"/><path d="M3 20.5h18"/></svg><span>Painel</span></button>
+  <button type="button" class="nav-btn" data-aba="historico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>Histórico</span></button>
+</nav>
+
+<div class="app" id="app" data-aba="lancar">
 <header class="wrap top">
   <div class="brand">
     <div class="brand-mark" aria-hidden="true"></div>
@@ -212,7 +248,8 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
 </div>
 
 <main>
-  <section class="wrap launch" aria-label="Lançar tarefa">
+  <section class="aba" data-aba="lancar" aria-label="Lançar tarefa">
+    <div class="wrap launch">
     <div>
       <div class="passo">
         <h2>Quem fez?</h2>
@@ -255,10 +292,11 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
       <h2>Últimos lançamentos</h2>
       <ul class="feed" id="feed"></ul>
     </aside>
+    </div>
   </section>
 
-  <section class="painel" aria-label="Painel">
-    <div class="wrap">
+  <section class="aba" data-aba="painel" aria-label="Painel" hidden>
+    <div class="wrap pagina">
       <div class="painel-topo">
         <h2>Painel</h2>
         <div class="painel-controles">
@@ -266,7 +304,7 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
           <button type="button" data-m="tarefas">Tarefas</button>
           <button type="button" data-m="pecas">Peças</button>
         </div>
-        <div class="seg" id="periodos" role="group" aria-label="Período">
+        <div class="seg periodos" role="group" aria-label="Período">
           <button type="button" data-p="hoje">Hoje</button>
           <button type="button" data-p="7">7 dias</button>
           <button type="button" data-p="30">30 dias</button>
@@ -276,7 +314,6 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
         </div>
       </div>
       <p class="resumo" id="resumo"></p>
-
       <div class="cards">
         <div class="card">
           <h3>Por pessoa</h3>
@@ -295,6 +332,25 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
           <p class="sub" id="tarefaSub">Cada barra mostra quem fez aquela tarefa</p>
           <div class="barras tarefas" id="porTarefa"></div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="aba" data-aba="historico" aria-label="Histórico" hidden>
+    <div class="wrap pagina">
+      <div class="painel-topo">
+        <h2>Histórico</h2>
+        <div class="painel-controles">
+        <div class="seg periodos" role="group" aria-label="Período">
+          <button type="button" data-p="hoje">Hoje</button>
+          <button type="button" data-p="7">7 dias</button>
+          <button type="button" data-p="30">30 dias</button>
+          <button type="button" data-p="mes">Este mês</button>
+          <button type="button" data-p="tudo">Tudo</button>
+        </div>
+        </div>
+      </div>
+      <div class="cards">
         <div class="card full">
           <h3>Todos os lançamentos</h3>
           <p class="sub">Filtrados pelo período escolhido acima</p>
@@ -321,6 +377,7 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
     </div>
   </section>
 </main>
+</div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -705,7 +762,7 @@ function renderStatus() {
 }
 
 function renderPainel() {
-  document.querySelectorAll('#periodos button').forEach(b => b.setAttribute('aria-pressed', b.dataset.p === state.periodo));
+  document.querySelectorAll('.periodos button').forEach(b => b.setAttribute('aria-pressed', b.dataset.p === state.periodo));
   document.querySelectorAll('#metricas button').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === state.metrica));
   $('#pessoaSub').textContent = state.metrica === 'pecas' ? 'Peças produzidas no período' : 'Tarefas lançadas no período';
   $('#tarefaSub').textContent = state.metrica === 'pecas' ? 'Peças por tarefa, divididas por quem fez' : 'Cada barra mostra quem fez aquela tarefa';
@@ -773,10 +830,25 @@ $('#grupos').addEventListener('click', e => {
 $('#btnLancar').addEventListener('click', lancar);
 $('#detalhe').addEventListener('keydown', e => { if (e.key === 'Enter') lancar(); });
 $('#btnAtualizar').addEventListener('click', () => carregar(false));
-$('#periodos').addEventListener('click', e => {
+document.querySelectorAll('.periodos').forEach(g => g.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   state.periodo = b.dataset.p; state.limite = 50; renderPainel();
+}));
+
+/* ---------- Abas ---------- */
+const ABAS = ['lancar', 'painel', 'historico'];
+function mostrarAba(nome, rolar) {
+  if (!ABAS.includes(nome)) nome = 'lancar';
+  document.querySelectorAll('.aba').forEach(sec => sec.hidden = sec.dataset.aba !== nome);
+  document.querySelectorAll('.nav-btn').forEach(b => b.setAttribute('aria-current', b.dataset.aba === nome ? 'page' : 'false'));
+  $('#app').dataset.aba = nome;
+  if (location.hash.slice(1) !== nome) { try { history.replaceState(null, '', '#' + nome); } catch (_) {} }
+  if (rolar) window.scrollTo(0, 0);
+}
+document.querySelector('.side').addEventListener('click', e => {
+  const b = e.target.closest('.nav-btn'); if (b) mostrarAba(b.dataset.aba, true);
 });
+window.addEventListener('hashchange', () => mostrarAba(location.hash.slice(1), true));
 $('#fPessoa').addEventListener('change', e => { state.fPessoa = e.target.value; state.limite = 50; renderPainel(); });
 $('#fTarefa').addEventListener('change', e => { state.fTarefa = e.target.value; state.limite = 50; renderPainel(); });
 $('#fBusca').addEventListener('input', e => { state.busca = e.target.value; state.limite = 50; renderPainel(); });
@@ -788,6 +860,7 @@ try {
   const salvo = localStorage.getItem('criacao_pessoa');
   if (salvo && CONFIG.PESSOAS.some(p => p.nome === salvo)) state.pessoa = salvo;
 } catch (_) {}
+mostrarAba(location.hash.slice(1), false);
 preencherFiltros();
 renderLegenda();
 definirPecas(1);
