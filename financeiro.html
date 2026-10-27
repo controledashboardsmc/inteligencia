@@ -230,11 +230,11 @@ dialog::backdrop{background:rgba(10,16,22,.45)}
           </div>
 
           <div class="nfs-only" hidden>
-            <label for="f-nf">Número da NFS</label>
+            <label for="f-nf">Número da NFS <span class="opt">(opcional)</span></label>
             <input id="f-nf" autocomplete="off" inputmode="numeric">
           </div>
           <div class="nfs-only" hidden>
-            <label for="f-emissao">Data de emissão da NFS</label>
+            <label for="f-emissao">Data de emissão da NFS <span class="opt">(opcional)</span></label>
             <input type="date" id="f-emissao">
           </div>
 
@@ -458,9 +458,14 @@ function setStatus(msg, erro) {
 /* ======== Comunicação com a planilha ======== */
 async function api(payload) {
   if (!/^https:\/\/script\.google\.com\//.test(API_URL)) throw new Error('Configure a URL do Apps Script na constante API_URL do HTML.');
-  const r = payload
-    ? await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }) // text/plain evita bloqueio de CORS
-    : await fetch(API_URL);
+  let r;
+  try {
+    r = payload
+      ? await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }) // text/plain evita bloqueio de CORS
+      : await fetch(API_URL);
+  } catch (e) {
+    throw new Error('Não foi possível conectar à planilha. Confira se a implementação está com acesso "Qualquer pessoa" e se a URL no HTML termina em /exec.');
+  }
   if (!r.ok) throw new Error('Falha de conexão com a planilha (' + r.status + ').');
   const j = await r.json();
   if (!j.ok) throw new Error(j.erro || 'Erro na planilha.');
@@ -590,7 +595,6 @@ $('#form').addEventListener('submit', async ev => {
   }
   const checar = [
     ['#f-lanc', !d.dataLancamento], ['#f-data', !d.data], ['#f-valor', !(d.valor > 0)],
-    ['#f-nf', nfs && !d.numeroNF], ['#f-emissao', nfs && !d.dataEmissao],
     ['#f-cnpj', nfs && !!d.cnpj && d.cnpj.replace(/\D/g, '').length !== 14],
     ['#f-fornecedor', !d.fornecedor || d.fornecedor === '__novo__'],
     ['#f-empreendimento', !d.empreendimento || d.empreendimento === '__novo__'],
@@ -609,7 +613,7 @@ $('#form').addEventListener('submit', async ev => {
 
   if (d.dataLancamento > isoHoje() && !confirm(`A data de lançamento ${brData(d.dataLancamento)} é futura. Lançar mesmo assim?`)) return;
   const semZeros = s => String(s || '').replace(/^0+/, '');
-  const dupNF = nfs && ativos().find(l => l.tipo === 'NFS' && l.fornecedor === d.fornecedor && semZeros(l.numeroNF) === semZeros(d.numeroNF));
+  const dupNF = nfs && d.numeroNF && ativos().find(l => l.tipo === 'NFS' && l.fornecedor === d.fornecedor && semZeros(l.numeroNF) === semZeros(d.numeroNF));
   if (dupNF && !confirm(`A NFS nº ${d.numeroNF} de ${d.fornecedor} já foi lançada (${BRL.format(dupNF.valor)}, por ${dupNF.por}). Lançar de novo?`)) return;
   const dup = !dupNF && ativos().find(l => l.fornecedor === d.fornecedor && l.data === d.data && Math.abs(l.valor - d.valor) < 0.005);
   if (dup && !confirm(`Já existe um lançamento de ${BRL.format(d.valor)} para ${d.fornecedor} em ${brData(d.data)} (lançado por ${dup.por}). Lançar mesmo assim?`)) return;
@@ -622,7 +626,7 @@ $('#form').addEventListener('submit', async ev => {
     state.lanc.push(j.lancamento);
     limparForm(true);
     renderTudo();
-    toast(nfs ? `NFS lançada: nº ${d.numeroNF}, ${BRL.format(d.valor)}.` : `Pagamento lançado: ${BRL.format(d.valor)} para ${d.fornecedor}.`);
+    toast(nfs ? `NFS lançada${d.numeroNF ? ': nº ' + d.numeroNF : ''}, ${BRL.format(d.valor)}.` : `Pagamento lançado: ${BRL.format(d.valor)} para ${d.fornecedor}.`);
     $('#f-valor').focus();
   } catch (e) {
     $('#form-msg').textContent = e.message;
