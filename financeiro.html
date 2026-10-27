@@ -12,14 +12,14 @@
 :root{
   --bg:#EDF0F3; --surface:#FFFFFF; --field:#FFFFFF; --ink:#18222D; --muted:#5B6976;
   --line:#D3DAE1; --primary:#1B4F72; --on-primary:#FFFFFF; --pos:#1E7553;
-  --danger:#B3261E; --soft:#E6EEF5; --bar:#2C6A96;
+  --danger:#B3261E; --soft:#E6EEF5; --bar:#2C6A96; --warn:#9A6100;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){
   :root{
     --bg:#0F161D; --surface:#17212B; --field:#1D2833; --ink:#E5EBF0; --muted:#93A1AE;
     --line:#2B3846; --primary:#7DB3DE; --on-primary:#0F161D; --pos:#4CC79A;
-    --danger:#F08A80; --soft:#1F2D3A; --bar:#6FA6D3;
+    --danger:#F08A80; --soft:#1F2D3A; --bar:#6FA6D3; --warn:#E6B04F;
     color-scheme:dark;
   }
 }
@@ -49,6 +49,13 @@ h1{font-size:19px;font-weight:600;margin:0}
 .tab[aria-selected="true"]{background:var(--soft);color:var(--primary)}
 .tab[aria-selected="true"]::before{content:"";position:absolute;left:-7px;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--primary)}
 .shell{margin-left:76px;min-width:0}
+.tab .badge{position:absolute;top:3px;right:6px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--danger);color:#fff;font-size:10.5px;font-weight:600;line-height:17px;text-align:center}
+.st{font-weight:500;white-space:nowrap}
+.st.late{color:var(--danger)}
+.st.soon{color:var(--warn)}
+.st.ok{color:var(--pos)}
+.fx-form{max-width:780px}
+.kpis.k3{grid-template-columns:repeat(3,minmax(0,1fr))}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--surface);z-index:10}
 
 main{max-width:1200px;margin:0 auto;padding:22px 20px 56px}
@@ -144,7 +151,8 @@ dialog::backdrop{background:rgba(10,16,22,.45)}
   .month{text-align:left}
   .side{top:auto;right:0;width:auto;flex-direction:row;justify-content:space-around;gap:0;border-right:0;border-top:1px solid var(--line);padding:6px 0 calc(6px + env(safe-area-inset-bottom,0px))}
   .side .logo{display:none}
-  .tab{width:72px;font-size:11px}
+  .tab{width:64px;font-size:10.5px}
+  .kpis.k3{grid-template-columns:1fr}
   .tab[aria-selected="true"]::before{left:22px;right:22px;top:-7px;bottom:auto;width:auto;height:3px;border-radius:0 0 3px 3px}
   .shell{margin-left:0;padding-bottom:72px}
   .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
@@ -165,6 +173,11 @@ dialog::backdrop{background:rgba(10,16,22,.45)}
   <button class="tab" role="tab" data-tab="nfs" aria-selected="false" title="Lançar nota fiscal de serviço">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l3 3v15H6z"/><path d="M15 3v3h3"/><path d="M9 11h6M9 15h6"/></svg>
     <span>Lançar NFS</span>
+  </button>
+  <button class="tab" role="tab" data-tab="fixos" aria-selected="false" title="Pagamentos fixos mensais">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M9 15l2 2 4-4"/></svg>
+    <span>Fixos mensais</span>
+    <span class="badge" id="fx-badge" hidden></span>
   </button>
   <button class="tab" role="tab" data-tab="painel" aria-selected="false" title="Painel de gastos">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><rect x="5.5" y="11" width="3" height="6" rx=".5"/><rect x="10.5" y="6" width="3" height="11" rx=".5"/><rect x="15.5" y="13" width="3" height="4" rx=".5"/></svg>
@@ -280,6 +293,58 @@ dialog::backdrop{background:rgba(10,16,22,.45)}
     </div>
   </section>
 
+  <!-- ===== FIXOS MENSAIS ===== -->
+  <section id="tab-fixos" hidden>
+    <div class="kpis k3">
+      <div class="kpi"><span>Total fixo mensal previsto</span><strong class="num" id="fx-total">R$ 0,00</strong><small id="fx-qtd"></small></div>
+      <div class="kpi"><span>Vencidos e não pagos</span><strong class="num" id="fx-venc">0</strong></div>
+      <div class="kpi"><span>Vencem nos próximos 5 dias</span><strong class="num" id="fx-prox">0</strong></div>
+    </div>
+
+    <form class="panel fx-form" id="fx-form" novalidate>
+      <h2>Novo pagamento fixo</h2>
+      <p class="hint">Contas que se repetem todo mês, como aluguel, assinaturas e serviços contratados.</p>
+      <div class="fields">
+        <div class="full">
+          <label for="fx-empresa">Empresa</label>
+          <input id="fx-empresa" list="fx-sugestoes" autocomplete="off" required placeholder="Digite ou escolha da lista de fornecedores">
+          <datalist id="fx-sugestoes"></datalist>
+        </div>
+        <div>
+          <label for="fx-dia">Dia de vencimento</label>
+          <input type="number" id="fx-dia" min="1" max="31" step="1" inputmode="numeric" required placeholder="Ex.: 10">
+        </div>
+        <div class="valor">
+          <label for="fx-valor">Valor previsto <span class="opt">(opcional)</span></label>
+          <div class="pre"><span>R$</span><input id="fx-valor" class="num" inputmode="numeric" autocomplete="off" placeholder="0,00"></div>
+        </div>
+        <div>
+          <label for="fx-por">Cadastrado por</label>
+          <input id="fx-por" autocomplete="name" required>
+        </div>
+        <div>
+          <label for="fx-obs">Observação <span class="opt">(opcional)</span></label>
+          <input id="fx-obs" autocomplete="off" placeholder="Ex.: débito automático, boleto por e-mail">
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" type="submit" id="fx-btn">Cadastrar pagamento fixo</button>
+        <span class="form-msg" id="fx-msg" role="alert"></span>
+      </div>
+    </form>
+
+    <div class="panel" style="margin-top:20px">
+      <h2>Pagamentos fixos cadastrados</h2>
+      <p class="hint">Situação em relação ao mês atual. Marque como pago quando a conta do mês for quitada.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Empresa</th><th>Vence dia</th><th>Próximo vencimento</th><th>Situação</th><th class="v">Valor previsto</th><th>Observação</th><th></th></tr></thead>
+          <tbody id="fx-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== PAINEL ===== -->
   <section id="tab-painel" hidden>
     <div class="filters">
@@ -354,11 +419,11 @@ dialog::backdrop{background:rgba(10,16,22,.45)}
 
 <script>
 /* ======== CONFIGURAÇÃO ======== */
-const API_URL = 'https://script.google.com/macros/s/AKfycbzNTf5Io7aAgHfLfBpjrGrzZvxzwLy1JgGk_df8YMjrx3GrIQ18suuuXgOThMqSY2HyrQ/exec'; // termina em /exec
+const API_URL = 'https://script.google.com/macros/library/d/1PAcbFhLXgAV5_mgu5REEULr85tq3jx0YD2t50_sCy5EP5vTqGPf-HvA4/1'; // termina em /exec
 
 /* ======== Estado e utilitários ======== */
 const LISTAS = ['Fornecedor', 'Empreendimento', 'Centro de custo', 'Finalidade'];
-const state = { lanc: [], listas: { Fornecedor: [], Empreendimento: [], 'Centro de custo': [], Finalidade: [] } };
+const state = { fixos: [], lanc: [], listas: { Fornecedor: [], Empreendimento: [], 'Centro de custo': [], Finalidade: [] } };
 const charts = {};
 const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 const $ = s => document.querySelector(s);
@@ -407,6 +472,7 @@ async function carregar() {
     const j = await api();
     state.lanc = j.lancamentos || [];
     state.listas = j.listas || state.listas;
+    state.fixos = j.fixos || [];
     preencherListas();
     renderTudo();
     setStatus('');
@@ -570,6 +636,7 @@ function renderTudo() {
   renderMes();
   renderRecentes();
   renderHistorico();
+  renderFixos();
   if (!$('#tab-painel').hidden) renderPainel();
 }
 function renderMes() {
@@ -731,12 +798,113 @@ $('#btn-csv').addEventListener('click', () => {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
 
+/* ======== Pagamentos fixos ======== */
+const dataBR = d => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+const ultimoDia = (y, m) => new Date(y, m + 1, 0).getDate();
+function situacaoFixo(f) {
+  const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+  const y = hoje.getFullYear(), m = hoje.getMonth();
+  const mesAtual = `${y}-${String(m + 1).padStart(2, '0')}`;
+  const pago = f.ultimoPago === mesAtual;
+  // dia 29, 30 ou 31 em mês mais curto vence no último dia do mês
+  const prox = pago ? new Date(y, m + 1, Math.min(f.dia, ultimoDia(y, m + 1))) : new Date(y, m, Math.min(f.dia, ultimoDia(y, m)));
+  const dias = Math.round((prox - hoje) / 86400000);
+  if (pago) return { prox, dias, pago, mesAtual, ordem: 3, cls: 'ok', txt: 'Pago este mês' };
+  if (dias < 0) return { prox, dias, pago, mesAtual, ordem: 0, cls: 'late', txt: `Vencido há ${-dias} dia${dias === -1 ? '' : 's'}` };
+  if (dias === 0) return { prox, dias, pago, mesAtual, ordem: 1, cls: 'late', txt: 'Vence hoje' };
+  if (dias <= 5) return { prox, dias, pago, mesAtual, ordem: 1, cls: 'soon', txt: `Vence em ${dias} dia${dias === 1 ? '' : 's'}` };
+  return { prox, dias, pago, mesAtual, ordem: 2, cls: '', txt: `Em ${dias} dias` };
+}
+function renderFixos() {
+  $('#fx-sugestoes').innerHTML = (state.listas.Fornecedor || []).map(x => `<option value="${esc(x)}">`).join('');
+  const lista = state.fixos.filter(f => f.status !== 'Inativo').map(f => ({ f, s: situacaoFixo(f) }))
+    .sort((a, b) => a.s.ordem - b.s.ordem || a.s.dias - b.s.dias || a.f.empresa.localeCompare(b.f.empresa, 'pt-BR'));
+  const vencidos = lista.filter(x => x.s.cls === 'late').length;
+  const proximos = lista.filter(x => x.s.cls === 'soon').length;
+  $('#fx-total').textContent = BRL.format(lista.reduce((s, x) => s + (x.f.valor || 0), 0));
+  const semValor = lista.filter(x => !x.f.valor).length;
+  $('#fx-qtd').textContent = `${lista.length} conta${lista.length === 1 ? '' : 's'}` + (semValor ? `, ${semValor} sem valor previsto` : '');
+  $('#fx-venc').textContent = vencidos;
+  $('#fx-prox').textContent = proximos;
+  const alerta = vencidos + proximos;
+  $('#fx-badge').hidden = !alerta;
+  $('#fx-badge').textContent = alerta;
+  $('#fx-body').innerHTML = lista.length ? lista.map(({ f, s }) => `<tr>
+      <td>${esc(f.empresa)}</td><td class="num">${f.dia}</td><td class="nw num">${dataBR(s.prox)}</td>
+      <td><span class="st ${s.cls}">${s.txt}</span></td>
+      <td class="v num">${f.valor ? BRL.format(f.valor) : '–'}</td><td>${esc(f.obs)}</td>
+      <td class="act nw">${s.pago
+        ? `<button class="btn small" data-desfazer="${esc(f.id)}">Desfazer pagamento</button>`
+        : `<button class="btn small" data-pagar="${esc(f.id)}">Marcar como pago</button>`}
+        <button class="btn small danger" data-remover="${esc(f.id)}">Remover</button></td>
+    </tr>`).join('') : '<tr><td colspan="7" class="empty">Nenhum pagamento fixo cadastrado.</td></tr>';
+}
+const fxValor = $('#fx-valor');
+fxValor.addEventListener('input', () => {
+  const d = fxValor.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 13);
+  fxValor.value = d ? (Number(d) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
+});
+$('#fx-form').addEventListener('input', e => e.target.classList.remove('invalid'));
+$('#fx-form').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const d = {
+    empresa: $('#fx-empresa').value.trim().replace(/\s+/g, ' '),
+    dia: Number($('#fx-dia').value),
+    valor: Number(fxValor.value.replace(/\D/g, '')) / 100,
+    obs: $('#fx-obs').value.trim(),
+    por: $('#fx-por').value.trim()
+  };
+  const conferir = [['#fx-empresa', !d.empresa], ['#fx-dia', !Number.isInteger(d.dia) || d.dia < 1 || d.dia > 31], ['#fx-por', !d.por]];
+  conferir.forEach(([id, ruim]) => $(id).classList.toggle('invalid', ruim));
+  const ruim = conferir.find(([, r]) => r);
+  if (ruim) { $('#fx-msg').textContent = 'Preencha ou corrija os campos destacados. O dia vai de 1 a 31.'; $(ruim[0]).focus(); return; }
+  $('#fx-msg').textContent = '';
+  const igual = state.fixos.find(f => f.status !== 'Inativo' && f.empresa.toLowerCase() === d.empresa.toLowerCase() && f.dia === d.dia);
+  if (igual && !confirm(`${igual.empresa} já está cadastrada com vencimento no dia ${igual.dia}. Cadastrar mesmo assim?`)) return;
+  try { localStorage.setItem('pag-lancado-por', d.por); } catch (e) {}
+  const btn = $('#fx-btn');
+  btn.disabled = true; btn.textContent = 'Cadastrando…';
+  try {
+    const j = await api({ acao: 'addFixo', dados: d });
+    state.fixos.push(j.fixo);
+    ['#fx-empresa', '#fx-dia', '#fx-valor', '#fx-obs'].forEach(id => $(id).value = '');
+    renderFixos();
+    toast(`${d.empresa} cadastrada, vencimento todo dia ${d.dia}.`);
+    $('#fx-empresa').focus();
+  } catch (e) { $('#fx-msg').textContent = e.message; }
+  finally { btn.disabled = false; btn.textContent = 'Cadastrar pagamento fixo'; }
+});
+$('#fx-body').addEventListener('click', async e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  const id = b.dataset.pagar || b.dataset.desfazer || b.dataset.remover;
+  const f = state.fixos.find(x => x.id === id);
+  if (!f) return;
+  const s = situacaoFixo(f);
+  try {
+    if (b.dataset.remover) {
+      if (!confirm(`Remover ${f.empresa} dos pagamentos fixos? O registro continua na planilha como inativo.`)) return;
+      b.disabled = true;
+      await api({ acao: 'removerFixo', id });
+      f.status = 'Inativo';
+      toast(`${f.empresa} removida dos pagamentos fixos.`);
+    } else {
+      const desfazer = !!b.dataset.desfazer;
+      b.disabled = true;
+      await api({ acao: 'pagarFixo', id, mes: s.mesAtual, desfazer });
+      f.ultimoPago = desfazer ? '' : s.mesAtual;
+      toast(desfazer ? 'Pagamento do mês desfeito.' : `${f.empresa} marcada como paga neste mês.`);
+    }
+    renderFixos();
+  } catch (err) { b.disabled = false; toast(err.message, true); }
+});
+
 /* ======== Abas ======== */
-const ABAS = { cartao: 'lancar', nfs: 'lancar', painel: 'painel', historico: 'historico' };
+const ABAS = { cartao: 'lancar', nfs: 'lancar', fixos: 'fixos', painel: 'painel', historico: 'historico' };
 function abrirAba(nome) {
   if (!ABAS[nome]) nome = 'cartao';
   document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.tab === nome)));
-  ['lancar', 'painel', 'historico'].forEach(n => $('#tab-' + n).hidden = n !== ABAS[nome]);
+  ['lancar', 'fixos', 'painel', 'historico'].forEach(n => $('#tab-' + n).hidden = n !== ABAS[nome]);
   if (ABAS[nome] === 'lancar') setModo(nome === 'nfs' ? 'NFS' : 'Cartão');
   if (location.hash !== '#' + nome) history.replaceState(null, '', '#' + nome);
   if (nome === 'painel') renderPainel();
@@ -749,7 +917,7 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if
 $('#f-data').value = isoHoje();
 $('#f-lanc').value = isoHoje();
 $('#p-de').value = isoHoje().slice(0, 4) + '-01-01';
-try { $('#f-por').value = localStorage.getItem('pag-lancado-por') || ''; } catch (e) {}
+try { $('#f-por').value = $('#fx-por').value = localStorage.getItem('pag-lancado-por') || ''; } catch (e) {}
 preencherListas();
 abrirAba(location.hash.slice(1));
 carregar();
