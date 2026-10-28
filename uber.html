@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Corridas Uber · Solicitações da equipe</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1F4; --surface:#FFFFFF; --ink:#18202E; --muted:#5D6778; --line:#D6DCE4;
+  --road:#2B3445; --signal:#F2B705; --signal-ink:#3A2C00; --ok:#1E7A4C; --err:#B42318; --focus:#2F6FEB;
+  --rail:#1F2737; --rail-ink:#B9C2D0;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#11161F; --surface:#1A212D; --ink:#E8ECF2; --muted:#9AA4B5; --line:#2C3545;
+    --road:#C9D1DD; --signal:#F5C02E; --signal-ink:#2A2000; --ok:#4CC38A; --err:#F97066; --focus:#7AA5FF;
+    --rail:#0B0F16; --rail-ink:#8F9AAD;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+/* ---------- Abas no canto esquerdo ---------- */
+.rail{position:fixed;top:0;bottom:0;left:0;width:84px;background:var(--rail);
+  padding:calc(20px + env(safe-area-inset-top,0px)) 10px 20px;display:flex;flex-direction:column;gap:8px;z-index:5}
+.rail .logo{font-size:1.6rem;text-align:center;margin-bottom:14px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:12px;
+  color:var(--rail-ink);text-decoration:none;font-size:.75rem;font-weight:600;line-height:1.2;text-align:center}
+.tab svg{width:24px;height:24px}
+.tab:hover{color:#fff;background:rgba(255,255,255,.06)}
+.tab[aria-current="page"]{background:var(--signal);color:var(--signal-ink)}
+.tab:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+main{margin-left:84px}
+.wrap{max-width:1040px;margin:0 auto;padding:32px 24px 64px}
+.view[hidden]{display:none}
+
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+h1{margin:0;font-size:clamp(1.9rem,4.5vw,2.7rem);line-height:1.05;font-weight:800;font-stretch:118%;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--muted)}
+.status{display:inline-flex;align-items:center;gap:8px;font-size:.875rem;padding:6px 12px;border-radius:999px;
+  border:1px solid var(--line);background:var(--surface);color:var(--muted)}
+.status i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.status.on i{background:var(--ok)} .status.test i{background:var(--signal)}
+
+section{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;margin-bottom:20px}
+h2{margin:0 0 18px;font-size:1.2rem;font-weight:700;font-stretch:108%}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.full{grid-column:1/-1}
+label{display:block;font-size:.875rem;font-weight:600;margin-bottom:6px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);
+  border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px}
+textarea{min-height:88px;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.hint{font-size:.8125rem;color:var(--muted)}
+.invalid{border-color:var(--err)}
+
+/* adicionar novo item na lista */
+.addnew{display:flex;gap:8px;margin-top:8px}
+.addnew[hidden]{display:none}
+.addnew input{flex:1;min-width:0}
+.addnew button{min-height:44px;padding:8px 12px}
+
+/* trajeto */
+.route{display:grid;grid-template-columns:28px 1fr;column-gap:12px}
+.route .rl{display:flex;flex-direction:column;align-items:center}
+.route .pin{width:14px;height:14px;flex:none}
+.route .pin.a{margin-top:42px;border-radius:50%;border:4px solid var(--road);background:var(--surface)}
+.route .pin.b{margin-bottom:15px;background:var(--road);border-radius:2px}
+.route .dash{flex:1;width:4px;margin:6px 0;border-radius:2px;
+  background:repeating-linear-gradient(to bottom,var(--signal) 0 10px,transparent 10px 18px)}
+.route .field + .field{margin-top:16px}
+
+.actions{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-top:20px}
+button{font:inherit;font-weight:700;cursor:pointer;border-radius:10px;min-height:44px;padding:10px 20px;border:1px solid transparent}
+.primary{background:var(--signal);color:var(--signal-ink)}
+.primary:hover{filter:brightness(.96)}
+.primary:disabled{opacity:.6;cursor:wait}
+.ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+.ghost:hover{border-color:var(--muted)}
+.chip{min-height:36px;padding:6px 14px;font-weight:600;font-size:.875rem;border-radius:999px;background:var(--bg);border:1px solid var(--line);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--road);color:var(--surface);border-color:var(--road)}
+
+/* filtros */
+.filters{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px}
+.filters .f{width:160px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.filters .push{margin-left:auto}
+.total{margin:16px 0 0;color:var(--muted)}
+.total strong{color:var(--ink);font-size:1.5rem;font-weight:800;margin-right:4px}
+
+/* gráficos de barras */
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.charts section{margin:0}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:130px 1fr 34px;align-items:center;gap:10px;font-size:.9rem}
+.bar .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .tr{display:block;height:14px;background:var(--bg);border-radius:7px;overflow:hidden}
+.bar .fl{display:block;height:100%;background:var(--road);border-radius:7px}
+.bar.top .fl{background:var(--signal)}
+.bar .v{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* tabelas */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.9375rem;font-variant-numeric:tabular-nums}
+th,td{padding:10px;border-bottom:1px solid var(--line)}
+th{font-weight:600;font-size:.8125rem;color:var(--muted);background:var(--bg);text-align:left}
+.mx th,.mx td{text-align:center;white-space:nowrap}
+.mx th:first-child,.mx td:first-child{text-align:left;position:sticky;left:0;background:var(--surface);font-weight:600}
+.mx thead th:first-child,.mx tfoot td:first-child{background:var(--bg)}
+.mx td.zero{color:var(--line)}
+.mx .tot{font-weight:700;color:var(--ink)}
+.mx tfoot td{font-weight:700;background:var(--bg);border-bottom:0}
+.hist td{vertical-align:top}
+.hist td.nw{white-space:nowrap}
+.hist .trj{min-width:220px}
+.hist .trj span{display:block}
+.hist .trj span + span{color:var(--muted)}
+.hist .mot{min-width:200px;max-width:360px}
+.more{display:flex;justify-content:center;margin-top:14px}
+.more[hidden]{display:none}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);
+  background:var(--road);color:var(--surface);padding:12px 18px;border-radius:10px;font-weight:600;
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:90vw;z-index:10}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.err{background:var(--err);color:#fff}
+
+@media (max-width:820px){ .charts{grid-template-columns:1fr} }
+@media (max-width:720px){
+  .rail{width:64px;padding-left:6px;padding-right:6px}
+  .tab{font-size:.6875rem}
+  main{margin-left:64px}
+  .wrap{padding:24px 14px 56px}
+  .grid{grid-template-columns:1fr}
+  .filters .f{width:calc(50% - 6px)}
+  .filters .push{margin-left:0;width:100%}
+  .filters .push button{width:100%}
+  section{padding:18px}
+  .bar{grid-template-columns:92px 1fr 30px}
+}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+
+<nav class="rail" aria-label="Abas">
+  <div class="logo" aria-hidden="true">🚗</div>
+  <a class="tab" href="#nova" data-view="nova">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+    Nova corrida
+  </a>
+  <a class="tab" href="#historico" data-view="historico">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+    Histórico
+  </a>
+</nav>
+
+<main>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1 id="pageTitle">Corridas Uber</h1>
+      <p id="pageSub">Registre aqui cada corrida solicitada pela equipe.</p>
+    </div>
+    <span id="status" class="status"><i></i><span>Carregando…</span></span>
+  </header>
+
+  <!-- ================= ABA 1: NOVA CORRIDA ================= -->
+  <div class="view" id="view-nova">
+    <section aria-labelledby="t-form">
+      <h2 id="t-form">Nova solicitação</h2>
+      <form id="form" novalidate>
+        <div class="grid">
+          <div>
+            <label for="setor">Setor</label>
+            <select id="setor" required></select>
+            <div class="addnew" id="add-setor" hidden>
+              <input id="novo-setor" maxlength="40" placeholder="Nome do novo setor" aria-label="Nome do novo setor">
+              <button type="button" class="primary" data-add="setor">Adicionar</button>
+              <button type="button" class="ghost" data-cancel="setor">Cancelar</button>
+            </div>
+          </div>
+          <div>
+            <label for="solicitante">Solicitante</label>
+            <select id="solicitante" required></select>
+            <div class="addnew" id="add-solicitante" hidden>
+              <input id="novo-solicitante" maxlength="40" placeholder="Nome do novo solicitante" aria-label="Nome do novo solicitante">
+              <button type="button" class="primary" data-add="solicitante">Adicionar</button>
+              <button type="button" class="ghost" data-cancel="solicitante">Cancelar</button>
+            </div>
+          </div>
+          <div>
+            <label for="data">Data da viagem</label>
+            <input type="date" id="data" required>
+          </div>
+
+          <div class="full">
+            <label for="motivo">Motivo da viagem</label>
+            <textarea id="motivo" maxlength="500" required placeholder="Ex.: visita ao stand do empreendimento para gravação"></textarea>
+          </div>
+
+          <div class="full route">
+            <div class="rl" aria-hidden="true"><span class="pin a"></span><span class="dash"></span><span class="pin b"></span></div>
+            <div>
+              <div class="field">
+                <label for="partida">Endereço de partida</label>
+                <input id="partida" maxlength="250" required placeholder="Rua, número, bairro">
+              </div>
+              <div class="field">
+                <label for="destino">Endereço de destino</label>
+                <input id="destino" maxlength="250" required placeholder="Rua, número, bairro">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <span id="formMsg" class="hint" role="status"></span>
+          <button type="submit" class="primary" id="btnSave">Registrar corrida</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- ================= ABA 2: HISTÓRICO ================= -->
+  <div class="view" id="view-historico" hidden>
+    <section aria-label="Período">
+      <div class="filters">
+        <div class="f"><label for="de">De</label><input type="date" id="de"></div>
+        <div class="f"><label for="ate">Até</label><input type="date" id="ate"></div>
+        <div class="chips" role="group" aria-label="Períodos rápidos">
+          <button type="button" class="chip" data-p="mes">Este mês</button>
+          <button type="button" class="chip" data-p="anterior">Mês passado</button>
+          <button type="button" class="chip" data-p="tudo">Tudo</button>
+        </div>
+        <div class="push"><button type="button" class="ghost" id="btnExport">Exportar planilha (CSV)</button></div>
+      </div>
+      <p class="total" id="total"></p>
+    </section>
+
+    <div class="charts">
+      <section aria-labelledby="t-g1"><h2 id="t-g1">Viagens por setor</h2><div class="bars" id="chartSetor"></div></section>
+      <section aria-labelledby="t-g2"><h2 id="t-g2">Viagens por solicitante</h2><div class="bars" id="chartSol"></div></section>
+    </div>
+
+    <section aria-labelledby="t-mx" style="margin-top:20px">
+      <h2 id="t-mx">Solicitante × setor</h2>
+      <div class="table-wrap" id="matrix"></div>
+    </section>
+
+    <section aria-labelledby="t-hist">
+      <h2 id="t-hist">Corridas registradas</h2>
+      <div class="table-wrap" id="histWrap"></div>
+      <div class="more" id="moreWrap" hidden><button type="button" class="ghost" id="btnMore">Mostrar mais 50</button></div>
+    </section>
+  </div>
+
+</div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   COLE AQUI A URL DO WEB APP DO APPS SCRIPT (termina em /exec).
+   Vazio = MODO DE TESTE (salva só no navegador de quem usa).
+   ============================================================ */
+const API_URL = 'https://script.google.com/macros/s/AKfycbwqoiwxVzGwM7Sc7HMyLLHnwUv6nn1PNyQVdSxM3LkT3lZ9cmCYuzpKGzapHNgyTXrk/exec';
+// Quando o painel roda DENTRO do Apps Script, ele fala direto com a planilha (sem precisar de URL).
+const GAS = typeof google !== 'undefined' && google.script && google.script.run;
+const CONECTADO = !!(GAS || API_URL);
+function gas(fn, arg){
+  return new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](arg));
+}
+
+// Listas iniciais. Depois de conectado, as listas vêm da aba "Listas" da planilha.
+const SETORES_PADRAO = ['TRADE','VIDEO','CRIAÇÃO','CONTEUDO','PERFORMANCE','DADOS','FINANCEIRO','VENDAS'];
+const SOLICITANTES_PADRAO = ['EDUARDO','LAURA','JOAO','JESSE','IGOR','JOAO PEDRO','SAMANTHA','JAMILY','LUAN','REBECA','MARCELA','ISABELLY','ARIELLA'];
+const LS_REG = 'corridas_uber_teste', LS_LIST = 'corridas_uber_listas_teste';
+const NOVO = '__novo__';
+const PAGINA = 50;
+
+let registros = [];
+let listas = { setor:[...SETORES_PADRAO], solicitante:[...SOLICITANTES_PADRAO] };
+let limiteHist = PAGINA;
+
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,'0');
+const isoDe = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const isoHoje = () => isoDe(new Date());
+const br = iso => { if(!iso) return ''; const [a,m,d]=iso.split('-'); return `${d}/${m}/${a}`; };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase().replace(/\s+/g,' ');
+
+function toast(msg, erro=false){
+  const t=$('toast'); t.textContent=msg; t.className='toast show'+(erro?' err':'');
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.className='toast',3200);
+}
+function setStatus(tipo, texto){ const s=$('status'); s.className='status '+tipo; s.querySelector('span').textContent=texto; }
+
+/* ---------- abas ---------- */
+const TEXTOS = {
+  nova:['Corridas Uber','Registre aqui cada corrida solicitada pela equipe.'],
+  historico:['Histórico','Quantas corridas cada setor e cada pessoa fizeram no período.']
+};
+function mostrarAba(){
+  const v = location.hash === '#historico' ? 'historico' : 'nova';
+  document.querySelectorAll('.view').forEach(el=>el.hidden = el.id !== 'view-'+v);
+  document.querySelectorAll('.tab').forEach(t=> t.dataset.view===v ? t.setAttribute('aria-current','page') : t.removeAttribute('aria-current'));
+  $('pageTitle').textContent = TEXTOS[v][0]; $('pageSub').textContent = TEXTOS[v][1];
+  if(v==='historico') renderHistorico();
+}
+window.addEventListener('hashchange', mostrarAba);
+
+/* ---------- selects com "adicionar novo" ---------- */
+function preencher(tipo, selecionar){
+  const sel=$(tipo);
+  const rot = tipo==='setor' ? ['Selecione o setor','+ Adicionar novo setor'] : ['Selecione o nome','+ Adicionar novo solicitante'];
+  const atual = selecionar ?? sel.value;
+  sel.innerHTML = `<option value="">${rot[0]}</option>` +
+    listas[tipo].map(v=>`<option>${esc(v)}</option>`).join('') +
+    `<option value="${NOVO}">${rot[1]}</option>`;
+  if(atual && listas[tipo].includes(atual)) sel.value = atual;
+}
+['setor','solicitante'].forEach(tipo=>{
+  $(tipo).addEventListener('change', ()=>{
+    const abrir = $(tipo).value === NOVO;
+    $('add-'+tipo).hidden = !abrir;
+    if(abrir){ $(tipo).value=''; $('novo-'+tipo).focus(); }
+  });
+  $('novo-'+tipo).addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ e.preventDefault(); adicionarOpcao(tipo); }
+    if(e.key==='Escape'){ fecharAdd(tipo); }
+  });
+});
+document.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>adicionarOpcao(b.dataset.add)));
+document.querySelectorAll('[data-cancel]').forEach(b=>b.addEventListener('click',()=>fecharAdd(b.dataset.cancel)));
+function fecharAdd(tipo){ $('add-'+tipo).hidden=true; $('novo-'+tipo).value=''; $(tipo).focus(); }
+
+async function adicionarOpcao(tipo){
+  const inp=$('novo-'+tipo);
+  const valor = inp.value.trim().toUpperCase().replace(/\s+/g,' ');
+  if(valor.length < 2){ toast('Digite um nome com pelo menos 2 letras.', true); inp.focus(); return; }
+  const existente = listas[tipo].find(v=>norm(v)===norm(valor));
+  if(existente){ preencher(tipo, existente); fecharAdd(tipo); toast(`${existente} já estava na lista e foi selecionado`); return; }
+
+  const btn=document.querySelector(`[data-add="${tipo}"]`); btn.disabled=true;
+  try{
+    if(CONECTADO){
+      const j = await post({action:'addOption', tipo, valor});
+      listas = j.listas;
+    }else{
+      listas[tipo].push(valor);
+      try{ localStorage.setItem(LS_LIST, JSON.stringify(listas)); }catch(e){}
+    }
+    preencher(tipo, valor); fecharAdd(tipo); $(tipo).value = valor;
+    toast(`${valor} adicionado à lista`);
+  }catch(e){ toast('Não foi possível adicionar: '+e.message, true); }
+  finally{ btn.disabled=false; }
+}
+
+/* ---------- dados ---------- */
+async function post(body){
+  if(GAS){ const j = await gas('apiPost', body); if(!j.ok) throw new Error(j.error || 'falha na planilha'); return j; }
+  const r = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(body) });
+  const j = await r.json();
+  if(!j.ok) throw new Error(j.error || 'falha na planilha');
+  return j;
+}
+async function carregar(){
+  if(!CONECTADO){
+    try{ registros = JSON.parse(localStorage.getItem(LS_REG)) || []; }catch(e){ registros=[]; }
+    try{ const l = JSON.parse(localStorage.getItem(LS_LIST)); if(l) listas=l; }catch(e){}
+    setStatus('test','Modo de teste · não conectado à planilha');
+    return;
+  }
+  try{
+    const j = GAS ? await gas('apiList') : await (await fetch(API_URL + '?action=list', {cache:'no-store'})).json();
+    if(!j.ok) throw new Error(j.error);
+    registros = j.rows || [];
+    if(j.listas) listas = j.listas;
+    setStatus('on','Conectado à planilha');
+  }catch(e){
+    setStatus('','Sem conexão com a planilha');
+    toast('Não foi possível ler a planilha. Recarregue a página em instantes.', true);
+  }
+}
+
+/* ---------- registrar ---------- */
+const CAMPOS = ['setor','solicitante','data','motivo','partida','destino'];
+$('form').addEventListener('submit', async ev=>{
+  ev.preventDefault();
+  let ok=true;
+  CAMPOS.forEach(id=>{
+    const el=$(id); const vazio=!el.value.trim() || el.value===NOVO;
+    el.classList.toggle('invalid',vazio); el.setAttribute('aria-invalid',vazio);
+    if(vazio) ok=false;
+  });
+  if(!ok){ $('formMsg').textContent='Preencha todos os campos destacados.'; return; }
+  $('formMsg').textContent='';
+
+  const rec = {
+    action:'add',
+    id: crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random().toString(16).slice(2),
+    registrado: new Date().toISOString(),
+    data:$('data').value, setor:$('setor').value, solicitante:$('solicitante').value,
+    motivo:$('motivo').value.trim(), partida:$('partida').value.trim(), destino:$('destino').value.trim()
+  };
+  const btn=$('btnSave'); btn.disabled=true; btn.textContent='Registrando…';
+  try{
+    if(CONECTADO){ const j = await post(rec); registros.push(j.record); }
+    else{ delete rec.action; registros.push(rec); try{ localStorage.setItem(LS_REG, JSON.stringify(registros)); }catch(e){} }
+    toast('Corrida registrada');
+    ['motivo','partida','destino'].forEach(id=>$(id).value='');
+  }catch(e){ toast('Corrida não registrada: '+e.message+'. Tente novamente.', true); }
+  finally{ btn.disabled=false; btn.textContent='Registrar corrida'; }
+});
+CAMPOS.forEach(id=>$(id).addEventListener('input',()=>{ $(id).classList.remove('invalid'); $(id).removeAttribute('aria-invalid'); }));
+
+/* ---------- período ---------- */
+function filtrados(){
+  const de=$('de').value, ate=$('ate').value;
+  return registros.filter(r=>(!de||r.data>=de)&&(!ate||r.data<=ate));
+}
+function periodo(p){
+  const d=new Date(), y=d.getFullYear(), m=d.getMonth();
+  if(p==='mes'){ $('de').value=isoDe(new Date(y,m,1)); $('ate').value=isoDe(new Date(y,m+1,0)); }
+  if(p==='anterior'){ $('de').value=isoDe(new Date(y,m-1,1)); $('ate').value=isoDe(new Date(y,m,0)); }
+  if(p==='tudo'){ $('de').value=''; $('ate').value=''; }
+  marcarChip(p); limiteHist=PAGINA; renderHistorico();
+}
+function marcarChip(p){ document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed', c.dataset.p===p)); }
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>periodo(c.dataset.p)));
+['de','ate'].forEach(id=>$(id).addEventListener('change',()=>{ marcarChip(null); limiteHist=PAGINA; renderHistorico(); }));
+
+/* ---------- histórico: gráficos, matriz, lista ---------- */
+function contar(lista, campo){
+  const c={}; lista.forEach(r=>{ c[r[campo]]=(c[r[campo]]||0)+1; });
+  return Object.entries(c).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+}
+function barras(el, pares){
+  if(!pares.length){ el.innerHTML='<div class="empty">Sem corridas no período.</div>'; return; }
+  const max = pares[0][1];
+  el.innerHTML = pares.map(([nm,v])=>`
+    <div class="bar${v===max?' top':''}"><span class="nm" title="${esc(nm)}">${esc(nm)}</span>
+      <span class="tr"><span class="fl" style="width:${Math.max(4,v/max*100)}%"></span></span>
+      <span class="v">${v}</span></div>`).join('');
+}
+function renderHistorico(){
+  const lista = filtrados(), n = lista.length;
+  const de=$('de').value, ate=$('ate').value;
+  const per = (de||ate) ? ` entre ${de?br(de):'o início'} e ${ate?br(ate):'hoje'}` : ' no total';
+  $('total').innerHTML = `<strong>${n}</strong> ${n===1?'corrida':'corridas'}${per}`;
+
+  barras($('chartSetor'), contar(lista,'setor'));
+  barras($('chartSol'), contar(lista,'solicitante'));
+
+  if(!n){
+    $('matrix').innerHTML = $('histWrap').innerHTML = '<div class="empty">Nenhuma corrida neste período. Ajuste as datas ou registre uma corrida na aba Nova corrida.</div>';
+    $('moreWrap').hidden=true; return;
+  }
+
+  // matriz solicitante × setor (só setores com corrida no período)
+  const setores = contar(lista,'setor').map(p=>p[0]);
+  const nomes = contar(lista,'solicitante').map(p=>p[0]);
+  const cnt={}; lista.forEach(r=>{ cnt[r.solicitante] ??= {}; cnt[r.solicitante][r.setor]=(cnt[r.solicitante][r.setor]||0)+1; });
+  let h=`<table class="mx"><thead><tr><th scope="col">Solicitante</th>${setores.map(s=>`<th scope="col">${esc(s)}</th>`).join('')}<th scope="col" class="tot">Total</th></tr></thead><tbody>`;
+  nomes.forEach(nm=>{
+    let t=0; h+=`<tr><td>${esc(nm)}</td>`;
+    setores.forEach(s=>{ const v=cnt[nm][s]||0; t+=v; h+= v?`<td>${v}</td>`:`<td class="zero">–</td>`; });
+    h+=`<td class="tot">${t}</td></tr>`;
+  });
+  const ts = Object.fromEntries(contar(lista,'setor'));
+  h+=`</tbody><tfoot><tr><td>Total por setor</td>${setores.map(s=>`<td>${ts[s]}</td>`).join('')}<td>${n}</td></tr></tfoot></table>`;
+  $('matrix').innerHTML=h;
+
+  // lista de corridas, mais recentes primeiro
+  const ord = lista.slice().sort((a,b)=>(b.data+(b.registrado||'')).localeCompare(a.data+(a.registrado||'')));
+  const vis = ord.slice(0,limiteHist);
+  $('histWrap').innerHTML = `<table class="hist"><thead><tr><th>Data</th><th>Solicitante</th><th>Setor</th><th>Trajeto</th><th>Motivo</th></tr></thead><tbody>` +
+    vis.map(r=>`<tr><td class="nw">${br(r.data)}</td><td class="nw">${esc(r.solicitante)}</td><td class="nw">${esc(r.setor)}</td>
+      <td class="trj"><span>De: ${esc(r.partida)}</span><span>Para: ${esc(r.destino)}</span></td>
+      <td class="mot">${esc(r.motivo)}</td></tr>`).join('') + `</tbody></table>`;
+  $('moreWrap').hidden = ord.length <= limiteHist;
+}
+$('btnMore').addEventListener('click',()=>{ limiteHist+=PAGINA; renderHistorico(); });
+
+/* ---------- exportação ---------- */
+$('btnExport').addEventListener('click',()=>{
+  const lista = filtrados().slice().sort((a,b)=>(a.data+(a.registrado||'')).localeCompare(b.data+(b.registrado||'')));
+  if(!lista.length){ toast('Nada para exportar neste período.', true); return; }
+  const cab=['Data da viagem','Setor','Solicitante','Endereço de partida','Endereço de destino','Motivo da viagem'];
+  const cel = v=>{ let s=String(v??'').replace(/\r?\n/g,' '); if(/^[=+\-@]/.test(s)) s="'"+s; return '"'+s.replace(/"/g,'""')+'"'; };
+  const linhas=[cab.map(cel).join(';')].concat(lista.map(r=>[br(r.data),r.setor,r.solicitante,r.partida,r.destino,r.motivo].map(cel).join(';')));
+  const blob=new Blob(['\uFEFF'+linhas.join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`corridas-uber_${$('de').value||'inicio'}_a_${$('ate').value||isoHoje()}.csv`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast(`${lista.length} ${lista.length===1?'corrida exportada':'corridas exportadas'}`);
+});
+
+/* ---------- início ---------- */
+(async function init(){
+  $('data').value = isoHoje();
+  preencher('setor'); preencher('solicitante');
+  await carregar();
+  preencher('setor'); preencher('solicitante');
+  const d=new Date(); $('de').value=isoDe(new Date(d.getFullYear(),d.getMonth(),1)); $('ate').value=isoDe(new Date(d.getFullYear(),d.getMonth()+1,0)); marcarChip('mes');
+  mostrarAba();
+})();
+</script>
+</body>
+</html>
