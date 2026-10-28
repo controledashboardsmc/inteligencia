@@ -142,6 +142,14 @@
   .contagem { color: var(--muted); font-size: 14px; }
 
   .aba[hidden] { display: none; }
+  .badge { display: inline-block; min-width: 22px; padding: 1px 7px; margin-left: 6px; border-radius: 999px; background: var(--red); color: #fff; font-size: 12px; font-weight: 700; text-align: center; }
+  .badge[hidden] { display: none; }
+  .btn-integrar { height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--ink); background: transparent; cursor: pointer; font-weight: 600; white-space: nowrap; font-size: 13px; }
+  .btn-integrar:hover { background: var(--ink); color: var(--surface); }
+  .btn-integrar.confirmar { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .btn-integrar:disabled { opacity: .55; cursor: progress; }
+  td.acao { text-align: right; width: 1%; }
+  #i-msg { display: block; margin-top: 12px; }
   .carregando { color: var(--muted); padding: 40px 0; }
 
   @media (max-width: 960px) {
@@ -171,6 +179,7 @@
     <div class="marca"><i></i><b>Formulários Meta</b><span>Lançamentos Metrocasa</span></div>
     <nav class="nav" aria-label="Seções">
       <button type="button" data-aba="lancamentos" aria-current="page">Lançamentos</button>
+      <button type="button" data-aba="integracao">Integração <span class="badge" id="badge-int" hidden></span></button>
       <button type="button" data-aba="historico">Histórico</button>
     </nav>
     <div class="status" id="status">Conectando…</div>
@@ -277,6 +286,23 @@
             </table>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ABA INTEGRAÇÃO -->
+    <section class="aba" id="aba-integracao" hidden>
+      <h1>Integração</h1>
+      <p class="sub">Formulários lançados que ainda precisam ser integrados ao Salesforce. Ao marcar como integrado, o formulário sai desta lista e continua no histórico.</p>
+
+      <div class="bloco">
+        <p class="contagem" id="i-contagem" style="margin-top:0"></p>
+        <div class="tabela-wrap">
+          <table>
+            <thead><tr><th>Data de lançamento</th><th>Formulário</th><th>Conta</th><th>Página</th><th>Lançado por</th><th></th></tr></thead>
+            <tbody id="i-corpo"></tbody>
+          </table>
+        </div>
+        <span class="msg" id="i-msg" role="status" aria-live="polite"></span>
       </div>
     </section>
 
@@ -475,6 +501,19 @@ function render() {
     ? linhas.map(([k, q]) => { const [c, p] = k.split('\u0000'); return `<tr><td class="qt">${q}</td><td>${esc(c)}</td><td>${esc(p)}</td></tr>`; }).join('')
     : '<tr><td colspan="3" class="vazio">Nenhum lançamento no período.</td></tr>';
 
+  // Integração (pendentes, do mais antigo para o mais novo)
+  const pend = estado.lancamentos.filter(l => l.integracao !== 'Integrado')
+    .sort((a, b) => a.data.localeCompare(b.data) || a.registrado.localeCompare(b.registrado));
+  const badge = $('#badge-int');
+  badge.textContent = pend.length; badge.hidden = !pend.length;
+  $('#i-contagem').textContent = pend.length
+    ? `${pend.length} ${pend.length === 1 ? 'formulário pendente' : 'formulários pendentes'} de integração`
+    : '';
+  $('#i-corpo').innerHTML = pend.length
+    ? pend.map(l => `<tr><td>${br(l.data)}</td><td>${esc(l.formulario)}</td><td>${esc(l.conta)}</td><td>${esc(l.pagina)}</td><td>${esc(l.responsavel)}</td>
+        <td class="acao"><button type="button" class="btn-integrar" data-id="${esc(l.id)}">Marcar como integrado</button></td></tr>`).join('')
+    : '<tr><td colspan="6" class="vazio">Nenhum formulário pendente de integração.</td></tr>';
+
   // Histórico
   const hist = ordenarHist(filtrar('hist'));
   $('#h-contagem').textContent = `${hist.length} ${hist.length === 1 ? 'formulário' : 'formulários'}, ${textoPeriodo(filtros.hist).replace(/^./, c => c.toLowerCase())}`;
@@ -502,6 +541,29 @@ $('#btn-csv').addEventListener('click', () => {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
 
+/* ---------- Integração ---------- */
+$('#i-corpo').addEventListener('click', async e => {
+  const btn = e.target.closest('.btn-integrar');
+  if (!btn) return;
+  // primeiro clique pede confirmação, segundo confirma
+  if (!btn.classList.contains('confirmar')) {
+    $$('.btn-integrar.confirmar').forEach(b => { b.classList.remove('confirmar'); b.textContent = 'Marcar como integrado'; });
+    btn.classList.add('confirmar'); btn.textContent = 'Confirmar integração';
+    setTimeout(() => { if (btn.isConnected && !btn.disabled) { btn.classList.remove('confirmar'); btn.textContent = 'Marcar como integrado'; } }, 4000);
+    return;
+  }
+  btn.disabled = true; btn.textContent = 'Salvando…';
+  const m = $('#i-msg');
+  try {
+    aplicar(await api('POST', { action: 'integrar', id: btn.dataset.id }));
+    m.className = 'msg ok'; m.textContent = 'Formulário marcado como integrado.';
+    setTimeout(() => { m.textContent = ''; }, 4000);
+  } catch (err) {
+    btn.disabled = false; btn.classList.remove('confirmar'); btn.textContent = 'Marcar como integrado';
+    m.className = 'msg erro'; m.textContent = err.message;
+  }
+});
+
 /* ---------- Navegação ---------- */
 function abrirAba(nome) {
   $$('.aba').forEach(s => s.hidden = s.id !== 'aba-' + nome);
@@ -514,7 +576,7 @@ $$('.nav button').forEach(b => b.addEventListener('click', () => abrirAba(b.data
 $('#f-data').value = hojeISO();
 preencherSelects();
 render();
-abrirAba(location.hash === '#historico' ? 'historico' : 'lancamentos');
+abrirAba(['#historico', '#integracao'].includes(location.hash) ? location.hash.slice(1) : 'lancamentos');
 carregar();
 </script>
 </body>
