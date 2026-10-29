@@ -122,6 +122,16 @@ button{cursor:pointer}
 .painel-controles{display:flex;gap:10px;flex-wrap:wrap;min-width:0;max-width:100%}
 .painel-controles .seg{min-width:0}
 td.num-col{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+.campo-link{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:0 6px 0 14px}
+.campo-link:focus-within{border-color:var(--accent)}
+.campo-link svg{width:20px;height:20px;flex:0 0 auto;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.campo-link input{flex:1;min-width:0;border:0;background:transparent;padding:14px 0;font-size:1rem}
+.campo-link input:focus{outline:none}
+.campo-link[data-erro="1"]{border-color:var(--err)}
+.link-erro{font-size:.85rem;color:var(--err);margin:8px 0 0;min-height:1.3em}
+.link-cu{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--ink);text-decoration:none;border:1.5px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.85rem;white-space:nowrap}
+.link-cu:hover{border-color:var(--ink)}
+.link-cu svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .dica{font-size:.88rem;color:var(--muted);margin:10px 0 0;min-height:1.4em}
 
 /* Coluna lateral */
@@ -277,6 +287,15 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
       </div>
 
       <div class="passo">
+        <h2>Link do ClickUp<small>Opcional. Cole o link da tarefa no ClickUp para abrir direto pelo histórico.</small></h2>
+        <div class="campo-link" id="campoLink">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></svg>
+          <input id="linkCu" type="url" maxlength="500" placeholder="https://app.clickup.com/t/..." autocomplete="off" aria-label="Link da tarefa no ClickUp" aria-describedby="linkErro">
+        </div>
+        <p class="link-erro" id="linkErro" aria-live="polite"></p>
+      </div>
+
+      <div class="passo">
         <h2>Algum detalhe?<small>Opcional. Empreendimento, campanha ou peça.</small></h2>
         <div class="final">
           <input id="detalhe" type="text" maxlength="200" placeholder="Ex.: Metrocasa Vila Prudente, campanha de outubro" autocomplete="off">
@@ -361,7 +380,7 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
           </div>
           <div class="tabela-box">
             <table>
-              <thead><tr><th>Data</th><th>Quem fez</th><th>Tarefa</th><th style="text-align:right">Peças</th><th>Detalhe</th></tr></thead>
+              <thead><tr><th>Data</th><th>Quem fez</th><th>Tarefa</th><th style="text-align:right">Peças</th><th>Detalhe</th><th>ClickUp</th></tr></thead>
               <tbody id="tbody"></tbody>
             </table>
           </div>
@@ -425,11 +444,20 @@ const valor = r => state.metrica === 'pecas' ? r.pecas : 1;
 const unidade = n => state.metrica === 'pecas' ? (n === 1 ? 'peça' : 'peças') : (n === 1 ? 'tarefa' : 'tarefas');
 const plural = (n, um, varios) => `${n.toLocaleString('pt-BR')} ${n === 1 ? um : varios}`;
 
+function linkValido(txt) {
+  if (!txt) return false;
+  try {
+    const u = new URL(txt);
+    return u.protocol === 'https:' && (u.hostname === 'clickup.com' || u.hostname.endsWith('.clickup.com'));
+  } catch (_) { return false; }
+}
+
 function normaliza(r) {
   const d = new Date(r.data);
   const ok = !isNaN(d);
   const pc = parseInt(r.pecas, 10);
-  return { id: r.id, data: r.data, pessoa: r.pessoa, tarefa: r.tarefa, detalhe: r.detalhe || '', pecas: pc > 0 ? pc : 1, _d: d, _k: ok ? diaKey(d) : '', _h: ok ? Number(fmtHora.format(d)) : 0 };
+  const link = linkValido(String(r.link || '')) ? String(r.link) : '';
+  return { id: r.id, data: r.data, pessoa: r.pessoa, tarefa: r.tarefa, detalhe: r.detalhe || '', pecas: pc > 0 ? pc : 1, link, _d: d, _k: ok ? diaKey(d) : '', _h: ok ? Number(fmtHora.format(d)) : 0 };
 }
 
 function tempoRelativo(d) {
@@ -491,7 +519,9 @@ async function lancar() {
   if (state.enviando || !state.pessoa || !state.tarefa) return;
   const detalhe = $('#detalhe').value.trim().slice(0, 200);
   const pecas = lerPecas();
-  const payload = { pessoa: state.pessoa, tarefa: state.tarefa, pecas, detalhe };
+  const link = $('#linkCu').value.trim();
+  if (link && !linkValido(link)) { validarLink(); $('#linkCu').focus(); return; }
+  const payload = { pessoa: state.pessoa, tarefa: state.tarefa, pecas, detalhe, link };
   state.enviando = true;
   renderBotao();
   try {
@@ -512,6 +542,8 @@ async function lancar() {
     toast(`Tarefa lançada: ${plural(pecas, 'peça', 'peças')} de ${payload.tarefa} por ${payload.pessoa}`);
     state.tarefa = null;
     $('#detalhe').value = '';
+    $('#linkCu').value = '';
+    validarLink();
     definirPecas(1);
     renderTudo();
   } catch (e) {
@@ -719,8 +751,9 @@ function renderTabela(rows) {
       <td>${esc(r.tarefa)}</td>
       <td class="num-col">${r.pecas}</td>
       <td>${esc(r.detalhe) || '<span class="vazio">Sem detalhe</span>'}</td>
+      <td>${r.link ? `<a class="link-cu" href="${esc(r.link)}" target="_blank" rel="noopener noreferrer">Abrir <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>` : '<span class="vazio">Sem link</span>'}</td>
     </tr>`).join('')
-    : '<tr><td colspan="5" class="vazio">Nenhum lançamento com esses filtros. Troque o período ou limpe a busca.</td></tr>';
+    : '<tr><td colspan="6" class="vazio">Nenhum lançamento com esses filtros. Troque o período ou limpe a busca.</td></tr>';
   const somaPecas = linhas.reduce((a, r) => a + r.pecas, 0);
   $('#contagemTabela').textContent = `Mostrando ${vis.length} de ${linhas.length} lançamentos, ${plural(somaPecas, 'peça', 'peças')} no total`;
   $('#btnMais').hidden = linhas.length <= state.limite;
@@ -734,8 +767,8 @@ function preencherFiltros() {
 function baixarCsv() {
   const linhas = linhasTabela(state.rows.filter(noPeriodo));
   const cel = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  const csv = ['Data;Quem fez;Tarefa;Peças;Detalhe', ...linhas.map(r =>
-    [isNaN(r._d) ? r.data : fmtCompleto.format(r._d), r.pessoa, r.tarefa, r.pecas, r.detalhe].map(cel).join(';'))].join('\r\n');
+  const csv = ['Data;Quem fez;Tarefa;Peças;Detalhe;Link ClickUp', ...linhas.map(r =>
+    [isNaN(r._d) ? r.data : fmtCompleto.format(r._d), r.pessoa, r.tarefa, r.pecas, r.detalhe, r.link].map(cel).join(';'))].join('\r\n');
   const url = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' }));
   const a = Object.assign(document.createElement('a'), { href: url, download: `lancamentos-criacao-${diaKey(new Date())}.csv` });
   document.body.appendChild(a); a.click(); a.remove();
@@ -803,7 +836,17 @@ function definirPecas(n) {
   renderBotao();
 }
 
+function validarLink() {
+  const v = $('#linkCu').value.trim();
+  const ruim = v !== '' && !linkValido(v);
+  $('#campoLink').dataset.erro = ruim ? '1' : '';
+  $('#linkErro').textContent = ruim ? 'Esse link não parece ser do ClickUp. Ele precisa começar com https:// e ser de clickup.com.' : '';
+  return !ruim;
+}
+
 /* ---------- Eventos ---------- */
+$('#linkCu').addEventListener('input', validarLink);
+$('#linkCu').addEventListener('keydown', e => { if (e.key === 'Enter') lancar(); });
 $('#qtdMenos').addEventListener('click', () => definirPecas(lerPecas() - 1));
 $('#qtdMais').addEventListener('click', () => definirPecas(lerPecas() + 1));
 $('#pecas').addEventListener('input', () => {
