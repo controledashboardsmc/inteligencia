@@ -429,6 +429,16 @@ const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const brData = iso => iso ? iso.slice(0, 10).split('-').reverse().join('/') : '';
+// Aceita AAAA-MM-DD, DD/MM/AAAA (com ou sem hora) e datas por extenso; devolve AAAA-MM-DD [HH:mm]
+function isoDe(v) {
+  const s = String(v ?? '').trim();
+  if (!s || /^\d{4}-\d{2}-\d{2}/.test(s)) return s;
+  let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}:\d{2}))?/);
+  if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` + (m[4] ? ' ' + m[4].padStart(5, '0') : '');
+  const d = new Date(s);
+  if (isNaN(d)) return s;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 const brDataHora = s => s ? brData(s) + (s.length > 10 ? ' ' + s.slice(11, 16) : '') : '';
 const isoHoje = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const ativos = () => state.lanc.filter(l => l.status !== 'Excluído');
@@ -475,7 +485,10 @@ async function carregar() {
   setStatus('Carregando lançamentos da planilha…');
   try {
     const j = await api();
-    state.lanc = j.lancamentos || [];
+    state.lanc = (j.lancamentos || []).map(l => ({
+      ...l, data: isoDe(l.data), dataLancamento: isoDe(l.dataLancamento),
+      dataEmissao: isoDe(l.dataEmissao), lancadoEm: isoDe(l.lancadoEm)
+    }));
     state.listas = j.listas || state.listas;
     state.fixos = j.fixos || [];
     preencherListas();
@@ -743,7 +756,9 @@ function renderHistorico() {
       <td class="v num">${BRL.format(l.valor)}</td><td class="nw">${esc(l.por)}</td>
       <td class="act nw">${del ? `<span class="tag" title="${esc(l.motivo)}">Excluído</span>` : `<button class="btn small danger" data-excluir="${esc(l.id)}">Excluir</button>`}</td>
     </tr>`;
-  }).join('') : '<tr><td colspan="12" class="empty">Nenhum lançamento encontrado com esses filtros.</td></tr>';
+  }).join('') : `<tr><td colspan="12" class="empty">${state.lanc.length
+    ? `Nenhum lançamento com esses filtros. Existem ${state.lanc.length} lançamento${state.lanc.length === 1 ? '' : 's'} na planilha${state.lanc.some(l => l.status === 'Excluído') ? '; marque “Mostrar excluídos” para ver os excluídos' : ''}.`
+    : 'Nenhum lançamento carregado da planilha.'}</td></tr>`;
   const ativosFiltrados = rows.filter(l => l.status !== 'Excluído');
   $('#h-count').textContent = rows.length.toLocaleString('pt-BR') + (rows.length === 1 ? ' lançamento' : ' lançamentos');
   $('#h-total').textContent = BRL.format(ativosFiltrados.reduce((s, l) => s + l.valor, 0));
