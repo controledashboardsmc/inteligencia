@@ -1,582 +1,737 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Lançamento de Formulários Meta</title>
+<title>Formulários Meta | Metrocasa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* ====== CONFIGURAÇÃO: cole aqui a URL do App da Web (termina em /exec) no script abaixo ====== */
-  :root {
-    color-scheme: light;
-    --bg: #F5F5F6;
-    --surface: #FFFFFF;
-    --ink: #1C1C1E;
-    --muted: #6B6B73;
-    --line: #E3E3E6;
-    --red: #EC1D24;
-    --red-soft: #FDE8E9;
-    --side: #1C1C1E;
-    --side-ink: #F2F2F3;
-    --ok: #1F8A4C;
-    --focus: #EC1D24;
+:root{
+  --bg:#FFFFFF; --surface:#F4F5F7; --line:#E2E4E9; --ink:#16181D; --muted:#626775;
+  --brand:#EC1D24; --accent:#16181D; --accent-ink:#FFFFFF;
+  --ok:#1FA35B; --warn:#C98A00; --err:#D3262D;
+  --side-bg:#16181D; --side-ink:#8D93A1; --side-ativo:#FFFFFF; --side-w:96px;
+  --font:'Gellix','Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121317; --surface:#1B1D22; --line:#2C2F37; --ink:#F2F3F5; --muted:#9BA0AD;
+    --accent:#F2F3F5; --accent-ink:#121317; --side-bg:#0B0C0F; color-scheme:dark;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      color-scheme: dark;
-      --bg: #141416; --surface: #1D1D20; --ink: #EDEDEF; --muted: #9A9AA3;
-      --line: #2E2E33; --red: #FF4148; --red-soft: #3A1517; --side: #0E0E10; --side-ink: #EDEDEF; --ok: #3CC27A;
-    }
-  }
-  :root[data-theme="dark"] {
-    color-scheme: dark;
-    --bg: #141416; --surface: #1D1D20; --ink: #EDEDEF; --muted: #9A9AA3;
-    --line: #2E2E33; --red: #FF4148; --red-soft: #3A1517; --side: #0E0E10; --side-ink: #EDEDEF; --ok: #3CC27A;
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; }
-  body {
-    font-family: "Figtree", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
-    background: var(--bg); color: var(--ink); font-size: 15px; line-height: 1.45;
-    padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  button, input, select { font: inherit; color: inherit; }
-  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+}
+:root[data-theme="dark"]{
+  --bg:#121317; --surface:#1B1D22; --line:#2C2F37; --ink:#F2F3F5; --muted:#9BA0AD;
+  --accent:#F2F3F5; --accent-ink:#121317; --side-bg:#0B0C0F; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
 
-  .app { display: grid; grid-template-columns: 232px 1fr; min-height: 100%; }
+/* Navegação lateral */
+.side{position:fixed;left:0;top:0;bottom:0;width:var(--side-w);background:var(--side-bg);display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 0;padding-top:calc(22px + env(safe-area-inset-top,0px));z-index:20}
+.side-marca{width:18px;height:18px;border-radius:4px;background:var(--brand);margin-bottom:26px}
+.nav-btn{position:relative;width:80px;border:0;background:none;color:var(--side-ink);display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 2px 10px;border-radius:14px;font-size:.72rem;font-weight:700;line-height:1.15;text-align:center;transition:color .15s,background-color .15s}
+.nav-btn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.nav-btn:hover{color:var(--side-ativo);background:rgba(255,255,255,.06)}
+.nav-btn[aria-current="page"]{color:var(--side-ativo);background:rgba(255,255,255,.1)}
+.nav-btn[aria-current="page"]::before{content:"";position:absolute;left:-8px;top:14px;bottom:14px;width:4px;border-radius:0 4px 4px 0;background:var(--brand)}
+.nav-badge{position:absolute;top:4px;right:12px;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--brand);color:#fff;font-size:.7rem;font-weight:800;line-height:20px}
+.app{margin-left:var(--side-w);min-height:100vh;background:var(--bg)}
+.app:not([data-aba="lancar"]){background:var(--surface)}
 
-  /* Barra lateral */
-  .side { background: var(--side); color: var(--side-ink); padding: 28px 16px; display: flex; flex-direction: column; gap: 28px; position: sticky; top: 0; height: 100vh; }
-  .marca { padding: 0 10px; }
-  .marca b { display: block; font-size: 20px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
-  .marca span { font-size: 13px; color: #A3A3AB; }
-  .marca i { display: block; width: 28px; height: 4px; background: var(--red); margin-bottom: 14px; border-radius: 2px; }
-  .nav { display: flex; flex-direction: column; gap: 4px; }
-  .nav button {
-    all: unset; cursor: pointer; padding: 10px 12px; border-radius: 8px; font-weight: 500; color: #C9C9CF;
-    border-left: 3px solid transparent;
-  }
-  .nav button:hover { background: rgba(255,255,255,.06); color: #fff; }
-  .nav button[aria-current="page"] { background: rgba(255,255,255,.08); color: #fff; border-left-color: var(--red); font-weight: 600; }
-  .nav button:focus-visible { outline: 2px solid var(--red); }
-  .side .status { margin-top: auto; font-size: 12px; color: #8E8E96; padding: 0 10px; }
+/* Topo */
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 24px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{width:14px;height:14px;background:var(--brand);border-radius:3px}
+.brand h1{font-size:1.15rem;font-weight:800;margin:0;letter-spacing:-.01em}
+.brand span{color:var(--muted);font-weight:500}
+.status{display:flex;align-items:center;gap:10px;font-size:.88rem;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.status[data-modo="online"] .dot{background:var(--ok)}
+.status[data-modo="erro"] .dot{background:var(--err)}
+.btn-ghost{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:.85rem;font-weight:600}
+.btn-ghost:hover{border-color:var(--muted)}
+.aviso{margin:16px 0 0;padding:12px 16px;border-radius:10px;background:var(--surface);border-left:4px solid var(--err);font-size:.92rem}
 
-  main { padding: 36px clamp(16px, 4vw, 48px) 64px; max-width: 1180px; width: 100%; }
-  h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 4px; }
-  h2 { font-size: 18px; font-weight: 700; margin: 0; }
-  .sub { color: var(--muted); margin: 0 0 28px; }
+/* Lançar */
+.launch{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:40px;padding:36px 24px 48px}
+.passo{margin-bottom:32px}
+.passo h2{font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin:0 0 14px;line-height:1.2}
+.passo h2 small{display:block;font-size:.9rem;font-weight:500;color:var(--muted);letter-spacing:0;margin-top:4px}
+.campos{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:14px 16px}
+.campos.dois{grid-template-columns:1fr 1fr}
+.campo{display:flex;flex-direction:column;gap:6px;min-width:0}
+.campo label{font-size:.85rem;font-weight:700;color:var(--muted)}
+.campo input,.campo select{height:50px;padding:0 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);width:100%;font-weight:600}
+.campo input::placeholder{font-weight:500;color:var(--muted)}
+.campo input:focus,.campo select:focus{border-color:var(--ink);outline:none}
+.linha-sel{display:flex;gap:8px}
+.linha-sel select{flex:1;min-width:0}
+.btn-add{height:50px;width:50px;flex:none;border:1.5px dashed var(--line);border-radius:12px;background:none;font-size:1.4rem;line-height:1;color:var(--muted)}
+.btn-add:hover{border-color:var(--ink);color:var(--ink)}
+.add-box{display:flex;gap:8px;margin-top:8px}
+.add-box input{flex:1;min-width:0;height:42px;padding:0 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg)}
+.add-box button{height:42px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-weight:700;font-size:.88rem;white-space:nowrap}
+.add-box button.salvar{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 
-  .bloco { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
-  .bloco + .bloco, .bloco + .secao, .secao + .bloco { margin-top: 20px; }
+.pessoas{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.pessoa{position:relative;text-align:left;border:0;border-radius:18px;padding:18px 18px 16px;min-height:118px;background:var(--surface);display:flex;flex-direction:column;justify-content:space-between;transition:background-color .18s,color .18s,transform .12s}
+.pessoa::before{content:"";position:absolute;left:18px;top:18px;width:28px;height:6px;border-radius:3px;background:var(--c)}
+.pessoa .nome{font-size:1.3rem;font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-top:22px;overflow-wrap:anywhere}
+.pessoa .qtd{font-size:.85rem;color:var(--muted);font-weight:500}
+.pessoa:hover{transform:translateY(-2px)}
+.pessoa[aria-pressed="true"]{background:var(--c);color:var(--t)}
+.pessoa[aria-pressed="true"]::before{background:var(--t);opacity:.6}
+.pessoa[aria-pressed="true"] .qtd{color:var(--t);opacity:.85}
+.pessoa.nova{background:none;border:1.5px dashed var(--line);justify-content:center;align-items:center;color:var(--muted);font-weight:700}
+.pessoa.nova::before{display:none}
+.pessoa.nova:hover{border-color:var(--ink);color:var(--ink)}
 
-  /* Formulário */
-  .grid-form { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px 18px; }
-  .campo { display: flex; flex-direction: column; gap: 6px; grid-column: span 2; min-width: 0; }
-  .campo.largo { grid-column: span 4; }
-  .campo label { font-size: 13px; font-weight: 600; }
-  .campo input, .campo select {
-    height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); width: 100%;
-  }
-  .campo input:focus, .campo select:focus { border-color: var(--red); outline: none; box-shadow: 0 0 0 3px var(--red-soft); }
-  .linha-sel { display: flex; gap: 8px; }
-  .linha-sel select { flex: 1; min-width: 0; }
-  .btn-add {
-    height: 42px; width: 42px; flex: none; border: 1px dashed var(--muted); border-radius: 8px; background: transparent;
-    cursor: pointer; font-size: 20px; line-height: 1; color: var(--muted);
-  }
-  .btn-add:hover { border-color: var(--red); color: var(--red); }
-  .add-box { display: none; gap: 8px; margin-top: 6px; }
-  .add-box.aberto { display: flex; }
-  .add-box input { height: 36px; }
-  .add-box button { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; white-space: nowrap; }
-  .add-box button.salvar { background: var(--ink); color: var(--surface); border-color: var(--ink); }
-  .acoes { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; margin-top: 4px; }
-  .btn-primario {
-    height: 44px; padding: 0 24px; border: 0; border-radius: 8px; background: var(--red); color: #fff; font-weight: 700; cursor: pointer;
-  }
-  .btn-primario:hover { filter: brightness(.94); }
-  .btn-primario:disabled { opacity: .55; cursor: progress; }
-  .msg { font-size: 14px; color: var(--muted); }
-  .msg.ok { color: var(--ok); }
-  .msg.erro { color: var(--red); }
+.btn-lancar{height:58px;padding:0 34px;border:0;border-radius:16px;background:var(--brand);color:#fff;font-size:1.05rem;font-weight:800;letter-spacing:-.01em}
+.btn-lancar:hover{filter:brightness(.94)}
+.btn-lancar:disabled{opacity:.55;cursor:progress}
 
-  /* Filtro */
-  .secao { margin-top: 36px; }
-  .cab-secao { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
-  .filtro { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; }
-  .filtro label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--muted); }
-  .filtro input { height: 38px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
-  .btn-sec { height: 38px; padding: 0 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); cursor: pointer; font-weight: 500; }
-  .btn-sec:hover { border-color: var(--ink); }
-  .atalhos { display: flex; gap: 6px; }
-  .atalhos button { height: 38px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: transparent; cursor: pointer; font-size: 13px; }
-  .atalhos button.ativo { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.lateral{border-left:1px solid var(--line);padding-left:32px}
+.lateral h3{font-size:.85rem;font-weight:700;color:var(--muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:.06em}
+.mes-num{font-size:4.2rem;font-weight:800;letter-spacing:-.04em;line-height:1}
+.mes-txt{color:var(--muted);font-size:.9rem;margin:6px 0 30px}
+.ultimos{list-style:none;margin:0;padding:0}
+.ultimos li{padding:12px 0;border-top:1px solid var(--line)}
+.ultimos b{display:block;font-weight:700;font-size:.95rem;overflow-wrap:anywhere}
+.ultimos span{font-size:.82rem;color:var(--muted)}
 
-  /* Relatórios */
-  .rel { display: grid; grid-template-columns: 260px 1fr 1fr; gap: 20px; }
-  .total { background: var(--red); color: #fff; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; min-height: 200px; }
-  .total .num { font-size: 72px; font-weight: 800; line-height: .95; letter-spacing: -0.04em; }
-  .total .rot { font-weight: 600; }
-  .total .per { font-size: 13px; opacity: .85; }
-  .barras { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 12px; max-height: 340px; overflow-y: auto; }
-  .barras li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-size: 14px; }
-  .barras .nome { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .barras .qtd { font-weight: 700; font-variant-numeric: tabular-nums; }
-  .barras .trilho { grid-column: 1 / -1; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
-  .barras .preench { height: 100%; background: var(--ink); border-radius: 3px; }
-  .barras li:first-child .preench { background: var(--red); }
-  .vazio { color: var(--muted); font-size: 14px; margin-top: 16px; }
+/* Painéis */
+.painel{background:var(--surface);padding:44px 0 64px}
+.pagina{padding:32px 24px 64px}
+.painel-topo{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.painel-topo h2{font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin:0;line-height:1.2}
+.painel-topo p{margin:4px 0 0;color:var(--muted);font-size:.92rem;max-width:620px}
+.controles{display:flex;gap:10px;flex-wrap:wrap;align-items:center;min-width:0}
+.seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg button{white-space:nowrap;flex:0 0 auto;border:0;background:none;border-radius:999px;padding:7px 14px;font-size:.85rem;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.intervalo{display:flex;gap:6px;align-items:center;font-size:.85rem;color:var(--muted)}
+.intervalo input{height:38px;padding:0 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);font-size:.85rem}
+.btn-sec{height:40px;padding:0 18px;border-radius:999px;border:0;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:.88rem}
 
-  /* Tabelas */
-  .tabela-wrap { overflow-x: auto; margin-top: 16px; }
-  table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th { text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); padding: 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
-  td { padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  tbody tr:hover { background: var(--bg); }
-  td.n { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
-  th.n { text-align: right; }
-  th.qt, td.qt { width: 1%; white-space: nowrap; padding-right: 32px; }
-  td.qt { font-weight: 700; font-variant-numeric: tabular-nums; }
-  .contagem { color: var(--muted); font-size: 14px; }
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.cards.tres{grid-template-columns:260px repeat(2,minmax(0,1fr))}
+.card{background:var(--bg);border-radius:18px;padding:22px;min-width:0}
+.card.full{grid-column:1/-1}
+.card h3{font-size:1.05rem;font-weight:800;margin:0 0 16px;letter-spacing:-.01em}
+.card.total{background:var(--brand);color:#fff;display:flex;flex-direction:column;justify-content:space-between;min-height:200px}
+.card.total h3{margin:0}
+.card.total .num{font-size:4.5rem;font-weight:800;letter-spacing:-.04em;line-height:1}
+.card.total .per{font-size:.85rem;opacity:.85}
+.barras{display:flex;flex-direction:column;gap:12px;max-height:360px;overflow-y:auto}
+.barra-linha{display:grid;grid-template-columns:minmax(0,170px) 1fr 40px;gap:12px;align-items:center;font-size:.9rem}
+.barra-linha .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.barra-linha .tr{display:block;height:10px;border-radius:5px;background:var(--surface);overflow:hidden}
+.barra-linha .fi{display:block;height:100%;border-radius:5px;background:var(--ink)}
+.barra-linha:first-child .fi{background:var(--brand)}
+.barra-linha .q{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+.vazio{color:var(--muted);font-size:.92rem}
 
-  .aba[hidden] { display: none; }
-  .badge { display: inline-block; min-width: 22px; padding: 1px 7px; margin-left: 6px; border-radius: 999px; background: var(--red); color: #fff; font-size: 12px; font-weight: 700; text-align: center; }
-  .badge[hidden] { display: none; }
-  .btn-integrar { height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--ink); background: transparent; cursor: pointer; font-weight: 600; white-space: nowrap; font-size: 13px; }
-  .btn-integrar:hover { background: var(--ink); color: var(--surface); }
-  .btn-integrar.confirmar { background: var(--ok); border-color: var(--ok); color: #fff; }
-  .btn-integrar:disabled { opacity: .55; cursor: progress; }
-  td.acao { text-align: right; width: 1%; }
-  #i-msg { display: block; margin-top: 12px; }
-  .carregando { color: var(--muted); padding: 40px 0; }
+.resumo-pessoas{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.chip-pessoa{display:inline-flex;align-items:center;gap:8px;background:var(--bg);border-radius:999px;padding:8px 14px;font-weight:700;font-size:.9rem}
+.chip-pessoa i{width:9px;height:9px;border-radius:50%}
+.chip-pessoa b{font-variant-numeric:tabular-nums}
 
-  @media (max-width: 960px) {
-    .rel { grid-template-columns: 1fr 1fr; }
-    .total { grid-column: 1 / -1; min-height: 0; flex-direction: row; align-items: end; gap: 20px; }
-    .total .num { font-size: 56px; }
-  }
-  @media (max-width: 760px) {
-    .app { grid-template-columns: 1fr; }
-    .side { position: sticky; top: 0; height: auto; flex-direction: row; align-items: center; padding: 12px 14px; gap: 14px; z-index: 10; padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
-    .marca i, .marca span, .side .status { display: none; }
-    .marca b { font-size: 16px; }
-    .nav { flex-direction: row; margin-left: auto; }
-    .nav button { border-left: 0; border-bottom: 3px solid transparent; border-radius: 6px; padding: 8px 10px; }
-    .nav button[aria-current="page"] { border-bottom-color: var(--red); }
-    .grid-form { grid-template-columns: 1fr; }
-    .campo, .campo.largo { grid-column: auto; }
-    .rel { grid-template-columns: 1fr; }
-    main { padding-top: 24px; }
-  }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* Tabelas */
+.tabela{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th{text-align:left;font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 12px;border-bottom:1.5px solid var(--line);white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
+td.qt{font-weight:800;font-variant-numeric:tabular-nums;width:1%;padding-right:28px}
+th.qt{width:1%;padding-right:28px}
+td.acao{text-align:right;width:1%}
+.tag{display:inline-flex;align-items:center;gap:7px;font-weight:700;white-space:nowrap}
+.tag i{width:9px;height:9px;border-radius:50%}
+.rodape-tabela{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;font-size:.88rem;color:var(--muted);flex-wrap:wrap}
+.btn-int{border:1.5px solid var(--ink);background:none;border-radius:999px;padding:7px 16px;font-weight:700;font-size:.85rem;white-space:nowrap}
+.btn-int:hover{background:var(--accent);color:var(--accent-ink)}
+
+/* Pop-up */
+dialog{border:0;border-radius:22px;padding:28px;width:min(560px,calc(100% - 32px));background:var(--bg);color:var(--ink)}
+dialog::backdrop{background:rgba(10,11,14,.55)}
+dialog h3{font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin:0 0 4px}
+dialog .dlg-form{color:var(--muted);margin:0 0 20px;overflow-wrap:anywhere}
+dialog .pessoas{grid-template-columns:repeat(3,1fr);margin-bottom:24px}
+dialog .pessoa{min-height:104px}
+.dlg-acoes{display:flex;justify-content:flex-end;gap:10px}
+.dlg-acoes .btn-ghost{padding:0 20px;height:48px;font-size:.95rem}
+.dlg-acoes .btn-lancar{height:48px;font-size:.95rem;padding:0 24px;border-radius:14px}
+
+/* Toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:13px 20px;border-radius:12px;font-weight:600;font-size:.95rem;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100% - 32px);z-index:50}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.erro{background:var(--err);color:#fff}
+
+@media (max-width:1060px){
+  .cards.tres{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .card.total{grid-column:1/-1;min-height:0;flex-direction:row;align-items:flex-end;gap:20px}
+}
+@media (max-width:960px){
+  .launch{grid-template-columns:1fr}
+  .lateral{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:28px}
+  .cards,.cards.tres{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  :root{--side-w:0px}
+  .side{top:auto;right:0;width:auto;height:auto;flex-direction:row;justify-content:space-around;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(255,255,255,.08)}
+  .side-marca{display:none}
+  .nav-btn{flex:1;width:auto;max-width:110px;padding:8px 2px;font-size:.66rem}
+  .nav-btn[aria-current="page"]::before{left:28%;right:28%;top:-6px;bottom:auto;width:auto;height:3px;border-radius:0 0 3px 3px}
+  .nav-badge{right:8px}
+  .app{padding-bottom:92px}
+  .toast{bottom:96px}
+}
+@media (max-width:640px){
+  .wrap,.top,.launch,.pagina{padding-left:16px;padding-right:16px}
+  .campos,.campos.dois{grid-template-columns:1fr}
+  .pessoas{grid-template-columns:repeat(2,1fr)}
+  dialog .pessoas{grid-template-columns:1fr}
+  .btn-lancar{width:100%}
+  .status .txt{display:none}
+  .barra-linha{grid-template-columns:96px 1fr 36px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-<div class="app">
-  <aside class="side">
-    <div class="marca"><i></i><b>Formulários Meta</b><span>Lançamentos Metrocasa</span></div>
-    <nav class="nav" aria-label="Seções">
-      <button type="button" data-aba="lancamentos" aria-current="page">Lançamentos</button>
-      <button type="button" data-aba="integracao">Integração <span class="badge" id="badge-int" hidden></span></button>
-      <button type="button" data-aba="historico">Histórico</button>
-    </nav>
-    <div class="status" id="status">Conectando…</div>
-  </aside>
+
+<nav class="side" aria-label="Navegação">
+  <div class="side-marca" aria-hidden="true"></div>
+  <button type="button" class="nav-btn" data-aba="lancar">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M12 8.5v7M8.5 12h7"/></svg>
+    <span>Lançar</span>
+  </button>
+  <button type="button" class="nav-btn" data-aba="integracao">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 11a7.5 7.5 0 0 1 13-4.6L19.5 8.5M19.5 4v4.5H15"/><path d="M19.5 13a7.5 7.5 0 0 1-13 4.6L4.5 15.5M4.5 20v-4.5H9"/></svg>
+    <span>Integração</span>
+    <span class="nav-badge" id="badgeInt" hidden></span>
+  </button>
+  <button type="button" class="nav-btn" data-aba="historico">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+    <span>Histórico</span>
+  </button>
+  <button type="button" class="nav-btn" data-aba="integrados">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M8.2 12.4l2.6 2.6 5-5.2"/></svg>
+    <span>Histórico de integrações</span>
+  </button>
+</nav>
+
+<div class="app" id="app" data-aba="lancar">
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"></div>
+      <h1>Formulários Meta <span>Metrocasa</span></h1>
+    </div>
+    <div class="status" id="status" data-modo="carregando">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="txt" id="statusTxt">Carregando</span>
+      <button class="btn-ghost" id="btnAtualizar" type="button">Atualizar</button>
+    </div>
+  </header>
+  <div class="wrap"><p class="aviso" id="aviso" hidden></p></div>
 
   <main>
-    <!-- ABA LANÇAMENTOS -->
-    <section class="aba" id="aba-lancamentos">
-      <h1>Lançar formulário</h1>
-      <p class="sub">Registre cada formulário de lead publicado na Meta.</p>
+    <!-- LANÇAR -->
+    <section class="aba" data-aba="lancar" aria-label="Lançar formulário">
+      <form class="wrap launch" id="form" novalidate>
+        <div>
+          <div class="passo">
+            <h2>Qual formulário?</h2>
+            <div class="campos">
+              <div class="campo">
+                <label for="fFormulario">Nome do formulário</label>
+                <input id="fFormulario" type="text" maxlength="200" placeholder="Ex.: Form Estação Vila Sônia nov/26">
+              </div>
+              <div class="campo">
+                <label for="fData">Data de lançamento</label>
+                <input id="fData" type="date">
+              </div>
+            </div>
+          </div>
 
-      <form class="bloco grid-form" id="form" novalidate>
-        <div class="campo largo">
-          <label for="f-formulario">Nome do formulário</label>
-          <input id="f-formulario" type="text" maxlength="200" placeholder="Ex.: Form Estação Vila Sônia out/26" required>
-        </div>
-        <div class="campo">
-          <label for="f-data">Data de lançamento</label>
-          <input id="f-data" type="date" required>
+          <div class="passo">
+            <h2>Onde foi lançado?</h2>
+            <div class="campos dois">
+              <div class="campo">
+                <label for="fConta">Conta</label>
+                <div class="linha-sel">
+                  <select id="fConta"></select>
+                  <button type="button" class="btn-add" data-add="contas" aria-label="Adicionar conta" title="Adicionar conta">+</button>
+                </div>
+                <div class="add-box" data-box="contas" hidden>
+                  <input type="text" maxlength="200" placeholder="Nome da nova conta" aria-label="Nome da nova conta">
+                  <button type="button" class="salvar">Adicionar</button>
+                  <button type="button" class="cancelar">Cancelar</button>
+                </div>
+              </div>
+              <div class="campo">
+                <label for="fPagina">Página</label>
+                <div class="linha-sel">
+                  <select id="fPagina"></select>
+                  <button type="button" class="btn-add" data-add="paginas" aria-label="Adicionar página" title="Adicionar página">+</button>
+                </div>
+                <div class="add-box" data-box="paginas" hidden>
+                  <input type="text" maxlength="200" placeholder="Nome da nova página" aria-label="Nome da nova página">
+                  <button type="button" class="salvar">Adicionar</button>
+                  <button type="button" class="cancelar">Cancelar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="passo">
+            <h2>Quem lançou?</h2>
+            <div class="pessoas" id="pessoas"></div>
+            <div class="add-box" data-box="responsaveis" hidden>
+              <input type="text" maxlength="200" placeholder="Nome da pessoa" aria-label="Nome da pessoa">
+              <button type="button" class="salvar">Adicionar</button>
+              <button type="button" class="cancelar">Cancelar</button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-lancar" id="btnLancar">Lançar formulário</button>
         </div>
 
-        <div class="campo">
-          <label for="f-conta">Conta</label>
-          <div class="linha-sel">
-            <select id="f-conta" required></select>
-            <button type="button" class="btn-add" data-add="contas" aria-label="Adicionar conta" title="Adicionar conta">+</button>
-          </div>
-          <div class="add-box" data-box="contas">
-            <input type="text" maxlength="200" placeholder="Nome da nova conta" aria-label="Nome da nova conta">
-            <button type="button" class="salvar">Adicionar</button>
-            <button type="button" class="cancelar">Cancelar</button>
-          </div>
-        </div>
-
-        <div class="campo">
-          <label for="f-pagina">Página</label>
-          <div class="linha-sel">
-            <select id="f-pagina" required></select>
-            <button type="button" class="btn-add" data-add="paginas" aria-label="Adicionar página" title="Adicionar página">+</button>
-          </div>
-          <div class="add-box" data-box="paginas">
-            <input type="text" maxlength="200" placeholder="Nome da nova página" aria-label="Nome da nova página">
-            <button type="button" class="salvar">Adicionar</button>
-            <button type="button" class="cancelar">Cancelar</button>
-          </div>
-        </div>
-
-        <div class="campo">
-          <label for="f-responsavel">Lançado por</label>
-          <div class="linha-sel">
-            <select id="f-responsavel" required></select>
-            <button type="button" class="btn-add" data-add="responsaveis" aria-label="Adicionar pessoa" title="Adicionar pessoa">+</button>
-          </div>
-          <div class="add-box" data-box="responsaveis">
-            <input type="text" maxlength="200" placeholder="Nome da pessoa" aria-label="Nome da pessoa">
-            <button type="button" class="salvar">Adicionar</button>
-            <button type="button" class="cancelar">Cancelar</button>
-          </div>
-        </div>
-
-        <div class="acoes">
-          <button type="submit" class="btn-primario" id="btn-lancar">Lançar formulário</button>
-          <span class="msg" id="msg" role="status" aria-live="polite"></span>
-        </div>
+        <aside class="lateral" aria-label="Resumo do mês">
+          <h3>Este mês</h3>
+          <div class="mes-num" id="mesNum">0</div>
+          <p class="mes-txt" id="mesTxt">formulários lançados</p>
+          <h3>Últimos lançamentos</h3>
+          <ul class="ultimos" id="ultimos"></ul>
+        </aside>
       </form>
 
-      <div class="secao">
-        <div class="cab-secao">
-          <h2>Relatório</h2>
-          <div class="filtro" data-filtro="rel">
-            <div class="atalhos">
-              <button type="button" data-dias="7">7 dias</button>
-              <button type="button" data-dias="30">30 dias</button>
-              <button type="button" data-dias="mes">Este mês</button>
+      <div class="painel">
+        <div class="wrap">
+          <div class="painel-topo">
+            <h2>Relatório</h2>
+            <div class="controles filtro" data-filtro="rel"></div>
+          </div>
+          <div class="cards tres">
+            <div class="card total">
+              <h3>Formulários lançados</h3>
+              <span class="num" id="rTotal">0</span>
+              <span class="per" id="rPeriodo"></span>
             </div>
-            <label>De<input type="date" data-de></label>
-            <label>Até<input type="date" data-ate></label>
-            <button type="button" class="btn-sec" data-limpar>Tudo</button>
+            <div class="card"><h3>Por conta</h3><div class="barras" id="rConta"></div></div>
+            <div class="card"><h3>Por página</h3><div class="barras" id="rPagina"></div></div>
+            <div class="card full">
+              <h3>Conta e página</h3>
+              <div class="tabela">
+                <table>
+                  <thead><tr><th class="qt">Formulários</th><th>Conta</th><th>Página</th></tr></thead>
+                  <tbody id="rCruzado"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
+    </section>
 
-        <div class="rel">
-          <div class="total">
-            <span class="rot">Formulários lançados</span>
-            <span class="num" id="r-total">0</span>
-            <span class="per" id="r-periodo">Todo o período</span>
-          </div>
-          <div class="bloco" style="margin:0">
-            <h2>Por conta</h2>
-            <ul class="barras" id="r-conta"></ul>
-          </div>
-          <div class="bloco" style="margin:0">
-            <h2>Por página</h2>
-            <ul class="barras" id="r-pagina"></ul>
+    <!-- INTEGRAÇÃO -->
+    <section class="aba" data-aba="integracao" aria-label="Integração" hidden>
+      <div class="wrap pagina">
+        <div class="painel-topo">
+          <div>
+            <h2>Integração</h2>
+            <p>Formulários pendentes de integração no Salesforce. Ao marcar como integrado, o formulário sai desta lista e vai para o histórico de integrações.</p>
           </div>
         </div>
-
-        <div class="bloco" style="margin-top:20px">
-          <h2>Conta e página</h2>
-          <div class="tabela-wrap">
+        <div class="card">
+          <div class="rodape-tabela"><span id="iContagem"></span></div>
+          <div class="tabela">
             <table>
-              <thead><tr><th class="qt">Formulários</th><th>Conta</th><th>Página</th></tr></thead>
-              <tbody id="r-cruzado"></tbody>
+              <thead><tr><th>Lançado em</th><th>Formulário</th><th>Conta</th><th>Página</th><th>Lançado por</th><th></th></tr></thead>
+              <tbody id="iCorpo"></tbody>
             </table>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ABA INTEGRAÇÃO -->
-    <section class="aba" id="aba-integracao" hidden>
-      <h1>Integração</h1>
-      <p class="sub">Formulários lançados que ainda precisam ser integrados ao Salesforce. Ao marcar como integrado, o formulário sai desta lista e continua no histórico.</p>
-
-      <div class="bloco">
-        <p class="contagem" id="i-contagem" style="margin-top:0"></p>
-        <div class="tabela-wrap">
-          <table>
-            <thead><tr><th>Data de lançamento</th><th>Formulário</th><th>Conta</th><th>Página</th><th>Lançado por</th><th></th></tr></thead>
-            <tbody id="i-corpo"></tbody>
-          </table>
+    <!-- HISTÓRICO -->
+    <section class="aba" data-aba="historico" aria-label="Histórico" hidden>
+      <div class="wrap pagina">
+        <div class="painel-topo">
+          <h2>Histórico</h2>
+          <div class="controles">
+            <div class="controles filtro" data-filtro="hist"></div>
+            <button type="button" class="btn-sec" id="csvHist">Baixar CSV</button>
+          </div>
         </div>
-        <span class="msg" id="i-msg" role="status" aria-live="polite"></span>
+        <div class="card">
+          <div class="rodape-tabela"><span id="hContagem"></span></div>
+          <div class="tabela">
+            <table>
+              <thead><tr><th>Lançado em</th><th>Formulário</th><th>Conta</th><th>Página</th><th>Lançado por</th><th>Registrado em</th></tr></thead>
+              <tbody id="hCorpo"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- ABA HISTÓRICO -->
-    <section class="aba" id="aba-historico" hidden>
-      <h1>Histórico</h1>
-      <p class="sub">Todos os formulários lançados, do mais recente ao mais antigo.</p>
-
-      <div class="bloco">
-        <div class="cab-secao" style="margin-bottom:0">
-          <div class="filtro" data-filtro="hist">
-            <div class="atalhos">
-              <button type="button" data-dias="7">7 dias</button>
-              <button type="button" data-dias="30">30 dias</button>
-              <button type="button" data-dias="mes">Este mês</button>
-            </div>
-            <label>De<input type="date" data-de></label>
-            <label>Até<input type="date" data-ate></label>
-            <button type="button" class="btn-sec" data-limpar>Tudo</button>
+    <!-- HISTÓRICO DE INTEGRAÇÕES -->
+    <section class="aba" data-aba="integrados" aria-label="Histórico de integrações" hidden>
+      <div class="wrap pagina">
+        <div class="painel-topo">
+          <div>
+            <h2>Histórico de integrações</h2>
+            <p>Quem integrou cada formulário no Salesforce. O filtro usa a data da integração.</p>
           </div>
-          <button type="button" class="btn-primario" id="btn-csv">Baixar CSV</button>
+          <div class="controles">
+            <div class="controles filtro" data-filtro="int"></div>
+            <button type="button" class="btn-sec" id="csvInt">Baixar CSV</button>
+          </div>
         </div>
-        <p class="contagem" id="h-contagem"></p>
-        <div class="tabela-wrap">
-          <table>
-            <thead><tr><th>Data de lançamento</th><th>Formulário</th><th>Conta</th><th>Página</th><th>Lançado por</th><th>Registrado em</th></tr></thead>
-            <tbody id="h-corpo"></tbody>
-          </table>
+        <div class="resumo-pessoas" id="gResumo"></div>
+        <div class="card">
+          <div class="rodape-tabela"><span id="gContagem"></span></div>
+          <div class="tabela">
+            <table>
+              <thead><tr><th>Integrado em</th><th>Integrado por</th><th>Formulário</th><th>Conta</th><th>Página</th><th>Lançado em</th><th>Lançado por</th></tr></thead>
+              <tbody id="gCorpo"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
   </main>
 </div>
 
+<dialog id="dlg" aria-labelledby="dlgTitulo">
+  <h3 id="dlgTitulo">Quem integrou?</h3>
+  <p class="dlg-form" id="dlgForm"></p>
+  <div class="pessoas" id="dlgPessoas"></div>
+  <div class="dlg-acoes">
+    <button type="button" class="btn-ghost" id="dlgCancelar">Cancelar</button>
+    <button type="button" class="btn-lancar" id="dlgConfirmar" disabled>Confirmar integração</button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
 /* ====== CONFIGURAÇÃO ====== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbxzJy5EDh4cxTigcpMgU3IG7d7I1t2_FL-dbzCv_3V27E1_QdSxNJMunsRelxcLONe6/exec';
+const INTEGRADORES = ['Eduardo', 'Kauê', 'Eduardo Fernandes'];
 /* ========================== */
 
-const estado = { lancamentos: [], contas: [], paginas: [], responsaveis: [] };
-const filtros = { rel: { de: '', ate: '' }, hist: { de: '', ate: '' } };
+const CORES = [['#EC1D24','#FFFFFF'],['#2457C5','#FFFFFF'],['#1F7A5C','#FFFFFF'],['#7A3FB8','#FFFFFF'],['#16181D','#FFFFFF'],['#0284C7','#FFFFFF'],['#B45309','#FFFFFF'],['#BE185D','#FFFFFF']];
+const PERIODOS = [['7','7 dias'],['30','30 dias'],['mes','Este mês'],['tudo','Tudo']];
+
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const state = {
+  lancamentos: [], contas: [], paginas: [], responsaveis: [],
+  responsavel: null, integrarId: null, integrador: null,
+  filtros: { rel: { p: 'tudo', de: '', ate: '' }, hist: { p: 'tudo', de: '', ate: '' }, int: { p: 'tudo', de: '', ate: '' } }
+};
+try { state.responsavel = localStorage.getItem('fm_responsavel'); } catch (_) {}
 
-function esc(s) {
-  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* ---------- utilitários ---------- */
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+function iso(d = new Date()) { const z = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()); }
+function br(v) {
+  if (!v) return '';
+  const [d, h] = String(v).split(' '); const p = d.split('-');
+  return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}${h ? ' ' + h.slice(0, 5) : ''}` : v;
 }
-function hojeISO(d = new Date()) {
-  const z = n => String(n).padStart(2, '0');
-  return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate());
+function cor(nome) {
+  const i = INTEGRADORES.indexOf(nome);
+  if (i >= 0) return CORES[(i + 1) % CORES.length];
+  let h = 0; for (const ch of String(nome)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return CORES[h % CORES.length];
 }
-function br(iso) {
-  if (!iso) return '';
-  const [d, h] = iso.split(' ');
-  const p = d.split('-');
-  return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}${h ? ' ' + h.slice(0, 5) : ''}` : iso;
+function plural(n, um, varios) { return `${n} ${n === 1 ? um : varios}`; }
+let toastT;
+function toast(msg, erro = false) {
+  const t = $('#toast'); t.textContent = msg; t.className = 'toast on' + (erro ? ' erro' : '');
+  clearTimeout(toastT); toastT = setTimeout(() => t.className = 'toast', 3200);
 }
-function setStatus(t) { $('#status').textContent = t; }
+function setStatus(modo, txt) { $('#status').dataset.modo = modo; $('#statusTxt').textContent = txt; }
 
-/* ---------- API ---------- */
+/* ---------- conexão ---------- */
 async function api(metodo, corpo) {
   if (API_URL.startsWith('COLE_')) throw new Error('Configure a API_URL no index.html');
-  const opts = metodo === 'POST' ? { method: 'POST', body: JSON.stringify(corpo) } : {};
-  const r = await fetch(API_URL, opts);
+  const r = await fetch(API_URL, metodo === 'POST' ? { method: 'POST', body: JSON.stringify(corpo) } : {});
   const j = await r.json();
   if (!j.ok) throw new Error(j.erro || 'Erro no servidor');
   return j.dados;
 }
 function aplicar(d) {
-  Object.assign(estado, d);
-  preencherSelects();
+  Object.assign(state, d);
+  $('#aviso').hidden = true;
+  setStatus('online', 'Planilha conectada');
   render();
-  setStatus('Atualizado ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
 }
 async function carregar() {
+  setStatus('carregando', 'Carregando');
   try { aplicar(await api('GET')); }
-  catch (e) { setStatus('Sem conexão'); mensagem(e.message, 'erro'); }
+  catch (e) { setStatus('erro', 'Sem conexão'); const a = $('#aviso'); a.textContent = 'Não foi possível conectar à planilha: ' + e.message; a.hidden = false; }
 }
+$('#btnAtualizar').addEventListener('click', carregar);
 
-/* ---------- Selects ---------- */
-const mapaSel = { contas: '#f-conta', paginas: '#f-pagina', responsaveis: '#f-responsavel' };
-function preencherSelects(selecionar = {}) {
-  for (const [tipo, sel] of Object.entries(mapaSel)) {
-    const el = $(sel);
-    const atual = selecionar[tipo] ?? el.value;
-    el.innerHTML = '<option value="">Selecione</option>' +
-      estado[tipo].map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
-    if (estado[tipo].includes(atual)) el.value = atual;
-  }
-}
-$$('.btn-add').forEach(b => b.addEventListener('click', () => {
-  const box = $(`[data-box="${b.dataset.add}"]`);
-  box.classList.toggle('aberto');
-  if (box.classList.contains('aberto')) $('input', box).focus();
-}));
-$$('.add-box').forEach(box => {
-  const tipo = box.dataset.box, inp = $('input', box), btn = $('.salvar', box);
-  const fechar = () => { inp.value = ''; box.classList.remove('aberto'); };
-  $('.cancelar', box).addEventListener('click', fechar);
-  inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); btn.click(); } if (e.key === 'Escape') fechar(); });
-  btn.addEventListener('click', async () => {
-    const valor = inp.value.trim();
-    if (!valor) return inp.focus();
-    btn.disabled = true;
-    try {
-      const d = await api('POST', { action: 'addOpcao', tipo, valor });
-      Object.assign(estado, d);
-      const achado = estado[tipo].find(x => x.toLowerCase() === valor.toLowerCase()) || valor;
-      preencherSelects({ [tipo]: achado });
-      render();
-      fechar();
-      mensagem(`"${achado}" adicionado.`, 'ok');
-    } catch (e) { mensagem(e.message, 'erro'); }
-    btn.disabled = false;
+/* ---------- filtros de período ---------- */
+function montarFiltros() {
+  $$('.filtro').forEach(box => {
+    const k = box.dataset.filtro;
+    box.innerHTML = `<div class="seg" role="group" aria-label="Período">${PERIODOS.map(([v, t]) => `<button type="button" data-p="${v}">${t}</button>`).join('')}</div>
+      <div class="intervalo"><input type="date" data-de aria-label="De"><span>a</span><input type="date" data-ate aria-label="Até"></div>`;
+    box.addEventListener('click', e => {
+      const b = e.target.closest('.seg button'); if (!b) return;
+      state.filtros[k] = { p: b.dataset.p, de: '', ate: '' }; render();
+    });
+    box.addEventListener('change', e => {
+      if (!e.target.matches('input[type=date]')) return;
+      state.filtros[k] = { p: 'custom', de: $('[data-de]', box).value, ate: $('[data-ate]', box).value }; render();
+    });
   });
-});
-
-/* ---------- Lançar ---------- */
-function mensagem(t, tipo = '') {
-  const m = $('#msg'); m.textContent = t; m.className = 'msg ' + tipo;
-  if (tipo === 'ok') setTimeout(() => { if (m.textContent === t) m.textContent = ''; }, 4000);
 }
-$('#form').addEventListener('submit', async e => {
-  e.preventDefault();
-  const dados = {
-    action: 'lancar',
-    formulario: $('#f-formulario').value.trim(),
-    data: $('#f-data').value,
-    conta: $('#f-conta').value,
-    pagina: $('#f-pagina').value,
-    responsavel: $('#f-responsavel').value
-  };
-  const faltando = [['formulario', 'nome do formulário'], ['data', 'data'], ['conta', 'conta'], ['pagina', 'página'], ['responsavel', 'quem lançou']]
-    .filter(([k]) => !dados[k]).map(([, n]) => n);
-  if (faltando.length) return mensagem('Preencha: ' + faltando.join(', ') + '.', 'erro');
-  const btn = $('#btn-lancar'); btn.disabled = true; mensagem('Salvando…');
-  try {
-    aplicar(await api('POST', dados));
-    $('#f-formulario').value = '';
-    $('#f-formulario').focus();
-    mensagem('Formulário lançado.', 'ok');
-  } catch (err) { mensagem(err.message, 'erro'); }
-  btn.disabled = false;
-});
-
-/* ---------- Filtros ---------- */
-function filtrar(chave) {
-  const { de, ate } = filtros[chave];
-  return estado.lancamentos.filter(l => (!de || l.data >= de) && (!ate || l.data <= ate));
+function intervalo(f) {
+  const hoje = new Date();
+  if (f.p === 'custom') return [f.de, f.ate];
+  if (f.p === 'tudo') return ['', ''];
+  if (f.p === 'mes') return [iso(new Date(hoje.getFullYear(), hoje.getMonth(), 1)), iso(hoje)];
+  const d = new Date(); d.setDate(d.getDate() - (Number(f.p) - 1)); return [iso(d), iso(hoje)];
 }
-$$('[data-filtro]').forEach(box => {
-  const chave = box.dataset.filtro, inDe = $('[data-de]', box), inAte = $('[data-ate]', box);
-  const marcar = alvo => $$('.atalhos button', box).forEach(b => b.classList.toggle('ativo', b === alvo));
-  const definir = (de, ate, alvo = null) => { filtros[chave] = { de, ate }; inDe.value = de; inAte.value = ate; marcar(alvo); render(); };
-  inDe.addEventListener('change', () => definir(inDe.value, inAte.value));
-  inAte.addEventListener('change', () => definir(inDe.value, inAte.value));
-  $('[data-limpar]', box).addEventListener('click', () => definir('', ''));
-  $$('.atalhos button', box).forEach(b => b.addEventListener('click', () => {
-    const hoje = new Date();
-    let de;
-    if (b.dataset.dias === 'mes') de = hojeISO(new Date(hoje.getFullYear(), hoje.getMonth(), 1));
-    else { const d = new Date(); d.setDate(d.getDate() - (Number(b.dataset.dias) - 1)); de = hojeISO(d); }
-    definir(de, hojeISO(hoje), b);
-  }));
-});
-
-/* ---------- Render ---------- */
-function contar(lista, chave) {
-  const m = new Map();
-  lista.forEach(l => m.set(l[chave], (m.get(l[chave]) || 0) + 1));
-  return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'pt-BR'));
-}
-function barras(el, pares) {
-  if (!pares.length) { el.innerHTML = '<li class="vazio">Nenhum lançamento no período.</li>'; return; }
-  const max = pares[0][1];
-  el.innerHTML = pares.map(([n, q]) => `
-    <li><span class="nome" title="${esc(n)}">${esc(n)}</span><span class="qtd">${q}</span>
-    <span class="trilho"><span class="preench" style="width:${(q / max) * 100}%"></span></span></li>`).join('');
-}
-function textoPeriodo({ de, ate }) {
+function textoPeriodo(f) {
+  const [de, ate] = intervalo(f);
   if (!de && !ate) return 'Todo o período';
   if (de && ate) return `${br(de)} a ${br(ate)}`;
   return de ? `A partir de ${br(de)}` : `Até ${br(ate)}`;
 }
+function filtrar(lista, k, campo) {
+  const [de, ate] = intervalo(state.filtros[k]);
+  return lista.filter(l => { const d = String(l[campo] || '').slice(0, 10); return (!de || d >= de) && (!ate || d <= ate); });
+}
+function syncFiltros() {
+  $$('.filtro').forEach(box => {
+    const f = state.filtros[box.dataset.filtro]; const [de, ate] = intervalo(f);
+    $$('.seg button', box).forEach(b => b.setAttribute('aria-pressed', b.dataset.p === f.p));
+    $('[data-de]', box).value = de; $('[data-ate]', box).value = ate;
+  });
+}
+
+/* ---------- render ---------- */
 function render() {
-  // Relatório
-  const rel = filtrar('rel');
-  $('#r-total').textContent = rel.length;
-  $('#r-periodo').textContent = textoPeriodo(filtros.rel);
-  barras($('#r-conta'), contar(rel, 'conta'));
-  barras($('#r-pagina'), contar(rel, 'pagina'));
-  const cruz = new Map();
-  rel.forEach(l => { const k = l.conta + '\u0000' + l.pagina; cruz.set(k, (cruz.get(k) || 0) + 1); });
-  const linhas = [...cruz.entries()].sort((a, b) => b[1] - a[1]);
-  $('#r-cruzado').innerHTML = linhas.length
+  syncFiltros();
+  renderSelects(); renderPessoas(); renderLateral(); renderRelatorio();
+  renderIntegracao(); renderHistorico(); renderIntegrados();
+}
+function renderSelects(sel = {}) {
+  [['contas', '#fConta'], ['paginas', '#fPagina']].forEach(([tipo, id]) => {
+    const el = $(id); const atual = sel[tipo] ?? el.value;
+    el.innerHTML = '<option value="">Selecione</option>' + state[tipo].map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
+    if (state[tipo].includes(atual)) el.value = atual;
+  });
+}
+function cardPessoa(nome, ativo, sub, attr) {
+  const [c, t] = cor(nome);
+  return `<button type="button" class="pessoa" ${attr}="${esc(nome)}" aria-pressed="${ativo}" style="--c:${c};--t:${t}">
+    <span class="nome">${esc(nome)}</span><span class="qtd">${esc(sub)}</span></button>`;
+}
+function renderPessoas() {
+  const cont = {}; state.lancamentos.forEach(l => cont[l.responsavel] = (cont[l.responsavel] || 0) + 1);
+  if (state.responsavel && !state.responsaveis.includes(state.responsavel)) state.responsavel = null;
+  $('#pessoas').innerHTML = state.responsaveis.map(n => cardPessoa(n, n === state.responsavel, plural(cont[n] || 0, 'lançamento', 'lançamentos'), 'data-nome')).join('')
+    + '<button type="button" class="pessoa nova" data-add="responsaveis">+ Adicionar pessoa</button>';
+}
+function renderLateral() {
+  const [de, ate] = intervalo({ p: 'mes' });
+  const n = state.lancamentos.filter(l => l.data >= de && l.data <= ate).length;
+  $('#mesNum').textContent = n;
+  $('#mesTxt').textContent = n === 1 ? 'formulário lançado' : 'formulários lançados';
+  const ult = [...state.lancamentos].sort((a, b) => b.registrado.localeCompare(a.registrado)).slice(0, 5);
+  $('#ultimos').innerHTML = ult.length
+    ? ult.map(l => `<li><b>${esc(l.formulario)}</b><span>${br(l.data)} · ${esc(l.responsavel)}</span></li>`).join('')
+    : '<li class="vazio">Nenhum lançamento ainda.</li>';
+}
+function contar(lista, campo) {
+  const m = new Map(); lista.forEach(l => m.set(l[campo], (m.get(l[campo]) || 0) + 1));
+  return [...m.entries()].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(b[0], 'pt-BR'));
+}
+function barras(el, pares) {
+  if (!pares.length) { el.innerHTML = '<p class="vazio">Nenhum lançamento no período.</p>'; return; }
+  const max = pares[0][1];
+  el.innerHTML = pares.map(([n, q]) => `<div class="barra-linha"><span class="n" title="${esc(n)}">${esc(n)}</span><span class="tr"><span class="fi" style="width:${q / max * 100}%"></span></span><span class="q">${q}</span></div>`).join('');
+}
+function renderRelatorio() {
+  const rel = filtrar(state.lancamentos, 'rel', 'data');
+  $('#rTotal').textContent = rel.length;
+  $('#rPeriodo').textContent = textoPeriodo(state.filtros.rel);
+  barras($('#rConta'), contar(rel, 'conta'));
+  barras($('#rPagina'), contar(rel, 'pagina'));
+  const m = new Map(); rel.forEach(l => { const k = l.conta + '\u0000' + l.pagina; m.set(k, (m.get(k) || 0) + 1); });
+  const linhas = [...m.entries()].sort((a, b) => b[1] - a[1]);
+  $('#rCruzado').innerHTML = linhas.length
     ? linhas.map(([k, q]) => { const [c, p] = k.split('\u0000'); return `<tr><td class="qt">${q}</td><td>${esc(c)}</td><td>${esc(p)}</td></tr>`; }).join('')
     : '<tr><td colspan="3" class="vazio">Nenhum lançamento no período.</td></tr>';
-
-  // Integração (pendentes, do mais antigo para o mais novo)
-  const pend = estado.lancamentos.filter(l => l.integracao !== 'Integrado')
+}
+function tag(nome) { if (!nome) return '<span class="vazio">Não informado</span>'; const [c] = cor(nome); return `<span class="tag"><i style="background:${c}"></i>${esc(nome)}</span>`; }
+function pendentes() {
+  return state.lancamentos.filter(l => l.integracao !== 'Integrado')
     .sort((a, b) => a.data.localeCompare(b.data) || a.registrado.localeCompare(b.registrado));
-  const badge = $('#badge-int');
-  badge.textContent = pend.length; badge.hidden = !pend.length;
-  $('#i-contagem').textContent = pend.length
-    ? `${pend.length} ${pend.length === 1 ? 'formulário pendente' : 'formulários pendentes'} de integração`
-    : '';
-  $('#i-corpo').innerHTML = pend.length
-    ? pend.map(l => `<tr><td>${br(l.data)}</td><td>${esc(l.formulario)}</td><td>${esc(l.conta)}</td><td>${esc(l.pagina)}</td><td>${esc(l.responsavel)}</td>
-        <td class="acao"><button type="button" class="btn-integrar" data-id="${esc(l.id)}">Marcar como integrado</button></td></tr>`).join('')
+}
+function renderIntegracao() {
+  const p = pendentes();
+  const b = $('#badgeInt'); b.textContent = p.length; b.hidden = !p.length;
+  $('#iContagem').textContent = p.length ? plural(p.length, 'formulário pendente', 'formulários pendentes') : 'Tudo integrado.';
+  $('#iCorpo').innerHTML = p.length
+    ? p.map(l => `<tr><td class="data">${br(l.data)}</td><td>${esc(l.formulario)}</td><td>${esc(l.conta)}</td><td>${esc(l.pagina)}</td><td>${tag(l.responsavel)}</td>
+        <td class="acao"><button type="button" class="btn-int" data-id="${esc(l.id)}">Marcar como integrado</button></td></tr>`).join('')
     : '<tr><td colspan="6" class="vazio">Nenhum formulário pendente de integração.</td></tr>';
-
-  // Histórico
-  const hist = ordenarHist(filtrar('hist'));
-  $('#h-contagem').textContent = `${hist.length} ${hist.length === 1 ? 'formulário' : 'formulários'}, ${textoPeriodo(filtros.hist).replace(/^./, c => c.toLowerCase())}`;
-  $('#h-corpo').innerHTML = hist.length
-    ? hist.map(l => `<tr><td>${br(l.data)}</td><td>${esc(l.formulario)}</td><td>${esc(l.conta)}</td><td>${esc(l.pagina)}</td><td>${esc(l.responsavel)}</td><td>${br(l.registrado)}</td></tr>`).join('')
+}
+function ordHist(lista) { return [...lista].sort((a, b) => b.data.localeCompare(a.data) || b.registrado.localeCompare(a.registrado)); }
+function renderHistorico() {
+  const h = ordHist(filtrar(state.lancamentos, 'hist', 'data'));
+  $('#hContagem').textContent = `${plural(h.length, 'formulário', 'formulários')}, ${textoPeriodo(state.filtros.hist).replace(/^./, c => c.toLowerCase())}`;
+  $('#hCorpo').innerHTML = h.length
+    ? h.map(l => `<tr><td class="data">${br(l.data)}</td><td>${esc(l.formulario)}</td><td>${esc(l.conta)}</td><td>${esc(l.pagina)}</td><td>${tag(l.responsavel)}</td><td class="data">${br(l.registrado)}</td></tr>`).join('')
     : '<tr><td colspan="6" class="vazio">Nenhum lançamento no período.</td></tr>';
 }
-function ordenarHist(lista) {
-  return [...lista].sort((a, b) => b.data.localeCompare(a.data) || b.registrado.localeCompare(a.registrado));
+function integrados() {
+  return filtrar(state.lancamentos.filter(l => l.integracao === 'Integrado'), 'int', 'integradoEm')
+    .sort((a, b) => String(b.integradoEm).localeCompare(String(a.integradoEm)));
 }
+function renderIntegrados() {
+  const g = integrados();
+  $('#gResumo').innerHTML = contar(g, 'integradoPor').map(([n, q]) => { const [c] = cor(n); return `<span class="chip-pessoa"><i style="background:${c}"></i>${esc(n || 'Não informado')} <b>${q}</b></span>`; }).join('');
+  $('#gContagem').textContent = `${plural(g.length, 'formulário integrado', 'formulários integrados')}, ${textoPeriodo(state.filtros.int).replace(/^./, c => c.toLowerCase())}`;
+  $('#gCorpo').innerHTML = g.length
+    ? g.map(l => `<tr><td class="data">${br(l.integradoEm)}</td><td>${tag(l.integradoPor)}</td><td>${esc(l.formulario)}</td><td>${esc(l.conta)}</td><td>${esc(l.pagina)}</td><td class="data">${br(l.data)}</td><td>${esc(l.responsavel)}</td></tr>`).join('')
+    : '<tr><td colspan="7" class="vazio">Nenhuma integração no período.</td></tr>';
+}
+
+/* ---------- lançar ---------- */
+$('#pessoas').addEventListener('click', e => {
+  const b = e.target.closest('.pessoa'); if (!b) return;
+  if (b.dataset.add) { abrirAdd('responsaveis'); return; }
+  state.responsavel = b.dataset.nome;
+  try { localStorage.setItem('fm_responsavel', state.responsavel); } catch (_) {}
+  renderPessoas();
+});
+$('#form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const dados = { action: 'lancar', formulario: $('#fFormulario').value.trim(), data: $('#fData').value,
+    conta: $('#fConta').value, pagina: $('#fPagina').value, responsavel: state.responsavel || '' };
+  const falta = [['formulario','nome do formulário'],['data','data'],['conta','conta'],['pagina','página'],['responsavel','quem lançou']].filter(([k]) => !dados[k]).map(([, n]) => n);
+  if (falta.length) return toast('Preencha: ' + falta.join(', ') + '.', true);
+  const btn = $('#btnLancar'); btn.disabled = true; btn.textContent = 'Salvando…';
+  try {
+    aplicar(await api('POST', dados));
+    $('#fFormulario').value = ''; $('#fFormulario').focus();
+    toast('Formulário lançado. Já está na aba Integração.');
+  } catch (err) { toast(err.message, true); }
+  btn.disabled = false; btn.textContent = 'Lançar formulário';
+});
+
+/* ---------- adicionar conta, página e pessoa ---------- */
+function abrirAdd(tipo) {
+  const box = $(`[data-box="${tipo}"]`); box.hidden = !box.hidden;
+  if (!box.hidden) $('input', box).focus();
+}
+$$('.btn-add').forEach(b => b.addEventListener('click', () => abrirAdd(b.dataset.add)));
+$$('.add-box').forEach(box => {
+  const tipo = box.dataset.box, inp = $('input', box), btn = $('.salvar', box);
+  const fechar = () => { inp.value = ''; box.hidden = true; };
+  $('.cancelar', box).addEventListener('click', fechar);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); btn.click(); } if (e.key === 'Escape') fechar(); });
+  btn.addEventListener('click', async () => {
+    const valor = inp.value.trim(); if (!valor) return inp.focus();
+    btn.disabled = true;
+    try {
+      const d = await api('POST', { action: 'addOpcao', tipo, valor });
+      const achado = d[tipo].find(x => x.toLowerCase() === valor.toLowerCase()) || valor;
+      if (tipo === 'responsaveis') state.responsavel = achado;
+      Object.assign(state, d); render();
+      if (tipo !== 'responsaveis') renderSelects({ [tipo]: achado });
+      fechar(); toast(`"${achado}" adicionado.`);
+    } catch (e) { toast(e.message, true); }
+    btn.disabled = false;
+  });
+});
+
+/* ---------- pop-up de integração ---------- */
+const dlg = $('#dlg');
+function renderDlg() {
+  $('#dlgPessoas').innerHTML = INTEGRADORES.map(n => cardPessoa(n, n === state.integrador, 'Integrou', 'data-int')).join('');
+  $('#dlgConfirmar').disabled = !state.integrador;
+}
+$('#iCorpo').addEventListener('click', e => {
+  const b = e.target.closest('.btn-int'); if (!b) return;
+  const l = state.lancamentos.find(x => x.id === b.dataset.id); if (!l) return;
+  state.integrarId = l.id; state.integrador = null;
+  $('#dlgForm').textContent = `${l.formulario} · ${l.conta} · ${l.pagina}`;
+  renderDlg(); dlg.showModal();
+});
+$('#dlgPessoas').addEventListener('click', e => {
+  const b = e.target.closest('.pessoa'); if (!b) return;
+  state.integrador = b.dataset.int; renderDlg();
+});
+$('#dlgCancelar').addEventListener('click', () => dlg.close());
+dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+$('#dlgConfirmar').addEventListener('click', async () => {
+  const btn = $('#dlgConfirmar'); btn.disabled = true; btn.textContent = 'Salvando…';
+  try {
+    aplicar(await api('POST', { action: 'integrar', id: state.integrarId, integrador: state.integrador }));
+    dlg.close(); toast(`Integrado por ${state.integrador}.`);
+  } catch (err) { toast(err.message, true); btn.disabled = false; }
+  btn.textContent = 'Confirmar integração';
+});
 
 /* ---------- CSV ---------- */
-$('#btn-csv').addEventListener('click', () => {
-  const linhas = ordenarHist(filtrar('hist'));
-  if (!linhas.length) return alert('Nenhum lançamento no período para exportar.');
-  const cel = v => '"' + String(v).replace(/"/g, '""') + '"';
-  const cab = ['Data de lançamento', 'Formulário', 'Conta', 'Página', 'Lançado por', 'Registrado em'];
-  const corpo = linhas.map(l => [br(l.data), l.formulario, l.conta, l.pagina, l.responsavel, br(l.registrado)].map(cel).join(';'));
-  const csv = '\uFEFF' + [cab.map(cel).join(';'), ...corpo].join('\r\n');
+function baixarCSV(nome, cab, linhas) {
+  if (!linhas.length) return toast('Nenhum registro no período para exportar.', true);
+  const cel = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const csv = '\uFEFF' + [cab, ...linhas].map(r => r.map(cel).join(';')).join('\r\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-  const { de, ate } = filtros.hist;
-  a.download = `formularios-meta${de ? '_' + de : ''}${ate ? '_a_' + ate : ''}.csv`;
-  document.body.appendChild(a); a.click(); a.remove();
+  a.download = nome + '.csv'; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-});
-
-/* ---------- Integração ---------- */
-$('#i-corpo').addEventListener('click', async e => {
-  const btn = e.target.closest('.btn-integrar');
-  if (!btn) return;
-  // primeiro clique pede confirmação, segundo confirma
-  if (!btn.classList.contains('confirmar')) {
-    $$('.btn-integrar.confirmar').forEach(b => { b.classList.remove('confirmar'); b.textContent = 'Marcar como integrado'; });
-    btn.classList.add('confirmar'); btn.textContent = 'Confirmar integração';
-    setTimeout(() => { if (btn.isConnected && !btn.disabled) { btn.classList.remove('confirmar'); btn.textContent = 'Marcar como integrado'; } }, 4000);
-    return;
-  }
-  btn.disabled = true; btn.textContent = 'Salvando…';
-  const m = $('#i-msg');
-  try {
-    aplicar(await api('POST', { action: 'integrar', id: btn.dataset.id }));
-    m.className = 'msg ok'; m.textContent = 'Formulário marcado como integrado.';
-    setTimeout(() => { m.textContent = ''; }, 4000);
-  } catch (err) {
-    btn.disabled = false; btn.classList.remove('confirmar'); btn.textContent = 'Marcar como integrado';
-    m.className = 'msg erro'; m.textContent = err.message;
-  }
-});
-
-/* ---------- Navegação ---------- */
-function abrirAba(nome) {
-  $$('.aba').forEach(s => s.hidden = s.id !== 'aba-' + nome);
-  $$('.nav button').forEach(b => b.dataset.aba === nome ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
-  history.replaceState(null, '', '#' + nome);
 }
-$$('.nav button').forEach(b => b.addEventListener('click', () => abrirAba(b.dataset.aba)));
+function sufixo(k) { const [de, ate] = intervalo(state.filtros[k]); return (de ? '_' + de : '') + (ate ? '_a_' + ate : ''); }
+$('#csvHist').addEventListener('click', () => baixarCSV('formularios-meta' + sufixo('hist'),
+  ['Data de lançamento','Formulário','Conta','Página','Lançado por','Registrado em','Integração Salesforce','Integrado em','Integrado por'],
+  ordHist(filtrar(state.lancamentos, 'hist', 'data')).map(l => [br(l.data), l.formulario, l.conta, l.pagina, l.responsavel, br(l.registrado), l.integracao, br(l.integradoEm), l.integradoPor])));
+$('#csvInt').addEventListener('click', () => baixarCSV('integracoes-salesforce' + sufixo('int'),
+  ['Integrado em','Integrado por','Formulário','Conta','Página','Data de lançamento','Lançado por'],
+  integrados().map(l => [br(l.integradoEm), l.integradoPor, l.formulario, l.conta, l.pagina, br(l.data), l.responsavel])));
 
-/* ---------- Início ---------- */
-$('#f-data').value = hojeISO();
-preencherSelects();
+/* ---------- abas ---------- */
+const ABAS = ['lancar', 'integracao', 'historico', 'integrados'];
+function mostrarAba(nome, rolar) {
+  if (!ABAS.includes(nome)) nome = 'lancar';
+  $$('.aba').forEach(s => s.hidden = s.dataset.aba !== nome);
+  $$('.nav-btn').forEach(b => b.dataset.aba === nome ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
+  $('#app').dataset.aba = nome;
+  if (location.hash.slice(1) !== nome) { try { history.replaceState(null, '', '#' + nome); } catch (_) {} }
+  if (rolar) window.scrollTo(0, 0);
+}
+$('.side').addEventListener('click', e => { const b = e.target.closest('.nav-btn'); if (b) mostrarAba(b.dataset.aba, true); });
+window.addEventListener('hashchange', () => mostrarAba(location.hash.slice(1), true));
+
+/* ---------- início ---------- */
+$('#fData').value = iso();
+montarFiltros();
+mostrarAba(location.hash.slice(1), false);
 render();
-abrirAba(['#historico', '#integracao'].includes(location.hash) ? location.hash.slice(1) : 'lancamentos');
 carregar();
 </script>
 </body>
