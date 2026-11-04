@@ -134,6 +134,53 @@ td.num-col{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
 .link-cu svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .dica{font-size:.88rem;color:var(--muted);margin:10px 0 0;min-height:1.4em}
 
+/* Cadastro de pessoa e tarefa */
+.pessoa-add{background:transparent;border:2px dashed var(--line);color:var(--muted);align-items:flex-start}
+.pessoa-add::before{display:none}
+.pessoa-add .mais{font-size:2rem;font-weight:800;line-height:1;margin-top:6px;color:var(--ink)}
+.pessoa-add:hover{border-color:var(--ink);color:var(--ink)}
+.pessoa-form{background:var(--surface);gap:10px;justify-content:flex-start}
+.pessoa-form::before{display:none}
+.pessoa-form input,.tarefa-form input,.tarefa-form select{width:100%;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 11px;font-size:.95rem}
+.pessoa-form input:focus,.tarefa-form input:focus,.tarefa-form select:focus{outline:none;border-color:var(--ink)}
+.form-acoes{display:flex;gap:6px;flex-wrap:wrap}
+.btn-mini{border:1.5px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;font-size:.82rem;font-weight:700}
+.btn-mini.ok{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.btn-mini:disabled{opacity:.5;cursor:wait}
+.grupo-add{grid-column:1 / -1}
+.chip-add{border-style:dashed;color:var(--muted)}
+.chip-add:hover{color:var(--ink)}
+.tarefa-form{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto;gap:8px;align-items:center;max-width:720px}
+@media (max-width:640px){.tarefa-form{grid-template-columns:1fr}}
+
+/* Filtro de período */
+.filtro-periodo{display:flex;flex-direction:column;gap:10px;margin:0 0 22px}
+.faixa-linha{display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-height:38px}
+.faixa-texto{font-size:.88rem;color:var(--muted);font-weight:600}
+.faixa-datas{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn-exportar{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:10px 18px;background:var(--ink);color:var(--bg);font-weight:800;font-size:.9rem}
+.btn-exportar svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.cu-icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);transition:border-color .15s,transform .12s}
+.cu-icon:hover{border-color:var(--ink);transform:translateY(-1px)}
+.cu-icon img{width:20px;height:20px;display:block}
+th.th-cu,td.td-cu{text-align:center}
+
+/* Exclusão */
+.btn-excluir{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--muted);transition:border-color .15s,color .15s}
+.btn-excluir:hover{border-color:var(--err);color:var(--err)}
+.btn-excluir svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+th.th-acao,td.td-acao{text-align:center;width:56px}
+th.th-acao{position:relative}
+dialog.confirmar{border:0;border-radius:20px;padding:26px;width:min(420px,calc(100% - 32px));background:var(--bg);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+dialog.confirmar::backdrop{background:rgba(10,11,14,.5)}
+dialog.confirmar h3{margin:0 0 6px;font-size:1.25rem;font-weight:800}
+dialog.confirmar p{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+.conf-item{background:var(--surface);border-radius:12px;padding:12px 14px;font-size:.92rem;margin-bottom:20px}
+.conf-item strong{font-weight:800}
+.conf-acoes{display:flex;justify-content:flex-end;gap:10px}
+.btn-perigo{border:0;border-radius:999px;padding:9px 18px;background:var(--err);color:#fff;font-weight:800;font-size:.9rem}
+.btn-perigo:disabled{opacity:.6;cursor:wait}
+
 /* Coluna lateral */
 .lateral{border-left:1px solid var(--line);padding-left:32px}
 .contador{font-size:4.2rem;font-weight:800;letter-spacing:-.04em;line-height:1;margin:0}
@@ -146,6 +193,7 @@ td.num-col{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
 .feed strong{font-weight:700}
 .feed .quando{display:block;color:var(--muted);font-size:.8rem}
 .vazio{color:var(--muted);font-size:.92rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* Painel */
 .painel-topo{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:12px}
@@ -190,7 +238,11 @@ td.num-col{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
 /* Tabela */
 .filtros{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
 .filtros select,.filtros input{border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 12px;font-size:.92rem}
-.filtros input{flex:1 1 200px}
+.filtros input[type="search"]{flex:1 1 200px}
+.filtro-data{display:inline-flex;align-items:center;gap:8px;font-size:.85rem;font-weight:700;color:var(--muted)}
+.filtro-data input{border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:8px 10px;min-width:150px;font-size:.92rem;font-weight:500}
+.filtro-data input:focus{border-color:var(--ink);outline:none}
+
 .tabela-box{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:.92rem}
 th{text-align:left;font-weight:700;color:var(--muted);font-size:.82rem;padding:10px 12px;border-bottom:1.5px solid var(--line);white-space:nowrap}
@@ -323,13 +375,26 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
           <button type="button" data-m="tarefas">Tarefas</button>
           <button type="button" data-m="pecas">Peças</button>
         </div>
+        </div>
+      </div>
+      <div class="filtro-periodo">
         <div class="seg periodos" role="group" aria-label="Período">
           <button type="button" data-p="hoje">Hoje</button>
-          <button type="button" data-p="7">7 dias</button>
-          <button type="button" data-p="30">30 dias</button>
+          <button type="button" data-p="semana">Esta semana</button>
+          <button type="button" data-p="semana_passada">Semana passada</button>
+          <button type="button" data-p="7">Últimos 7 dias</button>
+          <button type="button" data-p="15">Últimos 15 dias</button>
           <button type="button" data-p="mes">Este mês</button>
+          <button type="button" data-p="mes_passado">Mês passado</button>
           <button type="button" data-p="tudo">Tudo</button>
+          <button type="button" data-p="custom">Personalizado</button>
         </div>
+        <div class="faixa-linha">
+          <span class="faixa-texto"></span>
+          <div class="faixa-datas" hidden>
+            <label class="filtro-data">De <input class="fDe" type="date"></label>
+            <label class="filtro-data">Até <input class="fAte" type="date"></label>
+          </div>
         </div>
       </div>
       <p class="resumo" id="resumo"></p>
@@ -360,19 +425,33 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
       <div class="painel-topo">
         <h2>Histórico</h2>
         <div class="painel-controles">
+          <button class="btn-exportar btn-csv" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Exportar CSV</button>
+        </div>
+      </div>
+      <div class="filtro-periodo">
         <div class="seg periodos" role="group" aria-label="Período">
           <button type="button" data-p="hoje">Hoje</button>
-          <button type="button" data-p="7">7 dias</button>
-          <button type="button" data-p="30">30 dias</button>
+          <button type="button" data-p="semana">Esta semana</button>
+          <button type="button" data-p="semana_passada">Semana passada</button>
+          <button type="button" data-p="7">Últimos 7 dias</button>
+          <button type="button" data-p="15">Últimos 15 dias</button>
           <button type="button" data-p="mes">Este mês</button>
+          <button type="button" data-p="mes_passado">Mês passado</button>
           <button type="button" data-p="tudo">Tudo</button>
+          <button type="button" data-p="custom">Personalizado</button>
         </div>
+        <div class="faixa-linha">
+          <span class="faixa-texto"></span>
+          <div class="faixa-datas" hidden>
+            <label class="filtro-data">De <input class="fDe" type="date"></label>
+            <label class="filtro-data">Até <input class="fAte" type="date"></label>
+          </div>
         </div>
       </div>
       <div class="cards">
         <div class="card full">
           <h3>Todos os lançamentos</h3>
-          <p class="sub">Filtrados pelo período escolhido acima</p>
+          <p class="sub" id="histSub">Refine por pessoa, tarefa ou texto do detalhe</p>
           <div class="filtros">
             <select id="fPessoa" aria-label="Filtrar por pessoa"><option value="">Todas as pessoas</option></select>
             <select id="fTarefa" aria-label="Filtrar por tarefa"><option value="">Todas as tarefas</option></select>
@@ -380,7 +459,7 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
           </div>
           <div class="tabela-box">
             <table>
-              <thead><tr><th>Data</th><th>Quem fez</th><th>Tarefa</th><th style="text-align:right">Peças</th><th>Detalhe</th><th>ClickUp</th></tr></thead>
+              <thead><tr><th>Data</th><th>Quem fez</th><th>Tarefa</th><th style="text-align:right">Peças</th><th>Detalhe</th><th class="th-cu">ClickUp</th><th class="th-acao"><span class="sr">Excluir</span></th></tr></thead>
               <tbody id="tbody"></tbody>
             </table>
           </div>
@@ -388,7 +467,7 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
             <span id="contagemTabela"></span>
             <span>
               <button class="btn-ghost" id="btnMais" type="button" hidden>Mostrar mais</button>
-              <button class="btn-ghost" id="btnCsv" type="button">Baixar CSV</button>
+              <button class="btn-ghost btn-csv" id="btnCsv" type="button">Exportar CSV</button>
             </span>
           </div>
         </div>
@@ -397,6 +476,16 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
   </section>
 </main>
 </div>
+
+<dialog class="confirmar" id="dlgExcluir" aria-labelledby="dlgTitulo">
+  <h3 id="dlgTitulo">Excluir este lançamento?</h3>
+  <p>Ele sai do histórico, do painel e dos totais. Na planilha, a linha fica marcada como excluída e pode ser recuperada.</p>
+  <div class="conf-item" id="dlgItem"></div>
+  <div class="conf-acoes">
+    <button type="button" class="btn-ghost" id="dlgCancelar">Cancelar</button>
+    <button type="button" class="btn-perigo" id="dlgConfirmar">Excluir</button>
+  </div>
+</dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -425,10 +514,16 @@ const CONFIG = {
 };
 
 const TZ = 'America/Sao_Paulo';
-const TAREFAS = CONFIG.GRUPOS.flatMap(g => g.tarefas);
+let PESSOAS = CONFIG.PESSOAS.map(p => ({ ...p }));
+let GRUPOS = CONFIG.GRUPOS.map(g => ({ nome: g.nome, tarefas: g.tarefas.slice() }));
+let TAREFAS = GRUPOS.flatMap(g => g.tarefas);
+const CORES_EXTRA = [['#8B5CF6','#FFFFFF'],['#0E9F9A','#FFFFFF'],['#F97316','#FFFFFF'],['#DB2777','#FFFFFF'],['#475569','#FFFFFF'],['#65A30D','#FFFFFF'],['#0284C7','#FFFFFF'],['#A16207','#FFFFFF']];
+const CU_ICON = 'data:image/png;base64,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';
+let pessoaSalva = null;
 const state = {
-  rows: [], pessoa: null, tarefa: null, pecas: 1, periodo: 'mes', metrica: 'tarefas',
-  fPessoa: '', fTarefa: '', busca: '', limite: 50,
+  rows: [], cad: { pessoas: [], tarefas: [] }, addPessoa: false, addTarefa: false, salvandoCad: false,
+  pessoa: null, tarefa: null, pecas: 1, periodo: 'mes', metrica: 'tarefas',
+  fPessoa: '', fTarefa: '', busca: '', de: '', ate: '', limite: 50,
   modo: 'carregando', erro: null, enviando: false
 };
 
@@ -439,7 +534,7 @@ const fmtHora = new Intl.DateTimeFormat('pt-BR', { timeZone: TZ, hour: '2-digit'
 const fmtCompleto = new Intl.DateTimeFormat('pt-BR', { timeZone: TZ, day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
 const fmtMes = new Intl.DateTimeFormat('pt-BR', { timeZone: TZ, month: 'long' });
 const diaKey = d => fmtDia.format(d);
-const pessoaCfg = nome => CONFIG.PESSOAS.find(p => p.nome === nome) || { nome, cor: '#8A8F9C', texto: '#FFFFFF' };
+const pessoaCfg = nome => PESSOAS.find(p => p.nome === nome) || { nome, cor: '#8A8F9C', texto: '#FFFFFF' };
 const valor = r => state.metrica === 'pecas' ? r.pecas : 1;
 const unidade = n => state.metrica === 'pecas' ? (n === 1 ? 'peça' : 'peças') : (n === 1 ? 'tarefa' : 'tarefas');
 const plural = (n, um, varios) => `${n.toLocaleString('pt-BR')} ${n === 1 ? um : varios}`;
@@ -478,7 +573,7 @@ function gerarDemo() {
     const base = new Date(agora - dia * 864e5);
     const semana = base.getDay();
     if (semana === 0 || semana === 6) continue;
-    CONFIG.PESSOAS.forEach((p, i) => {
+    PESSOAS.forEach((p, i) => {
       const qtd = Math.floor(Math.random() * 3 * pesos[i]);
       for (let k = 0; k < qtd; k++) {
         const d = new Date(base);
@@ -506,6 +601,8 @@ async function carregar(silencioso) {
     const j = await res.json();
     if (!j.ok) throw new Error(j.error || 'Resposta inválida da planilha');
     state.rows = j.rows.map(normaliza);
+    state.cad = j.cadastros || { pessoas: [], tarefas: [] };
+    aplicarCadastros(state.cad);
     state.modo = 'online';
     state.erro = null;
   } catch (e) {
@@ -554,27 +651,134 @@ async function lancar() {
   }
 }
 
+/* ---------- Cadastro de pessoas e tarefas ---------- */
+function aplicarCadastros(cad) {
+  if (!cad) return;
+  const pessoas = CONFIG.PESSOAS.map(p => ({ ...p }));
+  const vistos = new Set(pessoas.map(p => p.nome.toLowerCase()));
+  let extra = 0;
+  (cad.pessoas || []).forEach(n => {
+    if (!n || vistos.has(n.toLowerCase())) return;
+    vistos.add(n.toLowerCase());
+    const c = CORES_EXTRA[extra++ % CORES_EXTRA.length];
+    pessoas.push({ nome: n, cor: c[0], texto: c[1] });
+  });
+  const grupos = CONFIG.GRUPOS.map(g => ({ nome: g.nome, tarefas: g.tarefas.slice() }));
+  const todas = new Set(grupos.flatMap(g => g.tarefas).map(t => t.toLowerCase()));
+  (cad.tarefas || []).forEach(t => {
+    if (!t || !t.nome || todas.has(t.nome.toLowerCase())) return;
+    todas.add(t.nome.toLowerCase());
+    let g = grupos.find(x => x.nome === t.grupo);
+    if (!g) { g = grupos.find(x => x.nome === 'Outras'); if (!g) { g = { nome: 'Outras', tarefas: [] }; grupos.push(g); } }
+    g.tarefas.push(t.nome);
+  });
+  PESSOAS = pessoas; GRUPOS = grupos; TAREFAS = GRUPOS.flatMap(g => g.tarefas);
+  if (!state.pessoa && pessoaSalva && PESSOAS.some(p => p.nome === pessoaSalva)) state.pessoa = pessoaSalva;
+  preencherFiltros();
+  renderLegenda();
+}
+
+function nomesDoGrupo() {
+  const nomes = GRUPOS.map(g => g.nome);
+  if (!nomes.includes('Outras')) nomes.push('Outras');
+  return nomes;
+}
+
+async function salvarCadastro(tipo) {
+  if (state.salvandoCad) return;
+  const input = $(tipo === 'pessoa' ? '#novaPessoa' : '#novaTarefa');
+  if (!input) return;
+  const nome = input.value.replace(/\s+/g, ' ').trim();
+  const grupo = tipo === 'tarefa' ? $('#novaTarefaGrupo').value : '';
+  const existentes = tipo === 'pessoa' ? PESSOAS.map(p => p.nome) : TAREFAS;
+  let erro = '';
+  if (nome.length < 2 || nome.length > 40) erro = 'Use entre 2 e 40 caracteres.';
+  else if (/^[=+\-@]/.test(nome)) erro = 'O nome não pode começar com =, +, - ou @.';
+  else if (existentes.some(n => n.toLowerCase() === nome.toLowerCase())) erro = tipo === 'pessoa' ? 'Essa pessoa já está na lista.' : 'Essa tarefa já está na lista.';
+  if (erro) { toast(erro, true); input.focus(); return; }
+  state.salvandoCad = true;
+  document.querySelectorAll('[data-acao^="salvar"]').forEach(b => { b.disabled = true; b.textContent = 'Salvando...'; });
+  try {
+    if (!CONFIG.SCRIPT_URL) {
+      if (tipo === 'pessoa') state.cad.pessoas.push(nome); else state.cad.tarefas.push({ nome, grupo });
+    } else {
+      const res = await fetch(CONFIG.SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: tipo === 'pessoa' ? 'addPessoa' : 'addTarefa', nome, grupo })
+      });
+      const j = await res.json();
+      if (!j.ok) throw new Error(j.error || 'A planilha recusou o cadastro');
+      state.cad = j.cadastros || state.cad;
+    }
+    aplicarCadastros(state.cad);
+    if (tipo === 'pessoa') {
+      state.addPessoa = false; state.pessoa = nome;
+      try { localStorage.setItem('criacao_pessoa', nome); } catch (_) {}
+    } else {
+      state.addTarefa = false; state.tarefa = nome;
+    }
+    renderTudo();
+    toast(tipo === 'pessoa' ? `${nome} entrou na lista de pessoas` : `Tarefa "${nome}" adicionada em ${grupo || 'Outras'}`);
+  } catch (e) {
+    toast(`Não foi possível adicionar. ${e.message}.`, true);
+    document.querySelectorAll('[data-acao^="salvar"]').forEach(b => { b.disabled = false; b.textContent = 'Adicionar'; });
+  } finally {
+    state.salvandoCad = false;
+  }
+}
+
+function acaoCadastro(acao) {
+  if (acao === 'nova-pessoa') { state.addPessoa = true; renderPessoas(); const i = $('#novaPessoa'); if (i) i.focus(); }
+  else if (acao === 'cancelar-pessoa') { state.addPessoa = false; renderPessoas(); }
+  else if (acao === 'salvar-pessoa') salvarCadastro('pessoa');
+  else if (acao === 'nova-tarefa') { state.addTarefa = true; renderGrupos(); const i = $('#novaTarefa'); if (i) i.focus(); }
+  else if (acao === 'cancelar-tarefa') { state.addTarefa = false; renderGrupos(); }
+  else if (acao === 'salvar-tarefa') salvarCadastro('tarefa');
+}
+
 /* ---------- Lançador ---------- */
 function renderPessoas() {
   const mes = diaKey(new Date()).slice(0, 7);
   const cont = {}, pcs = {};
   state.rows.forEach(r => { if (r._k.startsWith(mes)) { cont[r.pessoa] = (cont[r.pessoa] || 0) + 1; pcs[r.pessoa] = (pcs[r.pessoa] || 0) + r.pecas; } });
-  $('#pessoas').innerHTML = CONFIG.PESSOAS.map(p => `
+  $('#pessoas').innerHTML = PESSOAS.map(p => `
     <button type="button" class="pessoa" data-nome="${esc(p.nome)}" aria-pressed="${state.pessoa === p.nome}"
       style="--c:${p.cor};--t:${p.texto}">
       <span class="nome">${esc(p.nome)}</span>
       <span class="qtd">${plural(cont[p.nome] || 0, 'tarefa', 'tarefas')} e ${plural(pcs[p.nome] || 0, 'peça', 'peças')} este mês</span>
-    </button>`).join('');
+    </button>`).join('') + (state.addPessoa ? `
+    <div class="pessoa pessoa-form">
+      <input id="novaPessoa" type="text" maxlength="40" placeholder="Nome da pessoa" autocomplete="off" aria-label="Nome da nova pessoa">
+      <div class="form-acoes">
+        <button type="button" class="btn-mini ok" data-acao="salvar-pessoa">Adicionar</button>
+        <button type="button" class="btn-mini" data-acao="cancelar-pessoa">Cancelar</button>
+      </div>
+    </div>` : `
+    <button type="button" class="pessoa pessoa-add" data-acao="nova-pessoa">
+      <span class="mais" aria-hidden="true">+</span>
+      <span class="qtd">Adicionar pessoa</span>
+    </button>`);
 }
 
 function renderGrupos() {
-  $('#grupos').innerHTML = CONFIG.GRUPOS.map(g => `
+  $('#grupos').innerHTML = GRUPOS.map(g => `
     <div class="grupo">
       <h3>${esc(g.nome)}</h3>
       <div class="chips">${g.tarefas.map(t =>
         `<button type="button" class="chip" data-tarefa="${esc(t)}" aria-pressed="${state.tarefa === t}">${esc(t)}</button>`).join('')}
       </div>
-    </div>`).join('');
+    </div>`).join('') + `
+    <div class="grupo grupo-add">${state.addTarefa ? `
+      <div class="tarefa-form">
+        <input id="novaTarefa" type="text" maxlength="40" placeholder="Nome da nova tarefa" autocomplete="off" aria-label="Nome da nova tarefa">
+        <select id="novaTarefaGrupo" aria-label="Grupo da nova tarefa">${nomesDoGrupo().map(n => `<option>${esc(n)}</option>`).join('')}</select>
+        <div class="form-acoes">
+          <button type="button" class="btn-mini ok" data-acao="salvar-tarefa">Adicionar</button>
+          <button type="button" class="btn-mini" data-acao="cancelar-tarefa">Cancelar</button>
+        </div>
+      </div>` : `<button type="button" class="chip chip-add" data-acao="nova-tarefa">+ Nova tarefa</button>`}
+    </div>`;
 }
 
 function aplicarCorDaPessoa() {
@@ -617,21 +821,60 @@ function renderLateral() {
 }
 
 /* ---------- Painel ---------- */
-function noPeriodo(r) {
+function addDias(k, n) { return diaKey(new Date(new Date(`${k}T12:00:00-03:00`).getTime() + n * 864e5)); }
+function intervaloPeriodo() {
   const hoje = diaKey(new Date());
+  const dow = (new Date(`${hoje}T12:00:00-03:00`).getUTCDay() + 6) % 7;
+  const iniSem = addDias(hoje, -dow);
+  const ini01 = hoje.slice(0, 8) + '01';
   switch (state.periodo) {
-    case 'hoje': return r._k === hoje;
-    case '7':    return r._k >= diaKey(new Date(Date.now() - 6 * 864e5));
-    case '30':   return r._k >= diaKey(new Date(Date.now() - 29 * 864e5));
-    case 'mes':  return r._k.slice(0, 7) === hoje.slice(0, 7);
-    default:     return true;
+    case 'hoje': return [hoje, hoje];
+    case 'semana': return [iniSem, hoje];
+    case 'semana_passada': return [addDias(iniSem, -7), addDias(iniSem, -1)];
+    case '7': return [addDias(hoje, -6), hoje];
+    case '15': return [addDias(hoje, -14), hoje];
+    case 'mes': return [ini01, hoje];
+    case 'mes_passado': { const fim = addDias(ini01, -1); return [fim.slice(0, 8) + '01', fim]; }
+    case 'custom': {
+      let de = state.de, ate = state.ate;
+      if (de && ate && de > ate) [de, ate] = [ate, de];
+      return [de || null, ate || null];
+    }
+    default: return [null, null];
   }
+}
+function filtrarPeriodo(rows) {
+  const [a, b] = intervaloPeriodo();
+  return rows.filter(r => r._k ? (!a || r._k >= a) && (!b || r._k <= b) : (!a && !b));
+}
+const PERIODOS_NOME = { hoje: 'hoje', semana: 'nesta semana', semana_passada: 'na semana passada', '7': 'nos últimos 7 dias', '15': 'nos últimos 15 dias', mes: 'este mês', mes_passado: 'no mês passado', tudo: 'desde o início' };
+function descricaoPeriodo() {
+  if (state.periodo !== 'custom') return PERIODOS_NOME[state.periodo] || '';
+  const [a, b] = intervaloPeriodo();
+  if (a && b) return a === b ? `em ${fmtDataCurta(a)}` : `entre ${fmtDataCurta(a)} e ${fmtDataCurta(b)}`;
+  if (a) return `desde ${fmtDataCurta(a)}`;
+  if (b) return `até ${fmtDataCurta(b)}`;
+  return 'desde o início';
+}
+function faixaTexto() {
+  const [a, b] = intervaloPeriodo();
+  if (state.periodo === 'custom' && !a && !b) return 'Escolha as datas de início e fim';
+  if (!a && !b) return 'Todo o período registrado';
+  if (a === b) return fmtDataCurta(a);
+  return `${a ? fmtDataCurta(a) : 'início'} a ${b ? fmtDataCurta(b) : 'hoje'}`;
+}
+function fmtDataCurta(k) { return k ? `${k.slice(8, 10)}/${k.slice(5, 7)}/${k.slice(2, 4)}` : ''; }
+function renderPeriodos() {
+  document.querySelectorAll('.periodos button').forEach(b => b.setAttribute('aria-pressed', b.dataset.p === state.periodo));
+  document.querySelectorAll('.faixa-datas').forEach(f => f.hidden = state.periodo !== 'custom');
+  document.querySelectorAll('.fDe').forEach(i => { if (i.value !== state.de) i.value = state.de; });
+  document.querySelectorAll('.fAte').forEach(i => { if (i.value !== state.ate) i.value = state.ate; });
+  document.querySelectorAll('.faixa-texto').forEach(t => t.textContent = faixaTexto());
 }
 
 function renderResumo(rows) {
-  const nomes = { hoje: 'hoje', '7': 'nos últimos 7 dias', '30': 'nos últimos 30 dias', mes: 'este mês', tudo: 'desde o início' };
   if (!rows.length) {
-    $('#resumo').innerHTML = `Nenhuma tarefa lançada ${nomes[state.periodo]}.`;
+    $('#resumo').innerHTML = `Nenhuma tarefa lançada ${descricaoPeriodo()}.`;
     return;
   }
   const porP = contar(rows, 'pessoa'), porT = contar(rows, 'tarefa');
@@ -640,7 +883,7 @@ function renderResumo(rows) {
   const totalPecas = rows.reduce((a, r) => a + r.pecas, 0);
   const lider = state.metrica === 'pecas' ? 'produziu mais peças' : 'lançou mais tarefas';
   const topo = state.metrica === 'pecas' ? 'a tarefa com mais peças foi' : 'a tarefa mais frequente foi';
-  $('#resumo').innerHTML = `<b>${plural(rows.length, 'tarefa lançada', 'tarefas lançadas')}</b> ${nomes[state.periodo]}, somando <b>${plural(totalPecas, 'peça', 'peças')}</b>. `
+  $('#resumo').innerHTML = `<b>${plural(rows.length, 'tarefa lançada', 'tarefas lançadas')}</b> ${descricaoPeriodo()}, somando <b>${plural(totalPecas, 'peça', 'peças')}</b>. `
     + `${esc(topP[0])} ${lider} (${topP[1]}) e ${topo} ${esc(topT[0])} (${topT[1]}).`;
 }
 
@@ -651,7 +894,7 @@ function contar(rows, campo) {
 function renderPorPessoa(rows) {
   const c = contar(rows, 'pessoa');
   const max = Math.max(1, ...Object.values(c));
-  $('#porPessoa').innerHTML = CONFIG.PESSOAS.map(p => {
+  $('#porPessoa').innerHTML = PESSOAS.map(p => {
     const n = c[p.nome] || 0;
     return `<div class="barra-linha">
       <span class="rot">${esc(p.nome)}</span>
@@ -669,7 +912,7 @@ function renderPorTarefa(rows) {
   const max = Math.max(1, ...lista.map(total));
   $('#porTarefa').innerHTML = lista.map(t => {
     const n = total(t);
-    const segs = CONFIG.PESSOAS.map(p => {
+    const segs = PESSOAS.map(p => {
       const v = (porT[t] || {})[p.nome] || 0;
       return v ? `<span style="width:${v / max * 100}%;background:${p.cor}" title="${esc(p.nome)}: ${v}"></span>` : '';
     }).join('');
@@ -681,7 +924,7 @@ function renderPorTarefa(rows) {
 }
 
 function renderLegenda() {
-  $('#legendaTempo').innerHTML = CONFIG.PESSOAS.map(p => `<span><i style="background:${p.cor}"></i>${esc(p.nome)}</span>`).join('');
+  $('#legendaTempo').innerHTML = PESSOAS.map(p => `<span><i style="background:${p.cor}"></i>${esc(p.nome)}</span>`).join('');
 }
 
 function intervaloDias(inicio, fim) {
@@ -701,12 +944,10 @@ function renderTempo(rows) {
     rotulo = b => `${b}h`;
     sub = 'Lançamentos por hora (8h às 20h)';
   } else {
-    let inicio;
-    if (state.periodo === '7') inicio = diaKey(new Date(Date.now() - 6 * 864e5));
-    else if (state.periodo === '30') inicio = diaKey(new Date(Date.now() - 29 * 864e5));
-    else if (state.periodo === 'mes') inicio = hoje.slice(0, 8) + '01';
-    else inicio = rows.length ? rows.reduce((m, r) => r._k && r._k < m ? r._k : m, hoje) : hoje;
-    const dias = intervaloDias(inicio, hoje);
+    let [inicio, fim] = intervaloPeriodo();
+    if (!inicio) inicio = rows.length ? rows.reduce((m, r) => r._k && r._k < m ? r._k : m, fim || hoje) : (fim || hoje);
+    if (!fim) fim = hoje;
+    const dias = intervaloDias(inicio, fim);
     if (dias.length > 62) {
       const meses = [...new Set(dias.map(d => d.slice(0, 7)))];
       buckets = meses; chave = r => r._k.slice(0, 7);
@@ -725,7 +966,7 @@ function renderTempo(rows) {
   const passo = Math.ceil(buckets.length / 10);
   $('#tempoSub').textContent = state.metrica === 'pecas' ? sub.replace('Lançamentos', 'Peças') : sub;
   $('#tempo').innerHTML = buckets.map(b => {
-    const segs = CONFIG.PESSOAS.map(p => {
+    const segs = PESSOAS.map(p => {
       const v = (mapa[b] || {})[p.nome] || 0;
       return v ? `<span style="height:${v / max * 100}%;background:${p.cor}"></span>` : '';
     }).join('');
@@ -751,21 +992,26 @@ function renderTabela(rows) {
       <td>${esc(r.tarefa)}</td>
       <td class="num-col">${r.pecas}</td>
       <td>${esc(r.detalhe) || '<span class="vazio">Sem detalhe</span>'}</td>
-      <td>${r.link ? `<a class="link-cu" href="${esc(r.link)}" target="_blank" rel="noopener noreferrer">Abrir <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>` : '<span class="vazio">Sem link</span>'}</td>
+      <td class="td-cu">${r.link ? `<a class="cu-icon" href="${esc(r.link)}" target="_blank" rel="noopener noreferrer" title="Abrir tarefa no ClickUp" aria-label="Abrir tarefa no ClickUp"><img src="${CU_ICON}" alt=""></a>` : '<span class="vazio">Sem link</span>'}</td>
+      <td class="td-acao"><button type="button" class="btn-excluir" data-id="${esc(r.id)}" title="Excluir lançamento" aria-label="Excluir lançamento de ${esc(r.tarefa)} por ${esc(r.pessoa)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button></td>
     </tr>`).join('')
-    : '<tr><td colspan="6" class="vazio">Nenhum lançamento com esses filtros. Troque o período ou limpe a busca.</td></tr>';
+    : '<tr><td colspan="7" class="vazio">Nenhum lançamento com esses filtros. Troque o período ou limpe a busca.</td></tr>';
   const somaPecas = linhas.reduce((a, r) => a + r.pecas, 0);
   $('#contagemTabela').textContent = `Mostrando ${vis.length} de ${linhas.length} lançamentos, ${plural(somaPecas, 'peça', 'peças')} no total`;
   $('#btnMais').hidden = linhas.length <= state.limite;
 }
 
 function preencherFiltros() {
-  $('#fPessoa').insertAdjacentHTML('beforeend', CONFIG.PESSOAS.map(p => `<option>${esc(p.nome)}</option>`).join(''));
-  $('#fTarefa').insertAdjacentHTML('beforeend', TAREFAS.map(t => `<option>${esc(t)}</option>`).join(''));
+  const fp = $('#fPessoa'), ft = $('#fTarefa');
+  fp.innerHTML = '<option value="">Todas as pessoas</option>' + PESSOAS.map(p => `<option>${esc(p.nome)}</option>`).join('');
+  ft.innerHTML = '<option value="">Todas as tarefas</option>' + TAREFAS.map(t => `<option>${esc(t)}</option>`).join('');
+  fp.value = PESSOAS.some(p => p.nome === state.fPessoa) ? state.fPessoa : '';
+  ft.value = TAREFAS.includes(state.fTarefa) ? state.fTarefa : '';
+  state.fPessoa = fp.value; state.fTarefa = ft.value;
 }
 
 function baixarCsv() {
-  const linhas = linhasTabela(state.rows.filter(noPeriodo));
+  const linhas = linhasTabela(filtrarPeriodo(state.rows));
   const cel = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
   const csv = ['Data;Quem fez;Tarefa;Peças;Detalhe;Link ClickUp', ...linhas.map(r =>
     [isNaN(r._d) ? r.data : fmtCompleto.format(r._d), r.pessoa, r.tarefa, r.pecas, r.detalhe, r.link].map(cel).join(';'))].join('\r\n');
@@ -773,6 +1019,45 @@ function baixarCsv() {
   const a = Object.assign(document.createElement('a'), { href: url, download: `lancamentos-criacao-${diaKey(new Date())}.csv` });
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* ---------- Exclusão ---------- */
+let idExcluir = null;
+function pedirExclusao(id) {
+  const r = state.rows.find(x => String(x.id) === String(id));
+  if (!r) return;
+  idExcluir = r.id;
+  $('#dlgItem').innerHTML = `<strong>${esc(r.pessoa)}</strong> · ${esc(r.tarefa)} · ${plural(r.pecas, 'peça', 'peças')}<br>`
+    + `<span class="vazio">${isNaN(r._d) ? esc(r.data) : fmtCompleto.format(r._d)}${r.detalhe ? ' · ' + esc(r.detalhe) : ''}</span>`;
+  const b = $('#dlgConfirmar'); b.disabled = false; b.textContent = 'Excluir';
+  $('#dlgExcluir').showModal();
+  $('#dlgCancelar').focus();
+}
+async function confirmarExclusao() {
+  if (!idExcluir || state.excluindo) return;
+  const id = idExcluir;
+  const b = $('#dlgConfirmar');
+  state.excluindo = true; b.disabled = true; b.textContent = 'Excluindo...';
+  try {
+    if (CONFIG.SCRIPT_URL) {
+      const res = await fetch(CONFIG.SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'excluir', id })
+      });
+      const j = await res.json();
+      if (!j.ok) throw new Error(j.error || 'A planilha recusou a exclusão');
+    }
+    state.rows = state.rows.filter(x => String(x.id) !== String(id));
+    $('#dlgExcluir').close();
+    renderTudo();
+    toast('Lançamento excluído');
+  } catch (e) {
+    toast(`Não foi possível excluir. ${e.message}.`, true);
+    b.disabled = false; b.textContent = 'Excluir';
+  } finally {
+    state.excluindo = false; idExcluir = null;
+  }
 }
 
 /* ---------- Status e avisos ---------- */
@@ -795,11 +1080,11 @@ function renderStatus() {
 }
 
 function renderPainel() {
-  document.querySelectorAll('.periodos button').forEach(b => b.setAttribute('aria-pressed', b.dataset.p === state.periodo));
+  renderPeriodos();
   document.querySelectorAll('#metricas button').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === state.metrica));
   $('#pessoaSub').textContent = state.metrica === 'pecas' ? 'Peças produzidas no período' : 'Tarefas lançadas no período';
   $('#tarefaSub').textContent = state.metrica === 'pecas' ? 'Peças por tarefa, divididas por quem fez' : 'Cada barra mostra quem fez aquela tarefa';
-  const rows = state.rows.filter(noPeriodo);
+  const rows = filtrarPeriodo(state.rows);
   renderResumo(rows);
   renderPorPessoa(rows);
   renderTempo(rows);
@@ -860,13 +1145,16 @@ $('#metricas').addEventListener('click', e => {
   state.metrica = b.dataset.m; renderPainel();
 });
 $('#pessoas').addEventListener('click', e => {
+  const a = e.target.closest('[data-acao]'); if (a) { acaoCadastro(a.dataset.acao); return; }
+  if (e.target.closest('.pessoa-form')) return;
   const b = e.target.closest('.pessoa'); if (!b) return;
   state.pessoa = state.pessoa === b.dataset.nome ? null : b.dataset.nome;
   try { state.pessoa ? localStorage.setItem('criacao_pessoa', state.pessoa) : localStorage.removeItem('criacao_pessoa'); } catch (_) {}
   renderPessoas(); aplicarCorDaPessoa(); renderBotao();
 });
 $('#grupos').addEventListener('click', e => {
-  const b = e.target.closest('.chip'); if (!b) return;
+  const a = e.target.closest('[data-acao]'); if (a) { acaoCadastro(a.dataset.acao); return; }
+  const b = e.target.closest('.chip[data-tarefa]'); if (!b) return;
   state.tarefa = state.tarefa === b.dataset.tarefa ? null : b.dataset.tarefa;
   renderGrupos(); renderBotao();
 });
@@ -876,7 +1164,22 @@ $('#btnAtualizar').addEventListener('click', () => carregar(false));
 document.querySelectorAll('.periodos').forEach(g => g.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   state.periodo = b.dataset.p; state.limite = 50; renderPainel();
+  if (b.dataset.p === 'custom' && !state.de) { const f = g.parentElement.querySelector('.fDe'); if (f) f.focus(); }
 }));
+document.querySelectorAll('.fDe').forEach(inp => inp.addEventListener('change', e => { state.de = e.target.value; state.periodo = 'custom'; state.limite = 50; renderPainel(); }));
+document.querySelectorAll('.fAte').forEach(inp => inp.addEventListener('change', e => { state.ate = e.target.value; state.periodo = 'custom'; state.limite = 50; renderPainel(); }));
+
+['#pessoas', '#grupos'].forEach(sel => $(sel).addEventListener('keydown', e => {
+  if (e.target.id === 'novaPessoa') { if (e.key === 'Enter') salvarCadastro('pessoa'); if (e.key === 'Escape') acaoCadastro('cancelar-pessoa'); }
+  if (e.target.id === 'novaTarefa') { if (e.key === 'Enter') salvarCadastro('tarefa'); if (e.key === 'Escape') acaoCadastro('cancelar-tarefa'); }
+}));
+
+$('#tbody').addEventListener('click', e => {
+  const b = e.target.closest('.btn-excluir'); if (b) pedirExclusao(b.dataset.id);
+});
+$('#dlgCancelar').addEventListener('click', () => $('#dlgExcluir').close());
+$('#dlgConfirmar').addEventListener('click', confirmarExclusao);
+$('#dlgExcluir').addEventListener('close', () => { if (!state.excluindo) idExcluir = null; });
 
 /* ---------- Abas ---------- */
 const ABAS = ['lancar', 'painel', 'historico'];
@@ -896,12 +1199,13 @@ $('#fPessoa').addEventListener('change', e => { state.fPessoa = e.target.value; 
 $('#fTarefa').addEventListener('change', e => { state.fTarefa = e.target.value; state.limite = 50; renderPainel(); });
 $('#fBusca').addEventListener('input', e => { state.busca = e.target.value; state.limite = 50; renderPainel(); });
 $('#btnMais').addEventListener('click', () => { state.limite += 50; renderPainel(); });
-$('#btnCsv').addEventListener('click', baixarCsv);
+document.querySelectorAll('.btn-csv').forEach(b => b.addEventListener('click', baixarCsv));
 
 /* ---------- Início ---------- */
 try {
   const salvo = localStorage.getItem('criacao_pessoa');
-  if (salvo && CONFIG.PESSOAS.some(p => p.nome === salvo)) state.pessoa = salvo;
+  pessoaSalva = salvo;
+  if (salvo && PESSOAS.some(p => p.nome === salvo)) state.pessoa = salvo;
 } catch (_) {}
 mostrarAba(location.hash.slice(1), false);
 preencherFiltros();
@@ -909,7 +1213,7 @@ renderLegenda();
 definirPecas(1);
 carregar(false);
 setInterval(() => {
-  if (CONFIG.SCRIPT_URL && document.visibilityState === 'visible' && !state.enviando) carregar(true);
+  if (CONFIG.SCRIPT_URL && document.visibilityState === 'visible' && !state.enviando && !state.addPessoa && !state.addTarefa && !state.salvandoCad && !state.excluindo && !$('#dlgExcluir').open) carregar(true);
 }, CONFIG.ATUALIZAR_A_CADA_SEGUNDOS * 1000);
 </script>
 </body>
