@@ -181,6 +181,26 @@ dialog.confirmar p{margin:0 0 16px;color:var(--muted);font-size:.92rem}
 .btn-perigo{border:0;border-radius:999px;padding:9px 18px;background:var(--err);color:#fff;font-weight:800;font-size:.9rem}
 .btn-perigo:disabled{opacity:.6;cursor:wait}
 
+/* Aprovação */
+.btn-aprovar{border:1.5px dashed var(--muted);background:transparent;color:var(--muted);border-radius:999px;padding:6px 12px;font-size:.75rem;font-weight:800;letter-spacing:.04em;white-space:nowrap;transition:border-color .15s,color .15s}
+.btn-aprovar:hover{border-color:var(--ok);color:var(--ok)}
+.selo-aprovada{display:inline-flex;align-items:center;gap:6px;border:0;background:var(--ok);color:#fff;border-radius:999px;padding:6px 12px;font-size:.78rem;font-weight:800;white-space:nowrap}
+.selo-aprovada svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.selo-aprovada:hover{filter:brightness(1.08)}
+th.th-apr,td.td-apr{text-align:center}
+.campo-data-apr{display:flex;flex-direction:column;gap:6px;margin-bottom:20px;font-size:.85rem;font-weight:700;color:var(--muted)}
+.campo-data-apr input{border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:10px 12px;font-size:1rem;font-weight:600}
+.campo-data-apr input:focus{outline:none;border-color:var(--ok)}
+.btn-ok{border:0;border-radius:999px;padding:9px 18px;background:var(--ok);color:#fff;font-weight:800;font-size:.9rem}
+.btn-ok:disabled{opacity:.6;cursor:wait}
+.btn-link{border:0;background:none;color:var(--err);font-weight:700;font-size:.85rem;padding:9px 4px;margin-right:auto}
+.apr-topo{display:flex;align-items:baseline;gap:28px;flex-wrap:wrap;margin-bottom:14px}
+.apr-num{font-size:2rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+.apr-num small{display:block;font-size:.8rem;font-weight:600;color:var(--muted);letter-spacing:0;margin-top:6px}
+.apr-barra{height:22px;border-radius:8px;overflow:hidden;display:flex;background:var(--surface);margin-bottom:22px}
+.apr-barra span{display:block;height:100%}
+.apr-pessoas .trilho{height:16px;border-radius:5px}
+
 /* Coluna lateral */
 .lateral{border-left:1px solid var(--line);padding-left:32px}
 .contador{font-size:4.2rem;font-weight:800;letter-spacing:-.04em;line-height:1;margin:0}
@@ -412,6 +432,16 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
           <div class="tempo-rotulos" id="tempoRotulos"></div>
         </div>
         <div class="card full">
+          <h3>Aprovação</h3>
+          <p class="sub" id="aprSub">Tarefas lançadas no período, com e sem data de aprovação</p>
+          <div class="apr-topo">
+            <div class="apr-num" id="aprOk" style="color:var(--ok)">0<small>aprovadas</small></div>
+            <div class="apr-num" id="aprPend" style="color:var(--warn)">0<small>sem aprovação</small></div>
+          </div>
+          <div class="apr-barra" id="aprBarra" role="img"></div>
+          <div class="barras apr-pessoas" id="aprPessoas"></div>
+        </div>
+        <div class="card full">
           <h3>Por tipo de tarefa</h3>
           <p class="sub" id="tarefaSub">Cada barra mostra quem fez aquela tarefa</p>
           <div class="barras tarefas" id="porTarefa"></div>
@@ -455,11 +485,12 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
           <div class="filtros">
             <select id="fPessoa" aria-label="Filtrar por pessoa"><option value="">Todas as pessoas</option></select>
             <select id="fTarefa" aria-label="Filtrar por tarefa"><option value="">Todas as tarefas</option></select>
+            <select id="fStatus" aria-label="Filtrar por aprovação"><option value="">Aprovadas e pendentes</option><option value="aprovadas">Só aprovadas</option><option value="pendentes">Só sem aprovação</option></select>
             <input id="fBusca" type="search" placeholder="Buscar no detalhe" aria-label="Buscar no detalhe">
           </div>
           <div class="tabela-box">
             <table>
-              <thead><tr><th>Data</th><th>Quem fez</th><th>Tarefa</th><th style="text-align:right">Peças</th><th>Detalhe</th><th class="th-cu">ClickUp</th><th class="th-acao"><span class="sr">Excluir</span></th></tr></thead>
+              <thead><tr><th>Data</th><th>Quem fez</th><th>Tarefa</th><th style="text-align:right">Peças</th><th>Detalhe</th><th class="th-cu">ClickUp</th><th class="th-apr">Aprovação</th><th class="th-acao"><span class="sr">Excluir</span></th></tr></thead>
               <tbody id="tbody"></tbody>
             </table>
           </div>
@@ -476,6 +507,18 @@ td.data{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
   </section>
 </main>
 </div>
+
+<dialog class="confirmar" id="dlgAprovar" aria-labelledby="aprTitulo">
+  <h3 id="aprTitulo">Marcar como aprovada</h3>
+  <p>Informe a data em que esta tarefa foi aprovada.</p>
+  <div class="conf-item" id="aprItem"></div>
+  <label class="campo-data-apr">Data da aprovação <input type="date" id="aprData"></label>
+  <div class="conf-acoes">
+    <button type="button" class="btn-link" id="aprRemover" hidden>Remover aprovação</button>
+    <button type="button" class="btn-ghost" id="aprCancelar">Cancelar</button>
+    <button type="button" class="btn-ok" id="aprConfirmar">Confirmar</button>
+  </div>
+</dialog>
 
 <dialog class="confirmar" id="dlgExcluir" aria-labelledby="dlgTitulo">
   <h3 id="dlgTitulo">Excluir este lançamento?</h3>
@@ -523,7 +566,7 @@ let pessoaSalva = null;
 const state = {
   rows: [], cad: { pessoas: [], tarefas: [] }, addPessoa: false, addTarefa: false, salvandoCad: false,
   pessoa: null, tarefa: null, pecas: 1, periodo: 'mes', metrica: 'tarefas',
-  fPessoa: '', fTarefa: '', busca: '', de: '', ate: '', limite: 50,
+  fPessoa: '', fTarefa: '', fStatus: '', busca: '', de: '', ate: '', limite: 50,
   modo: 'carregando', erro: null, enviando: false
 };
 
@@ -552,7 +595,8 @@ function normaliza(r) {
   const ok = !isNaN(d);
   const pc = parseInt(r.pecas, 10);
   const link = linkValido(String(r.link || '')) ? String(r.link) : '';
-  return { id: r.id, data: r.data, pessoa: r.pessoa, tarefa: r.tarefa, detalhe: r.detalhe || '', pecas: pc > 0 ? pc : 1, link, _d: d, _k: ok ? diaKey(d) : '', _h: ok ? Number(fmtHora.format(d)) : 0 };
+  const aprovado = /^\d{4}-\d{2}-\d{2}$/.test(String(r.aprovado || '')) ? String(r.aprovado) : '';
+  return { id: r.id, data: r.data, pessoa: r.pessoa, tarefa: r.tarefa, detalhe: r.detalhe || '', pecas: pc > 0 ? pc : 1, link, aprovado, _d: d, _k: ok ? diaKey(d) : '', _h: ok ? Number(fmtHora.format(d)) : 0 };
 }
 
 function tempoRelativo(d) {
@@ -580,7 +624,7 @@ function gerarDemo() {
         d.setHours(9 + Math.floor(Math.random() * 9), Math.floor(Math.random() * 60));
         if (d.getTime() > agora) continue;
         const t = TAREFAS[Math.floor(Math.pow(Math.random(), 1.6) * TAREFAS.length)];
-        rows.push({ id: 'demo' + (++n), data: d.toISOString(), pessoa: p.nome, tarefa: t, pecas: 1 + Math.floor(Math.pow(Math.random(), 2) * 8), detalhe: Math.random() < .4 ? 'Exemplo de detalhe' : '' });
+        rows.push({ id: 'demo' + (++n), data: d.toISOString(), pessoa: p.nome, tarefa: t, pecas: 1 + Math.floor(Math.pow(Math.random(), 2) * 8), aprovado: Math.random() < .55 ? diaKey(new Date(Math.min(agora, d.getTime() + 2 * 864e5))) : '', detalhe: Math.random() < .4 ? 'Exemplo de detalhe' : '' });
       }
     });
   }
@@ -923,6 +967,36 @@ function renderPorTarefa(rows) {
   }).join('');
 }
 
+function renderAprovacao(rows) {
+  const unid = state.metrica === 'pecas' ? ['peça', 'peças'] : ['tarefa', 'tarefas'];
+  let ok = 0, pend = 0;
+  const porP = {};
+  rows.forEach(r => {
+    const v = valor(r);
+    const p = (porP[r.pessoa] ||= { ok: 0, pend: 0 });
+    if (r.aprovado) { ok += v; p.ok += v; } else { pend += v; p.pend += v; }
+  });
+  const total = ok + pend;
+  const pct = n => total ? Math.round(n / total * 100) : 0;
+  $('#aprSub').textContent = `${state.metrica === 'pecas' ? 'Peças' : 'Tarefas'} lançadas no período, com e sem data de aprovação`;
+  $('#aprOk').innerHTML = `${ok.toLocaleString('pt-BR')}<small>${ok === 1 ? unid[0] : unid[1]} ${ok === 1 ? 'aprovada' : 'aprovadas'} (${pct(ok)}%)</small>`;
+  $('#aprPend').innerHTML = `${pend.toLocaleString('pt-BR')}<small>sem data de aprovação (${pct(pend)}%)</small>`;
+  $('#aprBarra').setAttribute('aria-label', `${ok} aprovadas e ${pend} sem aprovação`);
+  $('#aprBarra').innerHTML = total ? `<span style="width:${pct(ok)}%;background:var(--ok)" title="Aprovadas: ${ok}"></span><span style="width:${100 - pct(ok)}%;background:var(--warn)" title="Sem aprovação: ${pend}"></span>` : '';
+  const pessoas = PESSOAS.filter(p => porP[p.nome]).concat(Object.keys(porP).filter(n => !PESSOAS.some(p => p.nome === n)).map(n => pessoaCfg(n)));
+  const max = Math.max(1, ...pessoas.map(p => porP[p.nome].ok + porP[p.nome].pend));
+  $('#aprPessoas').innerHTML = pessoas.length ? pessoas.map(p => {
+    const d = porP[p.nome];
+    return `<div class="barra-linha">
+      <span class="rot">${esc(p.nome)}</span>
+      <span class="trilho" role="img" aria-label="${esc(p.nome)}: ${d.ok} aprovadas, ${d.pend} sem aprovação">
+        ${d.ok ? `<span style="width:${d.ok / max * 100}%;background:var(--ok)" title="Aprovadas: ${d.ok}"></span>` : ''}
+        ${d.pend ? `<span style="width:${d.pend / max * 100}%;background:var(--warn)" title="Sem aprovação: ${d.pend}"></span>` : ''}
+      </span>
+      <span class="num">${d.ok}/${d.ok + d.pend}</span></div>`;
+  }).join('') : '<p class="vazio">Nenhum lançamento no período.</p>';
+}
+
 function renderLegenda() {
   $('#legendaTempo').innerHTML = PESSOAS.map(p => `<span><i style="background:${p.cor}"></i>${esc(p.nome)}</span>`).join('');
 }
@@ -978,7 +1052,8 @@ function renderTempo(rows) {
 function linhasTabela(rows) {
   const q = state.busca.toLowerCase();
   return rows
-    .filter(r => (!state.fPessoa || r.pessoa === state.fPessoa) && (!state.fTarefa || r.tarefa === state.fTarefa) && (!q || r.detalhe.toLowerCase().includes(q)))
+    .filter(r => (!state.fPessoa || r.pessoa === state.fPessoa) && (!state.fTarefa || r.tarefa === state.fTarefa) && (!q || r.detalhe.toLowerCase().includes(q))
+      && (!state.fStatus || (state.fStatus === 'aprovadas' ? !!r.aprovado : !r.aprovado)))
     .sort((a, b) => b._d - a._d);
 }
 
@@ -993,9 +1068,12 @@ function renderTabela(rows) {
       <td class="num-col">${r.pecas}</td>
       <td>${esc(r.detalhe) || '<span class="vazio">Sem detalhe</span>'}</td>
       <td class="td-cu">${r.link ? `<a class="cu-icon" href="${esc(r.link)}" target="_blank" rel="noopener noreferrer" title="Abrir tarefa no ClickUp" aria-label="Abrir tarefa no ClickUp"><img src="${CU_ICON}" alt=""></a>` : '<span class="vazio">Sem link</span>'}</td>
+      <td class="td-apr">${r.aprovado
+        ? `<button type="button" class="selo-aprovada" data-aprovar="${esc(r.id)}" title="Alterar aprovação"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>${fmtDataCurta(r.aprovado)}</button>`
+        : `<button type="button" class="btn-aprovar" data-aprovar="${esc(r.id)}" title="Clique para registrar a data de aprovação">APROVADA</button>`}</td>
       <td class="td-acao"><button type="button" class="btn-excluir" data-id="${esc(r.id)}" title="Excluir lançamento" aria-label="Excluir lançamento de ${esc(r.tarefa)} por ${esc(r.pessoa)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button></td>
     </tr>`).join('')
-    : '<tr><td colspan="7" class="vazio">Nenhum lançamento com esses filtros. Troque o período ou limpe a busca.</td></tr>';
+    : '<tr><td colspan="8" class="vazio">Nenhum lançamento com esses filtros. Troque o período ou limpe a busca.</td></tr>';
   const somaPecas = linhas.reduce((a, r) => a + r.pecas, 0);
   $('#contagemTabela').textContent = `Mostrando ${vis.length} de ${linhas.length} lançamentos, ${plural(somaPecas, 'peça', 'peças')} no total`;
   $('#btnMais').hidden = linhas.length <= state.limite;
@@ -1013,8 +1091,8 @@ function preencherFiltros() {
 function baixarCsv() {
   const linhas = linhasTabela(filtrarPeriodo(state.rows));
   const cel = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  const csv = ['Data;Quem fez;Tarefa;Peças;Detalhe;Link ClickUp', ...linhas.map(r =>
-    [isNaN(r._d) ? r.data : fmtCompleto.format(r._d), r.pessoa, r.tarefa, r.pecas, r.detalhe, r.link].map(cel).join(';'))].join('\r\n');
+  const csv = ['Data;Quem fez;Tarefa;Peças;Detalhe;Link ClickUp;Aprovada em', ...linhas.map(r =>
+    [isNaN(r._d) ? r.data : fmtCompleto.format(r._d), r.pessoa, r.tarefa, r.pecas, r.detalhe, r.link, r.aprovado ? fmtDataCurta(r.aprovado) : ''].map(cel).join(';'))].join('\r\n');
   const url = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' }));
   const a = Object.assign(document.createElement('a'), { href: url, download: `lancamentos-criacao-${diaKey(new Date())}.csv` });
   document.body.appendChild(a); a.click(); a.remove();
@@ -1060,6 +1138,59 @@ async function confirmarExclusao() {
   }
 }
 
+/* ---------- Aprovação ---------- */
+let idAprovar = null;
+function resumoItem(r) {
+  return `<strong>${esc(r.pessoa)}</strong> · ${esc(r.tarefa)} · ${plural(r.pecas, 'peça', 'peças')}<br>`
+    + `<span class="vazio">Lançada em ${isNaN(r._d) ? esc(r.data) : fmtCompleto.format(r._d)}${r.detalhe ? ' · ' + esc(r.detalhe) : ''}</span>`;
+}
+function pedirAprovacao(id) {
+  const r = state.rows.find(x => String(x.id) === String(id));
+  if (!r) return;
+  idAprovar = r.id;
+  const hoje = diaKey(new Date());
+  $('#aprTitulo').textContent = r.aprovado ? 'Alterar aprovação' : 'Marcar como aprovada';
+  $('#aprItem').innerHTML = resumoItem(r);
+  const inp = $('#aprData');
+  inp.max = hoje;
+  inp.value = r.aprovado || hoje;
+  $('#aprRemover').hidden = !r.aprovado;
+  const b = $('#aprConfirmar'); b.disabled = false; b.textContent = 'Confirmar';
+  $('#dlgAprovar').showModal();
+  inp.focus();
+}
+async function salvarAprovacao(remover) {
+  if (!idAprovar || state.aprovando) return;
+  const id = idAprovar;
+  const data = remover ? '' : $('#aprData').value;
+  const hoje = diaKey(new Date());
+  if (!remover && !/^\d{4}-\d{2}-\d{2}$/.test(data)) { toast('Escolha a data da aprovação.', true); return; }
+  if (!remover && data > hoje) { toast('A data de aprovação não pode ser no futuro.', true); return; }
+  const b = $('#aprConfirmar');
+  state.aprovando = true; b.disabled = true; b.textContent = 'Salvando...';
+  try {
+    if (CONFIG.SCRIPT_URL) {
+      const res = await fetch(CONFIG.SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'aprovar', id, data })
+      });
+      const j = await res.json();
+      if (!j.ok) throw new Error(j.error || 'A planilha recusou a aprovação');
+    }
+    const r = state.rows.find(x => String(x.id) === String(id));
+    if (r) r.aprovado = data;
+    $('#dlgAprovar').close();
+    renderTudo();
+    toast(remover ? 'Aprovação removida' : `Aprovada em ${fmtDataCurta(data)}`);
+  } catch (e) {
+    toast(`Não foi possível salvar. ${e.message}.`, true);
+    b.disabled = false; b.textContent = 'Confirmar';
+  } finally {
+    state.aprovando = false;
+  }
+}
+
 /* ---------- Status e avisos ---------- */
 function renderStatus() {
   const textos = { carregando: 'Carregando', online: 'Planilha conectada', demo: 'Modo demonstração', erro: 'Sem conexão' };
@@ -1089,6 +1220,7 @@ function renderPainel() {
   renderPorPessoa(rows);
   renderTempo(rows);
   renderPorTarefa(rows);
+  renderAprovacao(rows);
   renderTabela(rows);
 }
 
@@ -1175,8 +1307,15 @@ document.querySelectorAll('.fAte').forEach(inp => inp.addEventListener('change',
 }));
 
 $('#tbody').addEventListener('click', e => {
-  const b = e.target.closest('.btn-excluir'); if (b) pedirExclusao(b.dataset.id);
+  const b = e.target.closest('.btn-excluir'); if (b) { pedirExclusao(b.dataset.id); return; }
+  const a = e.target.closest('[data-aprovar]'); if (a) pedirAprovacao(a.dataset.aprovar);
 });
+$('#aprCancelar').addEventListener('click', () => $('#dlgAprovar').close());
+$('#aprConfirmar').addEventListener('click', () => salvarAprovacao(false));
+$('#aprRemover').addEventListener('click', () => salvarAprovacao(true));
+$('#aprData').addEventListener('keydown', e => { if (e.key === 'Enter') salvarAprovacao(false); });
+$('#dlgAprovar').addEventListener('close', () => { if (!state.aprovando) idAprovar = null; });
+$('#fStatus').addEventListener('change', e => { state.fStatus = e.target.value; state.limite = 50; renderPainel(); });
 $('#dlgCancelar').addEventListener('click', () => $('#dlgExcluir').close());
 $('#dlgConfirmar').addEventListener('click', confirmarExclusao);
 $('#dlgExcluir').addEventListener('close', () => { if (!state.excluindo) idExcluir = null; });
@@ -1213,7 +1352,7 @@ renderLegenda();
 definirPecas(1);
 carregar(false);
 setInterval(() => {
-  if (CONFIG.SCRIPT_URL && document.visibilityState === 'visible' && !state.enviando && !state.addPessoa && !state.addTarefa && !state.salvandoCad && !state.excluindo && !$('#dlgExcluir').open) carregar(true);
+  if (CONFIG.SCRIPT_URL && document.visibilityState === 'visible' && !state.enviando && !state.addPessoa && !state.addTarefa && !state.salvandoCad && !state.excluindo && !$('#dlgExcluir').open && !state.aprovando && !$('#dlgAprovar').open) carregar(true);
 }, CONFIG.ATUALIZAR_A_CADA_SEGUNDOS * 1000);
 </script>
 </body>
