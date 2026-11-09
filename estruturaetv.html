@@ -3,194 +3,174 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Metrocasa · Estrutura</title>
+<title>Estrutura · ETV</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  :root{--red:#E2231A;--red-deep:#A50F12;--red-soft:#FCE9E8;--gold:#C9A227;--ink:#16161A;--ink-2:#3B3B42;--muted:#7A7A85;--line:#E7E7EC;--surface:#FFFFFF;--bg:#F4F4F6;--bg-2:#ECECEF;--good:#1B7A3D;--good-bg:#E7F6EC;--warn:#9A6212;--warn-bg:#FFF4E5;--shadow:0 1px 2px rgba(0,0,0,.04),0 12px 32px -12px rgba(20,20,26,.18);}
+  :root{--indigo:#4F46E5;--indigo-d:#4338CA;--indigo-soft:#E0E7FF;--violet:#7C3AED;--blue:#2563EB;--amber:#B45309;--emerald:#047857;--ink:#0F172A;--ink-2:#334155;--muted:#64748B;--line:#E2E8F0;--line-2:#EEF2F6;--bg:#F8FAFC;--surface:#FFFFFF;--sidebar:#111827;--good:#047857;--good-bg:#D1FAE5;--warn:#B45309;--warn-bg:#FEF3C7;--shadow:0 1px 2px rgba(15,23,42,.04),0 10px 30px -12px rgba(15,23,42,.15);}
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
-  .wrap{max-width:1180px;margin:0 auto;padding:0 16px calc(env(safe-area-inset-bottom) + 48px)}
-  .logo{font-family:'Sora',sans-serif;font-weight:800;letter-spacing:-.03em;line-height:1}
-  .logo .plus{color:var(--red)}
-  .topbar{background:linear-gradient(135deg,var(--ink),#26262E);color:#fff;position:relative;overflow:hidden;border-radius:0 0 22px 22px;padding:calc(env(safe-area-inset-top) + 20px) 22px 20px;box-shadow:var(--shadow);margin:0 -16px 20px}
-  .topbar::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--red)}
-  .tb-row{display:flex;align-items:center;gap:13px;max-width:1180px;margin:0 auto}
-  .tb-row .mark{width:44px;height:44px;border-radius:12px;flex:0 0 auto}
-  .tb-title .logo{font-size:21px}
-  .tb-title .st{font-size:12px;color:rgba(255,255,255,.6);font-weight:500;margin-top:2px}
-  .tb-actions{margin-left:auto;display:flex;gap:8px}
-  .tb-btn{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;border-radius:10px;height:40px;padding:0 14px;font-family:'Sora',sans-serif;font-weight:600;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
-  .tb-btn svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .tb-btn.spinning svg{animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
-  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:16px}
-  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:15px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
-  .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--red)}
-  .kpi.ink::before{background:var(--ink)}.kpi.gold::before{background:var(--gold)}
-  .kpi .kl{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
-  .kpi .kv{font-family:'Sora',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.02em;margin-top:5px;line-height:1}
-  .kpi .ks{font-size:11.5px;color:var(--ink-2);margin-top:5px}
-  .srcs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-  .src{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;border-radius:999px;padding:6px 12px}
-  .src .d{width:8px;height:8px;border-radius:50%}
-  .src.snap{background:var(--bg-2);color:var(--ink-2)}.src.snap .d{background:var(--muted)}
-  .src.live{background:var(--good-bg);color:var(--good)}.src.live .d{background:#27AE60}
-  .src.warn{background:var(--warn-bg);color:var(--warn)}.src.warn .d{background:#E0902F}
-  .search{position:relative;margin-bottom:14px}
-  .search input{width:100%;height:46px;border:1px solid var(--line);border-radius:12px;padding:0 14px 0 42px;font-size:14px;font-family:inherit;background:var(--surface);box-shadow:var(--shadow)}
-  .search input:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(226,35,26,.12)}
-  .search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2}
-  .chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
-  .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:600;color:var(--ink-2);cursor:pointer;transition:.14s;font-family:'Sora',sans-serif}
-  .chip:hover{border-color:var(--red);color:var(--red)}
-  .chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
-  .chip .c{opacity:.65;margin-left:4px}
-  .chip.tree .ci{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2px;margin-right:6px}
-  .chip.tree.on{background:var(--red);border-color:var(--red)}
-  .treebar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-  .treebar .tinfo{font-size:12px;color:var(--muted);font-weight:600}
-  .tbtns{display:flex;gap:7px}
-  .tbtn{border:1px solid var(--line);background:#fff;border-radius:9px;height:34px;padding:0 13px;font-family:'Sora',sans-serif;font-weight:600;font-size:12px;color:var(--ink-2);cursor:pointer;transition:.14s}
-  .tbtn:hover{border-color:var(--red);color:var(--red)}
-  .tree{display:flex;flex-direction:column;gap:11px}
-  /* superintendente card */
-  .snode{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
-  .snode-head{background:linear-gradient(135deg,var(--ink),#26262E);color:#fff;padding:13px 16px;position:relative;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
-  .snode-head::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--red)}
-  .snode-head .sh-t{flex:1;min-width:0}
-  .snode-head .eb{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700}
-  .snode-head h3{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;line-height:1.15}
-  .snode-head .dir{font-size:11px;color:rgba(255,255,255,.65);margin-top:2px}
-  .snode-head .caret{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;transition:transform .15s;opacity:.85}
+  h1,h2,h3,.gro{font-family:'Space Grotesk','Inter',sans-serif}
+  .app{display:flex;min-height:100vh}
+  .side{width:236px;flex:0 0 236px;background:var(--sidebar);color:#CBD5E1;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:20px 14px;gap:4px}
+  .brand{display:flex;align-items:center;gap:11px;padding:6px 8px 18px}
+  .brand .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--indigo),var(--violet));display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:16px;flex:0 0 auto}
+  .brand .bt{font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:15px;line-height:1.1}
+  .brand .bs{font-size:11px;color:#64748B;margin-top:2px}
+  .navlbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#64748B;font-weight:700;padding:14px 10px 6px}
+  .nav{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;color:#CBD5E1;font-weight:600;font-size:14px;transition:.12s}
+  .nav svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+  .nav:hover{background:rgba(255,255,255,.05);color:#fff}
+  .nav.on{background:var(--indigo);color:#fff}
+  .side-foot{margin-top:auto;padding:12px 10px;font-size:10.5px;color:#475569;line-height:1.6}
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{background:var(--surface);border-bottom:1px solid var(--line);padding:16px 26px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20}
+  .topbar h1{font-size:19px;font-weight:700}
+  .topbar .vsub{font-size:12px;color:var(--muted);margin-top:2px}
+  .srcs{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;align-items:center}
+  .src{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;border-radius:999px;padding:6px 11px}
+  .src .d{width:7px;height:7px;border-radius:50%}
+  .src.warn{background:var(--warn-bg);color:var(--warn)}.src.warn .d{background:#D97706}
+  .src.ok{background:var(--good-bg);color:var(--good)}.src.ok .d{background:#10B981}
+  .src.live{background:#EFF6FF;color:#1D4ED8}.src.live .d{background:#3B82F6}
+  .rbtn{border:1px solid var(--line);background:#fff;border-radius:10px;height:38px;padding:0 13px;font-weight:600;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;color:var(--ink-2)}
+  .rbtn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .rbtn:hover{border-color:var(--indigo);color:var(--indigo)}
+  .rbtn.spin svg{animation:sp .7s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+  .content{padding:22px 26px 60px;max-width:1240px;width:100%}
+  .filters{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:15px 16px;box-shadow:var(--shadow);margin-bottom:18px;display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}
+  .fg{display:flex;flex-direction:column;gap:6px;flex:1 1 210px;min-width:180px}
+  .fg label{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700}
+  select{width:100%;height:42px;border:1px solid var(--line);border-radius:10px;padding:0 12px;font-family:inherit;font-size:14px;background:var(--bg);color:var(--ink);cursor:pointer}
+  select:focus{outline:none;border-color:var(--indigo);background:#fff}
+  .fbtn{height:42px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:0 15px;font-weight:600;font-size:13px;cursor:pointer;color:var(--ink-2)}
+  .fbtn:hover{border-color:var(--indigo);color:var(--indigo)}
+  .treebar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .treebar .tinfo{font-size:12.5px;color:var(--muted);font-weight:600}
+  .treebar .tbtns{margin-left:auto;display:flex;gap:8px}
+  .tbtn{border:1px solid var(--line);background:#fff;border-radius:9px;height:34px;padding:0 12px;font-weight:600;font-size:12px;cursor:pointer;color:var(--ink-2)}
+  .tbtn:hover{border-color:var(--indigo);color:var(--indigo)}
+  .tree{display:flex;flex-direction:column;gap:14px}
+  .snode{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+  .snode-head{display:flex;align-items:center;gap:13px;padding:15px 18px;cursor:pointer;background:linear-gradient(100deg,#1E293B,#0F172A);color:#fff}
+  .snode-head .caret{width:17px;height:17px;stroke:rgba(255,255,255,.75);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;transition:transform .15s}
   .snode:not(.collapsed) > .snode-head .caret{transform:rotate(90deg)}
-  .snode.collapsed > .schildren{display:none}
-  .snode-head .pm{padding:6px 11px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);border-radius:10px;text-align:center}
-  .snode-head .p-metrics{display:flex;gap:8px}
-  .snode-head .pm b{font-family:'Sora',sans-serif;font-size:16px;display:block;line-height:1}
-  .snode-head .pm span{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.6);font-weight:600}
-  .schildren{padding:8px 12px 12px}
-  /* person node (recursivo) */
-  .pnode{margin-top:2px}
-  .pn-head{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;cursor:default}
+  .snode.collapsed .schildren{display:none}
+  .sh-t{flex:1;min-width:0}
+  .sh-t .eb{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:#94A3B8;font-weight:700}
+  .sh-t h3{font-size:16px;font-weight:700;margin-top:1px}
+  .sh-t .dir{font-size:11.5px;color:#CBD5E1;margin-top:2px}
+  .sh-t .dir a{color:#CBD5E1}
+  .sh-t .flagsup{font-size:11px;color:#FCD34D;font-weight:600;margin-top:3px}
+  .p-metrics{display:flex;gap:18px;flex:0 0 auto}
+  .pm{text-align:center}.pm b{display:block;font-family:'Space Grotesk';font-weight:700;font-size:18px;color:#fff}.pm span{font-size:9.5px;color:#94A3B8;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+  .schildren{padding:8px 10px 12px}
+  .pnode{margin-left:2px}
+  .pn-head{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;transition:background .1s}
   .pnode.has > .pn-head{cursor:pointer}
-  .pn-head:hover{background:var(--bg)}
-  .pn-head .caret{width:15px;height:15px;stroke:var(--ink-2);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;transition:transform .15s}
+  .pnode.has > .pn-head:hover{background:var(--line-2)}
+  .pn-head .caret{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;transition:transform .15s}
   .pnode:not(.collapsed) > .pn-head .caret{transform:rotate(90deg)}
   .pnode.collapsed > .pn-children{display:none}
-  .pn-head .leaf{width:15px;flex:0 0 auto;display:flex;justify-content:center}
-  .pn-head .leaf::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--line)}
-  .pn-name{display:flex;flex-direction:column;gap:1px;flex:0 0 auto;min-width:0;max-width:46%}
-  .pn-head .ap{font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pn-name .full{font-size:11px;color:var(--muted);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .role{display:inline-block;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:700;font-family:'Sora',sans-serif;text-transform:uppercase;letter-spacing:.03em;flex:0 0 auto}
-  .r-g{background:var(--red-soft);color:var(--red-deep)}
-  .r-c{background:#F7EFD6;color:#8A6D12}
-  .r-v{background:var(--bg-2);color:var(--ink-2)}
-  .r-d{background:#EDE7FB;color:#5B3FA8}
-  .r-x{background:#EAF1FB;color:#2A5DA8}
-  .pn-email{flex:1;min-width:0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
-  .pn-email a{color:var(--red-deep);text-decoration:none}.pn-email a:hover{text-decoration:underline}
-  .pn-email .syn{color:var(--warn);font-style:italic}
-  .pn-count{flex:0 0 auto;background:#fff;border:1px solid var(--line);border-radius:999px;font-size:10px;font-weight:700;color:var(--ink-2);padding:2px 9px}
-  .pn-children{margin:2px 0 4px 21px;padding-left:12px;border-left:2px solid var(--line)}
-  .snode-head .flagsup{font-size:11px;color:#FFD9A0;font-weight:700;margin-top:3px}
-  mark{background:#FFE48A;border-radius:3px;padding:0 2px}
-  .empty{padding:40px;text-align:center;color:var(--muted)}.empty b{display:block;color:var(--ink-2);font-family:'Sora',sans-serif;margin-bottom:5px;font-size:15px}
-  .tabs{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--line)}
-  .tab{border:none;background:none;padding:11px 14px;font-family:'Sora',sans-serif;font-weight:600;font-size:13.5px;color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent}
-  .tab:hover{color:var(--ink)}
-  .tab.on{color:var(--red);border-bottom-color:var(--red)}
-  .p2v{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex:1;min-width:0}
-  .p2c{display:inline-flex;align-items:baseline;gap:5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:2px 9px;font-size:11.5px;max-width:100%}
-  .p2c i{font-style:normal;color:var(--muted);font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
-  .p2c b{font-weight:600;color:var(--ink);font-family:'Sora',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .canalbar{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:11px 14px;box-shadow:var(--shadow);margin-bottom:16px}
-  .canalbar .cl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;margin-bottom:8px}
-  .canalbar .chips{margin-bottom:0}
-  .chip.can.on{background:var(--gold);border-color:var(--gold);color:#3B2E00}
-  .chip.can.all.on{background:var(--red);border-color:var(--red);color:#fff}
-  .gteam{margin:12px 14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
-  .gteam:last-child{margin-bottom:14px}
-  .gth{display:flex;align-items:center;gap:9px;padding:10px 14px;background:var(--bg);border-bottom:1px solid var(--line)}
-  .gth .dot{width:8px;height:8px;border-radius:50%;background:var(--red)}
-  .gth .gn{font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px}
-  .gth .gt{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
-  .gth .gc{margin-left:auto;background:#fff;border:1px solid var(--line);border-radius:999px;font-size:10px;font-weight:700;color:var(--ink-2);padding:2px 9px}
-  .gth{cursor:pointer;user-select:none}
-  .gth .caret{width:15px;height:15px;stroke:var(--ink-2);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;transition:transform .15s}
-  .gteam:not(.collapsed) > .gth .caret{transform:rotate(90deg)}
-  .gteam.collapsed > .gbody{display:none}
-  #panel3 table{width:100%;border-collapse:collapse}
-  #panel3 thead th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;padding:8px 14px;border-bottom:1px solid var(--line)}
-  #panel3 tbody td{padding:9px 14px;font-size:13px;border-top:1px solid var(--line)}
-  #panel3 tbody td.ap{font-family:'Sora',sans-serif;font-weight:700}
-  #panel3 tbody td.fn{color:var(--ink-2);font-size:12px}
-  #panel3 tbody td.em{font-size:12px;color:var(--muted)}
-  #panel3 tbody td.em a{color:var(--red-deep);text-decoration:none}
-  #panel3 tbody tr:hover{background:var(--red-soft)}
-  .nomatch{margin-top:14px;border:1px dashed #E0902F;background:var(--warn-bg);border-radius:12px;padding:14px 16px}
-  .nomatch h4{font-family:'Sora',sans-serif;font-size:13px;color:var(--warn);margin-bottom:8px}
-  .nomatch .row{font-size:12px;color:var(--ink-2);padding:3px 0;border-top:1px solid rgba(224,144,47,.25)}
-  footer{margin-top:22px;text-align:center;font-size:11px;color:var(--muted);line-height:1.7}footer b{color:var(--ink-2)}
-  @media (max-width:720px){.kpis{grid-template-columns:1fr}.tb-title .st{display:none}.pn-email{flex-basis:100%;text-align:left;order:5;padding-left:25px}}
+  .pn-head .leaf{width:14px;flex:0 0 auto;display:inline-block}
+  .pn-name{display:flex;flex-direction:column;min-width:0}
+  .pn-name .ap{font-family:'Space Grotesk';font-weight:600;font-size:13.5px;color:var(--ink)}
+  .pn-name .full{font-size:11px;color:var(--muted)}
+  .role{font-size:10px;font-weight:700;font-family:'Space Grotesk';padding:2px 9px;border-radius:999px;flex:0 0 auto}
+  .r-d{background:#EDE9FE;color:#6D28D9}.r-x{background:var(--indigo-soft);color:#4338CA}.r-g{background:#DBEAFE;color:#1D4ED8}.r-c{background:#FEF3C7;color:#B45309}.r-v{background:#D1FAE5;color:#047857}
+  .pn-email{margin-left:auto;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
+  .pn-email a{color:var(--indigo);text-decoration:none}.pn-email a:hover{text-decoration:underline}
+  .pn-email .syn{color:#B45309;font-style:italic}
+  .pn-count{flex:0 0 auto;background:var(--line-2);color:var(--ink-2);border-radius:999px;font-size:10.5px;font-weight:700;font-family:'Space Grotesk';padding:2px 8px;margin-left:8px}
+  .pn-children{margin-left:19px;border-left:1.5px dashed var(--line);padding-left:8px;margin-top:2px}
+  mark{background:#FEF08A;color:inherit;border-radius:3px;padding:0 1px}
+  .empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px}.empty b{display:block;color:var(--ink-2);font-family:'Space Grotesk';margin-bottom:6px;font-size:16px}
+  .empty-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:40px;text-align:center;color:var(--muted);font-size:13.5px}
+  .empty-card b{display:block;color:var(--ink-2);font-family:'Space Grotesk';margin-bottom:6px;font-size:16px}
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-bottom:20px}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:15px;box-shadow:var(--shadow)}
+  .kpi .kl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  .kpi .kv{font-family:'Space Grotesk';font-weight:700;font-size:28px;margin-top:5px;line-height:1}
+  .kpi.i-d .kv{color:var(--violet)}.kpi.i-x .kv{color:var(--indigo)}.kpi.i-g .kv{color:var(--blue)}.kpi.i-v .kv{color:var(--emerald)}
+  .chart-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
+  .chart-card .cch{padding:16px 18px 4px}
+  .chart-card h3{font-size:15px;font-weight:700}
+  .chart-card .csub{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .chart-wrap{padding:10px 16px 18px}
+  .chart-scroll{max-height:420px;overflow-y:auto;scrollbar-width:thin}
+  .chart-box{position:relative;min-height:160px}
+  .chart-na{padding:30px;text-align:center;color:var(--muted);font-size:13px}
+  .hidden{display:none !important}
+  @media (max-width:1000px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:820px){
+    .side{position:fixed;left:-240px;z-index:50;transition:left .2s}.side.open{left:0}
+    .menu-btn{display:inline-flex !important}
+    .filters{flex-direction:column}.fg{flex:1 1 auto}
+  }
+  .menu-btn{display:none;border:1px solid var(--line);background:#fff;border-radius:9px;width:38px;height:38px;align-items:center;justify-content:center;cursor:pointer}
+  .menu-btn svg{width:18px;height:18px;stroke:var(--ink-2);fill:none;stroke-width:2;stroke-linecap:round}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="topbar"><div class="tb-row">
-    <svg class="mark" viewBox="0 0 512 512" id="mk"></svg>
-    <div class="tb-title"><div class="logo">metrocasa<span class="plus">+</span></div><div class="st">Estrutura · ETV Pública</div></div>
-    <div class="tb-actions"><button class="tb-btn" id="btnRefresh"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>Atualizar</button></div>
-  </div></div>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="brand"><div class="logo">ETV</div><div><div class="bt">Estrutura</div><div class="bs">ETV · hierarquia</div></div></div>
+    <div class="navlbl">Navegação</div>
+    <div class="nav on" data-v="estrutura"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Estrutura</div>
+    <div class="nav" data-v="painel"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="7"/><rect x="12" y="7" width="3" height="11"/><rect x="17" y="13" width="3" height="5"/></svg>Painel</div>
+    <div class="side-foot">Metrocasa · Marketing<br>Dados ao vivo da planilha ETV</div>
+  </aside>
 
-  <div class="kpis">
-    <div class="kpi"><div class="kl">Prestadores ativos</div><div class="kv" id="kTot">—</div><div class="ks">consultores, coordenadores e gerentes</div></div>
-    <div class="kpi ink"><div class="kl">Superintendentes</div><div class="kv" id="kSup">—</div><div class="ks">pela coluna Função</div></div>
-    <div class="kpi gold"><div class="kl">Gerentes</div><div class="kv" id="kGer">—</div><div class="ks">por função (não pela coluna)</div></div>
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-btn" id="menuBtn"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+      <div><h1 id="vTitle">Estrutura</h1><div class="vsub" id="vSub">Diretor › Superintendente › Gerente › Coordenador › Consultor</div></div>
+      <div class="srcs" id="srcs"></div>
+      <button class="rbtn" id="btnRefresh"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>Atualizar</button>
+    </div>
+
+    <div class="content">
+      <div id="view-estrutura">
+        <div class="filters">
+          <div class="fg"><label>Diretor</label><select id="fDir"></select></div>
+          <div class="fg"><label>Superintendente</label><select id="fSup"></select></div>
+          <div class="fg"><label>Gerente</label><select id="fGer"></select></div>
+          <button class="fbtn" id="fClear">Limpar filtros</button>
+        </div>
+        <div class="treebar"><span class="tinfo" id="treeInfo"></span><div class="tbtns"><button class="tbtn" id="expAll">Expandir tudo</button><button class="tbtn" id="colAll">Recolher tudo</button></div></div>
+        <div class="tree" id="tree"></div>
+      </div>
+
+      <div id="view-painel" class="hidden">
+        <div class="kpis" id="kpis"></div>
+        <div class="chart-card"><div class="cch"><h3>Superintendentes por diretor</h3><div class="csub">quantos superintendentes cada diretor tem</div></div><div class="chart-wrap"><div class="chart-scroll"><div class="chart-box"><canvas id="cSupDir"></canvas></div></div></div></div>
+        <div class="chart-card"><div class="cch"><h3>Gerentes por superintendente</h3><div class="csub">quantos gerentes cada superintendente tem</div></div><div class="chart-wrap"><div class="chart-scroll"><div class="chart-box"><canvas id="cGerSup"></canvas></div></div></div></div>
+        <div class="chart-card"><div class="cch"><h3>Consultores por gerente</h3><div class="csub">quantos consultores cada gerente tem</div></div><div class="chart-wrap"><div class="chart-scroll"><div class="chart-box"><canvas id="cConsGer"></canvas></div></div></div></div>
+      </div>
+    </div>
   </div>
-
-  <div class="srcs" id="srcs"></div>
-
-
-
-  <div id="view-estrutura">
-  <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search" placeholder="Buscar apelido, nome, e-mail, gerente, superintendente ou diretor…" autocomplete="off"></div>
-  <div class="chips" id="chips"></div>
-  <div id="panel"></div>
-  </div>
-
-
-
-
-
-  <footer><b>Metrocasa · Marketing</b> — Estrutura · Superintendente › Gerente › Coordenador › Consultor</footer>
 </div>
 
 <script>
-const PUB="https://docs.google.com/spreadsheets/d/e/2PACX-1vStykIpeFQ4u54thul1w2oSmkzaK-xfSSPdTHqonGQmWZtgIVOOuzBKcXQniyai2fKVUDG8MY-IHHOx/pub?gid=0&single=true&output=csv";
-const GVIZ="https://docs.google.com/spreadsheets/d/1rZoHYvmFaXozIuaBmd6QMzK0NdtwJMeUsdY58wIh5ag/gviz/tq?tqx=out:csv&gid=0";
+const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vTPHlIYvsk-i7ET5EnpR7wsdk_IS7ykZYHfbTtU3kh3LgYzFVRbgE9UvMows543ZVP3utWi9lkmVaGS/pub?gid=0&single=true&output=csv";
 const POLL_MS=300000;
-const SNAP_CSV="";
-
-// Superintendências a ignorar (ruído / cadastro incorreto). Edite à vontade.
 const EXCLUIR_SUP=["ARIELLA","ARIELA","GUSTAVO","MARIA","METROCASA","ROBERT","SAMARA"];
 const EXCLUIR_N=new Set(EXCLUIR_SUP.map(s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'')));
 
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-let ROWS=[], mode='tree', cur=0, DIAG=null, STATS={total:0,inativos:0,excluidos:0,semSit:false}, src={k:'warn',t:'Aguardando dados ao vivo'};
+let ROWS=[], DIAG=null, STATS={total:0,inativos:0,excluidos:0,semSit:false}, src={k:'warn',t:'Aguardando dados ao vivo'};
+let view='estrutura', fDir='', fSup='', fGer='';
 const collapsed=new Set(); let treeInit=false;
-function makeHL(nq){return t=>{const i=norm(t).indexOf(nq);if(i<0)return esc(t);let raw=String(t||'');let acc=0,map=[];for(let k=0;k<raw.length;k++){const c=norm(raw[k]);map.push(acc);acc+=c.length;}let start=raw.length,end=raw.length;for(let k=0;k<raw.length;k++){if(map[k]<=i&&i<map[k]+Math.max(1,norm(raw[k]).length)){start=k;break;}}let ei=i+nq.length;for(let k=start;k<raw.length;k++){if(map[k]>=ei){end=k;break;}}return esc(raw.slice(0,start))+'<mark>'+esc(raw.slice(start,end))+'</mark>'+esc(raw.slice(end));};}
 
 function parseCSV(t){const rows=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}else{if(c==='"')q=true;else if(c===','){row.push(f);f='';}else if(c==='\n'){row.push(f);rows.push(row);row=[];f='';}else if(c==='\r'){}else f+=c;}}if(f.length||row.length){row.push(f);rows.push(row);}return rows;}
-
 function mapCols(head){const H=head.map(norm);const find=(...names)=>{for(const n of names){const i=H.findIndex(h=>h===n);if(i>=0)return i;}for(const n of names){const i=H.findIndex(h=>h.startsWith(n));if(i>=0)return i;}return -1;};
   const findLast=(...names)=>{let idx=-1;H.forEach((h,i)=>{if(names.some(n=>h===n||h.startsWith(n)))idx=i;});return idx;};
   return{apelido:find('APELIDO'),nome:find('NOMECOMPLETO','NOME'),gerente:find('GERENTE'),superint:find('SUPERINT','SUPERINTENDENTE'),diretor:find('DIRETOR'),funcao:find('FUNCAO'),email:findLast('EMAIL'),situacao:find('SITUACAO','STATUS','SITUACAOCONTRATO','ATIVO')};}
-const isAtivo=v=>{const s=norm(v);return !s||s.startsWith('ATIV');}; // vazio = não bloqueia
-
+const isAtivo=v=>{const s=norm(v);return !s||s.startsWith('ATIV');};
 function fromGrid(grid){
   let hi=grid.findIndex(r=>{const s=r.map(norm);return s.some(x=>x==='APELIDO')&&s.some(x=>x.startsWith('SUPERINT'));});
   if(hi<0)hi=0;
@@ -200,15 +180,13 @@ function fromGrid(grid){
   const out=[];STATS={total:0,inativos:0,excluidos:0,semSit:m.situacao<0};
   for(let r=hi+1;r<grid.length;r++){const row=grid[r];if(!row)continue;
     const ap=(row[m.apelido]||'').trim(),su=(row[m.superint]||'').trim(),ge=(row[m.gerente]||'').trim();
-    if(!ap||!su)continue;                      // gerente pode ser vazio (o superintendente não tem gerente acima)
+    if(!ap||!su)continue;
     STATS.total++;
     if(EXCLUIR_N.has(norm(su))||EXCLUIR_N.has(norm(ap))||EXCLUIR_N.has(norm(ge))){STATS.excluidos++;continue;}
     if(m.situacao>=0&&!isAtivo(row[m.situacao])){STATS.inativos++;continue;}
     out.push({ap,nome:(m.nome>=0?row[m.nome]||'':'').trim(),ge,su,dir:(m.diretor>=0?row[m.diretor]||'':'').trim(),fn:(m.funcao>=0?row[m.funcao]||'':'').trim(),em:(m.email>=0?row[m.email]||'':'').trim()});}
   return out;
 }
-
-// mostra APENAS a palavra-chave do cargo contida na célula da coluna FUNÇÃO
 function roleOf(fn){const F=norm(fn);
   if(F.includes('DIRETOR'))return{t:'Diretor',c:'d',r:-1};
   if(F.includes('SUPERINTENDENTE'))return{t:'Superintendente',c:'x',r:0};
@@ -220,382 +198,182 @@ function roleOf(fn){const F=norm(fn);
 function supRoster(){const m={};ROWS.forEach(r=>{if(roleOf(r.fn).r===0)m[norm(r.ap)]=r;});return m;}
 function supList(){const roster=supRoster();const m={},ord=[];
   ROWS.forEach(r=>{
-    if(roleOf(r.fn).r===0)return; // superintendente não é membro da própria árvore: é o cabeçalho
+    if(roleOf(r.fn).r===0)return;
     if(!m[r.su]){const own=roster[norm(r.su)]||null;m[r.su]={name:r.su,dir:r.dir,people:[],own,orphan:!own};ord.push(r.su);}
     if(r.dir&&!m[r.su].dir)m[r.su].dir=r.dir;
     m[r.su].people.push(r);});
-  // superintendente cadastrado que ainda não tem grupo (sem subordinados na base)
   Object.values(roster).forEach(s=>{if(!m[s.ap]){m[s.ap]={name:s.ap,dir:s.dir,people:[],own:s,orphan:false};ord.push(s.ap);}});
   ord.sort((a,b)=>a.localeCompare(b,'pt'));return{m,ord};}
-
-// monta a hierarquia real por quem-reporta-a-quem (coluna F), papéis pela função
 function buildSup(su,people){
-  const nSu=norm(su);
-  const nodes={}; // apelido -> node
+  const nSu=norm(su);const nodes={};
   const ensure=(ap,person)=>{const k=ap;if(!nodes[k])nodes[k]={ap,person:person||null,real:!!person,children:[]};else if(person&&!nodes[k].real){nodes[k].person=person;nodes[k].real=true;}return nodes[k];};
   people.forEach(p=>ensure(p.ap,p));
   const roots=[];
   people.forEach(p=>{const node=nodes[p.ap];const par=p.ge;
     if(!par||norm(par)===nSu||par===p.ap){roots.push(node);return;}
-    let pn=nodes[par];
-    if(!pn){pn=ensure(par,null);}         // líder sem cadastro na base (ex.: cortado / não-ativo)
-    pn.children.push(node);
-  });
-  // nós sintéticos (líder sem row) que não foram atribuídos como filho de ninguém -> raiz sob a superintendente
+    let pn=nodes[par];if(!pn){pn=ensure(par,null);}
+    pn.children.push(node);});
   Object.values(nodes).forEach(n=>{if(!n.real){const isChild=Object.values(nodes).some(o=>o.children.includes(n));if(!isChild&&!roots.includes(n))roots.push(n);}});
   return roots;
 }
-
-function rank(n){return n.real?roleOf(n.person.fn).r:1;} // sintético tratado como gerente
+function rank(n){return n.real?roleOf(n.person.fn).r:1;}
 function sortNodes(a,b){const r=rank(a)-rank(b);return r||a.ap.localeCompare(b.ap,'pt');}
 function countPeople(n){let c=n.real?1:0;n.children.forEach(k=>c+=countPeople(k));return c;}
-
 function matchNode(n,nq){if(!nq)return true;if(n.real){const p=n.person;return[p.ap,p.nome,p.em,p.ge,p.su,p.fn,p.dir].some(v=>norm(v).includes(nq));}return norm(n.ap).includes(nq);}
 function keepTree(n,nq){if(!nq)return true;if(matchNode(n,nq))return true;return n.children.some(k=>keepTree(k,nq));}
 
-function nodeHTML(su,n,hl,nq,forceOpen){
+function nodeHTML(su,n,nq,forceOpen){
   const kids=n.children.filter(k=>!nq||keepTree(k,nq)).sort(sortNodes);
   const has=kids.length>0;
   const id='N::'+su+'::'+n.ap;
   const col=has&&!forceOpen&&!nq&&collapsed.has(id);
   const role=n.real?roleOf(n.person.fn):{t:'Gerente',c:'g'};
-  const ap=hl?hl(n.ap):esc(n.ap);
   let em;
-  if(n.real)em=n.person.em?`<a href="mailto:${esc(n.person.em)}">${hl?hl(n.person.em):esc(n.person.em)}</a>`:'—';
+  if(n.real)em=n.person.em?`<a href="mailto:${esc(n.person.em)}">${esc(n.person.em)}</a>`:'—';
   else em=`<span class="syn">líder sem cadastro na base ativa</span>`;
   const lead=has?`<svg class="caret" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>`:`<span class="leaf"></span>`;
   const cnt=has?`<span class="pn-count">${countPeople(n)-(n.real?1:0)}</span>`:'';
-  const nm=(n.real&&n.person.nome)?`<span class="full">${hl?hl(n.person.nome):esc(n.person.nome)}</span>`:'';
-  const head=`<div class="pn-head">${lead}<span class="pn-name"><span class="ap">${ap}</span>${nm}</span><span class="role r-${role.c}">${esc(role.t)}</span><span class="pn-email">${em}</span>${cnt}</div>`;
-  const ch=has?`<div class="pn-children">${kids.map(k=>nodeHTML(su,k,hl,nq,forceOpen)).join('')}</div>`:'';
+  const nm=(n.real&&n.person.nome)?`<span class="full">${esc(n.person.nome)}</span>`:'';
+  const head=`<div class="pn-head">${lead}<span class="pn-name"><span class="ap">${esc(n.ap)}</span>${nm}</span><span class="role r-${role.c}">${esc(role.t)}</span><span class="pn-email">${em}</span>${cnt}</div>`;
+  const ch=has?`<div class="pn-children">${kids.map(k=>nodeHTML(su,k,nq,forceOpen)).join('')}</div>`:'';
   return `<div class="pnode ${has?'has':''} ${col?'collapsed':''}" data-id="${esc(id)}">${head}${ch}</div>`;
 }
-
-function supCard(su,data,forceOpen,nq,hl){
+function supCard(su,data,forceOpen,nq){
   let roots=buildSup(su,data.people);
   if(nq)roots=roots.filter(r=>keepTree(r,nq));
   roots.sort(sortNodes);
-  if(nq&&!roots.length&&!(data.own&&matchNode({real:true,person:data.own,ap:data.own.ap,children:[]},nq)))return '';
+  if(nq&&!roots.length)return '';
   const gerCount=data.people.filter(p=>roleOf(p.fn).r===1).length;
   const shown=nq?roots.reduce((a,r)=>a+countShown(r,nq),0):data.people.length;
   const sid='S::'+su;const scol=!forceOpen&&!nq&&collapsed.has(sid);
-  const body=roots.length?roots.map(r=>nodeHTML(su,r,hl,nq,forceOpen)).join(''):`<div class="empty" style="padding:18px;font-size:12.5px">Sem subordinados cadastrados nesta base.</div>`;
+  const body=roots.length?roots.map(r=>nodeHTML(su,r,nq,forceOpen)).join(''):`<div class="empty" style="padding:18px;font-size:12.5px">Sem subordinados cadastrados nesta base.</div>`;
   const own=data.own;
   const sub=own
-    ? `<div class="dir">${esc(own.nome||'')}${own.em?` · <a href="mailto:${esc(own.em)}" style="color:rgba(255,255,255,.85)">${esc(own.em)}</a>`:''}</div><div class="dir">Diretor(a): ${esc(data.dir||'—')}</div>`
+    ? `<div class="dir">${esc(own.nome||'')}${own.em?` · <a href="mailto:${esc(own.em)}">${esc(own.em)}</a>`:''}</div><div class="dir">Diretor(a): ${esc(data.dir||'—')}</div>`
     : `<div class="dir">Diretor(a): ${esc(data.dir||'—')}</div><div class="flagsup">⚠ não consta com função de Superintendente</div>`;
   return `<div class="snode ${scol?'collapsed':''}" data-id="${sid}"><div class="snode-head"><svg class="caret" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg><div class="sh-t"><div class="eb">Superintendência${own?'':' · inconsistência'}</div><h3>${esc(data.name)}</h3>${sub}</div><div class="p-metrics"><div class="pm"><b>${gerCount}</b><span>Gerentes</span></div><div class="pm"><b>${shown}</b><span>Pessoas</span></div></div></div><div class="schildren">${body}</div></div>`;
 }
 function countShown(n,nq){let c=(n.real&&matchNode(n,nq))?1:0;n.children.forEach(k=>{if(keepTree(k,nq))c+=countShown(k,nq);});return c;}
-
-function renderKPIs(){$('kTot').textContent=ROWS.length.toLocaleString('pt-BR');
-  const nSup=ROWS.filter(r=>roleOf(r.fn).r===0).length;
-  const{m,ord}=supList();const orphans=ord.filter(s=>m[s].orphan);
-  $('kSup').textContent=nSup;
-  const sub=document.querySelector('.kpi.ink .ks');
-  if(sub)sub.innerHTML=orphans.length?`<b style="color:var(--warn)">${orphans.length} grupo(s) sem superintendente: ${orphans.map(esc).join(', ')}</b>`:'todos com função de superintendente';
-  $('kGer').textContent=ROWS.filter(r=>roleOf(r.fn).r===1).length;}
-function renderSrc(){let s=`<span class="src ${src.k}"><span class="d"></span>${esc(src.t)}</span>`;
-  if(ROWS.length){
-    s+=STATS.semSit
-      ? `<span class="src warn"><span class="d"></span>⚠ coluna de situação não encontrada — sem filtro de ativos</span>`
-      : `<span class="src live"><span class="d"></span>Somente ATIVOS · ${STATS.inativos} inativo(s) excluído(s) de ${STATS.total}</span>`;
-  }
-  $('srcs').innerHTML=s;}
-
 function initCollapse(ord,m){if(treeInit)return;ord.forEach(su=>{const walk=n=>{if(n.children.length){collapsed.add('N::'+su+'::'+n.ap);n.children.forEach(walk);}};buildSup(su,m[su].people).forEach(walk);});treeInit=true;}
 
 function diagPanel(){
-  const pill=x=>`<span style="display:inline-block;background:var(--bg-2);color:var(--ink-2);border-radius:999px;padding:3px 10px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;margin:3px">${esc(x)}</span>`;
-  if(DIAG){return `<div class="snode"><div class="empty"><b>Colunas não reconhecidas</b>Este painel espera os cabeçalhos <b>APELIDO</b>, <b>GERENTE</b> e <b>SUPERINTENDENTE</b> (igual ao ETV). Faltando: ${esc(DIAG.miss.join(', '))||'—'}.<div style="margin-top:14px;font-weight:600;color:var(--ink-2)">Cabeçalhos encontrados na planilha:</div><div style="margin-top:6px">${DIAG.headers.map(pill).join('')||'—'}</div><div style="margin-top:14px;font-size:12.5px">Me diga qual coluna é apelido, qual é gerente e qual é superintendente que eu remapeio.</div></div></div>`;}
-  return `<div class="snode"><div class="empty"><b>Aguardando dados ao vivo</b>A planilha é privada — abra este painel em um navegador logado no Google com acesso a ela. Só popula para quem tem permissão.</div></div>`;
-}
-/* ============ PÁGINA 2 · PROCV por hierarquia ============ */
-const PUB_P2="https://docs.google.com/spreadsheets/d/e/2PACX-1vStykIpeFQ4u54thul1w2oSmkzaK-xfSSPdTHqonGQmWZtgIVOOuzBKcXQniyai2fKVUDG8MY-IHHOx/pub?gid=1061156216&single=true&output=csv";
-const P2_OCULTAR=["EMAIL","EMAIL","E-MAIL"]; // colunas da Página 2 que não vão para a tela
-let P2={headers:[],rows:[],keyIdx:-1,keyType:'',map:{},unmatched:[],dupes:[],loaded:false,err:''};
-
-// índices da Página 1 para o PROCV
-function idxP1(){const byAp={},byEm={},byNo={};ROWS.forEach(r=>{if(r.ap)byAp[norm(r.ap)]=r;if(r.em)byEm[norm(r.em)]=r;if(r.nome)byNo[norm(r.nome)]=r;});return{byAp,byEm,byNo};}
-
-// descobre qual coluna da Página 2 é a chave (a que mais casa com a Página 1)
-function detectKey(rows,idx){
-  let best={i:-1,hits:0,type:''};
-  const ncols=Math.max(...rows.map(r=>r.length),0);
-  for(let c=0;c<ncols;c++){
-    const tests=[['apelido',idx.byAp],['email',idx.byEm],['nome',idx.byNo]];
-    tests.forEach(([type,map])=>{
-      let hits=0;rows.forEach(r=>{const v=norm(r[c]);if(v&&map[v])hits++;});
-      if(hits>best.hits)best={i:c,hits,type};
-    });
-  }
-  return best;
+  if(DIAG){const pill=x=>`<span style="display:inline-block;background:var(--line-2);color:var(--ink-2);border-radius:999px;padding:3px 10px;font-size:11px;font-weight:700;margin:3px">${esc(x)}</span>`;
+    return `<div class="empty-card"><b>Colunas não reconhecidas</b>Este painel espera os cabeçalhos <b>APELIDO</b>, <b>GERENTE</b> e <b>SUPERINTENDENTE</b>. Faltando: ${esc(DIAG.miss.join(', '))||'—'}.<div style="margin-top:12px">${DIAG.headers.map(pill).join('')||'—'}</div></div>`;}
+  return `<div class="empty-card"><b>Aguardando dados</b>Não consegui ler a planilha. Verifique se ela está publicada na web em CSV.</div>`;
 }
 
-async function loadP2(){
-  try{
-    const res=await fetch(PUB_P2+'&_='+Date.now());
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    const txt=await res.text();
-    if(txt.trim().startsWith('<'))throw new Error('sem acesso');
-    const grid=parseCSV(txt).filter(r=>r.some(c=>String(c).trim()));
-    if(!grid.length)throw new Error('vazia');
-    P2.headers=grid[0].map(x=>String(x).trim());
-    const body=grid.slice(1);
-    const idx=idxP1();
-    const best=detectKey(body,idx);
-    P2.keyIdx=best.i;P2.keyType=best.type;
-    const map={},unmatched=[];
-    const lut=best.type==='email'?idx.byEm:best.type==='nome'?idx.byNo:idx.byAp;
-    const dupes=[];
-    body.forEach(r=>{
-      const k=norm(r[best.i]);
-      const person=k?lut[k]:null;
-      if(person){const mk=norm(person.ap)+'||'+norm(person.em);
-        if(map[mk])dupes.push({key:r[best.i],row:r});
-        map[mk]=r;}
-      else unmatched.push(r);
-    });
-    P2.map=map;P2.unmatched=unmatched;P2.dupes=dupes;P2.rows=body;P2.loaded=true;P2.err='';
-  }catch(e){P2.loaded=false;P2.err=e.message||'falha';}
-  if(tab==='p2')drawP2();
+function fillSel(id,opts,cur,allLabel){
+  $(id).innerHTML=`<option value="">${allLabel}</option>`+opts.map(o=>`<option ${norm(o)===norm(cur)?'selected':''}>${esc(o)}</option>`).join('');
 }
-const p2Of=p=>P2.map[norm(p.ap)+'||'+norm(p.em)]||null;
-
-const P2_OCULTAR_N=new Set(P2_OCULTAR.map(x=>norm(x)));
-function p2Cells(row){ // mostra só as colunas de dado (sem a chave e sem as ocultas)
-  return P2.headers.map((h,i)=>{
-    if(i===P2.keyIdx||P2_OCULTAR_N.has(norm(h)))return null;
-    return `<span class="p2c"><i>${esc(h)}</i><b>${esc(row[i]||'—')}</b></span>`;
-  }).filter(Boolean).join('');
+function fillFilters(){
+  const {m,ord}=supList();
+  const dirs=[...new Set(ord.map(su=>m[su].dir).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt'));
+  let sups=ord.slice();if(fDir)sups=sups.filter(su=>norm(m[su].dir)===norm(fDir));
+  let gers=ROWS.filter(r=>roleOf(r.fn).r===1);
+  if(fDir)gers=gers.filter(r=>norm(r.dir)===norm(fDir));
+  if(fSup)gers=gers.filter(r=>norm(r.su)===norm(fSup));
+  const gerNames=[...new Set(gers.map(r=>r.ap))].sort((a,b)=>a.localeCompare(b,'pt'));
+  fillSel('fDir',dirs,fDir,'Todos os diretores');
+  fillSel('fSup',sups,fSup,'Todas as superintendências');
+  fillSel('fGer',gerNames,fGer,'Todos os gerentes');
 }
+function renderSrc(){let s=`<span class="src ${src.k}"><span class="d"></span>${esc(src.t)}</span>`;
+  if(ROWS.length&&!STATS.semSit)s+=`<span class="src live"><span class="d"></span>Somente ATIVOS · ${STATS.inativos} inativo(s) de ${STATS.total}</span>`;
+  $('srcs').innerHTML=s;}
 
-function hasP2(n){if(n.real&&p2OfF(n.person))return true;return n.children.some(hasP2);}
-const col2=new Set(); let init2=false;
-function nodeP2(su,n,nq,hl){
-  const kids=n.children.filter(k=>hasP2(k)&&(!nq||keepTreeP2(k,nq))).sort(sortNodes);
-  const role=n.real?roleOf(n.person.fn):{t:'Gerente',c:'g'};
-  const row=n.real?p2OfF(n.person):null;
-  const has=kids.length>0;
-  const id='P2::'+su+'::'+n.ap;
-  const col=has&&!nq&&col2.has(id);
-  const lead=has?`<svg class="caret" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>`:`<span class="leaf"></span>`;
-  const nm=n.real&&n.person.nome?`<span class="full">${hl?hl(n.person.nome):esc(n.person.nome)}</span>`:'';
-  const vals=row?`<span class="p2v">${p2Cells(row)}</span>`:`<span class="p2v"><span class="p2c" style="border-style:dashed;color:var(--muted)"><b style="color:var(--muted);font-weight:500">sem registro na Página 2</b></span></span>`;
-  const cnt=has?`<span class="pn-count">${kids.length}</span>`:'';
-  const head=`<div class="pn-head">${lead}<span class="pn-name"><span class="ap">${hl?hl(n.ap):esc(n.ap)}</span>${nm}</span><span class="role r-${role.c}">${esc(role.t)}</span>${vals}${cnt}</div>`;
-  const ch=has?`<div class="pn-children">${kids.map(k=>nodeP2(su,k,nq,hl)).join('')}</div>`:'';
-  return `<div class="pnode ${has?'has':''} ${col?'collapsed':''}" data-id="${esc(id)}">${head}${ch}</div>`;
+function draw(){
+  renderSrc();
+  if(!ROWS.length){$('tree').innerHTML=diagPanel();$('treeInfo').textContent='';return;}
+  const {m,ord}=supList();initCollapse(ord,m);
+  const nqGer=fGer?norm(fGer):null;
+  let list=ord.slice();
+  if(fDir)list=list.filter(su=>norm(m[su].dir)===norm(fDir));
+  if(fSup)list=list.filter(su=>norm(su)===norm(fSup));
+  if(fGer)list=list.filter(su=>m[su].people.some(p=>norm(p.ge)===nqGer||norm(p.ap)===nqGer));
+  let html='';
+  list.forEach(su=>{const c=supCard(su,m[su],!!nqGer,nqGer);if(c)html+=c;});
+  $('tree').innerHTML=html||'<div class="empty-card">Nenhum resultado para os filtros selecionados.</div>';
+  $('treeInfo').textContent=`${list.length} superintendência(s) · ${ROWS.length} prestadores no total`;
+  wireTree();
 }
-function keepTreeP2(n,nq){if(!nq)return true;if(matchNode(n,nq))return true;
-  if(n.real){const r=p2Of(n.person);if(r&&r.some(v=>norm(v).includes(nq)))return true;}
-  return n.children.some(k=>keepTreeP2(k,nq));}
-
-/* ---- filtro por Canal de Distribuição (valores multivalorados: "Premium;Comum") ---- */
-let canalSel=new Set(); // vazio = todos
-function canalIdx(){let i=P2.headers.findIndex(h=>norm(h).includes('CANAL'));
-  if(i<0)i=P2.headers.findIndex((h,j)=>j!==P2.keyIdx&&!P2_OCULTAR_N.has(norm(h)));
-  return i;}
-function canaisDe(row){if(!row)return[];const i=canalIdx();if(i<0)return[];
-  return String(row[i]||'').split(/[;,|\/]/).map(s=>s.trim()).filter(Boolean);}
-function canalOK(row){if(!canalSel.size)return true;const cs=canaisDe(row).map(norm);
-  if(!cs.length)return canalSel.has('__VAZIO__');
-  return cs.some(c=>canalSel.has(c));}
-function todosCanais(){const set=new Map();let vazio=0;
-  Object.values(P2.map).forEach(row=>{const cs=canaisDe(row);if(!cs.length){vazio++;return;}
-    cs.forEach(c=>{const k=norm(c);set.set(k,{label:c,n:(set.get(k)?.n||0)+1});});});
-  return{lista:[...set.entries()].sort((a,b)=>b[1].n-a[1].n),vazio};}
-
-function p2OfF(p){const r=p2Of(p);return r&&canalOK(r)?r:null;} // respeita o filtro de canal
-
-/* ============ PAINEL BLIP (planilha separada) ============ */
-const URL_BLIP="https://docs.google.com/spreadsheets/d/e/2PACX-1vRY3BUM998BjEezPLg8JmPLAxhI3BocIqrwcw_dhCXiMEjVgGoHrRY9t-TuORNZmcpBLsFMSUgqkUXR/pub?gid=1243709720&single=true&output=csv";
-let BLIP={rows:[],loaded:false,err:'',cur:0,mode:'tree'};
-const col3=new Set();
-
-function blipParse(grid){
-  const H=grid[0].map(h=>norm(h));
-  const idx=n=>H.findIndex(h=>h===n||h.startsWith(n));
-  const iA=idx('ATENDENTE'),iN=idx('NOME'),iE=idx('EMAIL'),iG=idx('GERENTE'),iS=idx('SUPERINTENDENTE'),iD=idx('DIRETOR');
-  if(iA<0||iG<0||iS<0)return [];
-  const out=[];
-  for(let r=1;r<grid.length;r++){const row=grid[r];if(!row)continue;
-    const a=(row[iA]||'').trim(),g=(row[iG]||'').trim(),s=(row[iS]||'').trim();
-    if(!a||!g||!s)continue;
-    out.push({a,n:(iN>=0?row[iN]||'':'').trim(),e:(iE>=0?row[iE]||'':'').trim(),g,s,d:(iD>=0?row[iD]||'':'').trim()});}
-  return out;
-}
-async function loadBlip(){
-  try{const res=await fetch(URL_BLIP+'&_='+Date.now());if(!res.ok)throw new Error('HTTP '+res.status);
-    const txt=await res.text();if(txt.trim().startsWith('<'))throw new Error('sem acesso');
-    const rows=blipParse(parseCSV(txt));if(!rows.length)throw new Error('sem linhas');
-    BLIP.rows=rows;BLIP.loaded=true;BLIP.err='';}
-  catch(e){BLIP.loaded=false;BLIP.err=e.message||'falha';}
-  if(tab==='blip')drawBlip();
-}
-function blipGroups(){const S={},ord=[];
-  BLIP.rows.forEach(r=>{if(!S[r.s]){S[r.s]={name:r.s,dir:r.d,g:{},go:[],total:0};ord.push(r.s);}
-    const x=S[r.s];if(r.d&&!x.dir)x.dir=r.d;
-    if(!x.g[r.g]){x.g[r.g]=[];x.go.push(r.g);}x.g[r.g].push(r);x.total++;});
-  ord.sort((a,b)=>a.localeCompare(b,'pt'));for(const k in S)S[k].go.sort((a,b)=>a.localeCompare(b,'pt'));
-  return{S,ord};}
-
-function drawBlip(){
-  const el=$('panel3');
-  if(!BLIP.loaded){$('srcs3').innerHTML=`<span class="src warn"><span class="d"></span>BLIP não carregado${BLIP.err?' — '+esc(BLIP.err):''}</span>`;
-    $('chips3').innerHTML='';
-    el.innerHTML=`<div class="snode"><div class="empty"><b>Sem dados do BLIP</b>Verifique se a planilha BLIP SELEÇÃO continua publicada.</div></div>`;return;}
-  const{S,ord}=blipGroups();
-  $('srcs3').innerHTML=`<span class="src live"><span class="d"></span>Ao vivo · ${BLIP.rows.length} atendentes</span>`+
-    `<span class="src snap"><span class="d"></span>${ord.length} superintendências · ${new Set(BLIP.rows.map(r=>r.s+'||'+r.g)).size} gerentes</span>`;
-  const q=$('search3').value.trim();const nq=q?norm(q):null;const hl=nq?makeHL(nq):null;
-  if(BLIP.cur>=ord.length)BLIP.cur=0;
-  $('chips3').innerHTML=`<button class="chip tree ${BLIP.mode==='tree'?'on':''}" data-tree><svg class="ci" viewBox="0 0 24 24"><path d="M9 5h11M9 12h11M9 19h11M4 5v14M4 12h5"/></svg>Visão geral</button>`+
-    ord.map((s,i)=>`<button class="chip ${BLIP.mode!=='tree'&&i===BLIP.cur?'on':''}" data-i="${i}">${esc(s)}<span class="c">${S[s].total}</span></button>`).join('');
-  $('chips3').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{
-    if(b.hasAttribute('data-tree'))BLIP.mode='tree';else{BLIP.mode='sup';BLIP.cur=+b.getAttribute('data-i');}
-    $('search3').value='';drawBlip();});
-  const match=p=>!nq||[p.a,p.n,p.e,p.g,p.s].some(v=>norm(v).includes(nq));
-  const list=(BLIP.mode==='tree'||nq)?ord:[ord[BLIP.cur]].filter(Boolean);
-  let cards='',tot=0;
-  list.forEach(su=>{const P=S[su];let teams='',n=0;
-    P.go.forEach(g=>{const at=P.g[g].filter(match).sort((a,b)=>a.a.localeCompare(b.a,'pt'));
-      if(!at.length)return;n+=at.length;
-      let rows='';at.forEach(p=>rows+=`<tr><td class="ap">${hl?hl(p.a):esc(p.a)}</td><td class="fn">${hl?hl(p.n):esc(p.n)}</td><td class="em">${p.e?`<a href="mailto:${esc(p.e)}">${hl?hl(p.e):esc(p.e)}</a>`:'—'}</td></tr>`);
-      const gid='B::'+su+'::'+g, gcol=!nq&&col3.has(gid);
-      teams+=`<div class="gteam ${gcol?'collapsed':''}" data-id="${esc(gid)}"><div class="gth"><svg class="caret" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg><span class="dot"></span><span class="gn">${esc(g)}</span><span class="gt">Gerente</span><span class="gc">${at.length} atend.</span></div><div class="gbody"><table><thead><tr><th>Atendente</th><th>Nome</th><th>E-mail</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;});
-    if(!teams)return;tot+=n;
-    const sid3='BS::'+su, scol3=!nq&&col3.has(sid3);
-    cards+=`<div class="snode ${scol3?'collapsed':''}" data-id="${esc(sid3)}"><div class="snode-head"><svg class="caret" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg><div class="sh-t"><div class="eb">Superintendência</div><h3>${esc(P.name)}</h3><div class="dir">Diretor(a): ${esc(P.dir||'—')}</div></div><div class="p-metrics"><div class="pm"><b>${P.go.length}</b><span>Gerentes</span></div><div class="pm"><b>${n}</b><span>Atendentes</span></div></div></div><div class="schildren">${teams}</div></div>`;});
-  if(nq)$('srcs3').innerHTML+=`<span class="src snap"><span class="d"></span>${tot} resultado(s) para "${esc(q)}"</span>`;
-  const bar=`<div class="treebar"><span class="tinfo">${nq?`${tot} resultado(s)`:`${tot} atendentes · ${list.length} superintendência(s)`}</span><div class="tbtns"><button class="tbtn" id="exp3">Expandir tudo</button><button class="tbtn" id="col3b">Recolher tudo</button></div></div>`;
-  el.innerHTML=bar+(cards?`<div class="tree">${cards}</div>`:`<div class="snode"><div class="empty"><b>Nada encontrado</b>Tente outro termo.</div></div>`);
-  $('exp3').onclick=()=>{col3.clear();drawBlip();};
-  $('col3b').onclick=()=>{col3.clear();ord.forEach(su=>{col3.add('BS::'+su);S[su].go.forEach(g=>col3.add('B::'+su+'::'+g));});drawBlip();};
-  el.querySelectorAll('.snode-head').forEach(hd=>hd.onclick=()=>{const n=hd.parentElement,id=n.getAttribute('data-id');n.classList.toggle('collapsed');n.classList.contains('collapsed')?col3.add(id):col3.delete(id);});
-  el.querySelectorAll('.gth').forEach(hd=>hd.onclick=()=>{const n=hd.parentElement,id=n.getAttribute('data-id');n.classList.toggle('collapsed');n.classList.contains('collapsed')?col3.add(id):col3.delete(id);});
+function wireTree(){
+  $('tree').querySelectorAll('.snode-head').forEach(hd=>hd.onclick=()=>{const n=hd.parentElement,id=n.getAttribute('data-id');n.classList.toggle('collapsed');n.classList.contains('collapsed')?collapsed.add(id):collapsed.delete(id);});
+  $('tree').querySelectorAll('.pnode.has > .pn-head').forEach(hd=>hd.onclick=()=>{const n=hd.parentElement,id=n.getAttribute('data-id');n.classList.toggle('collapsed');n.classList.contains('collapsed')?collapsed.add(id):collapsed.delete(id);});
 }
 
-let mode2='tree', cur2=0;
-function drawP2(){
-  const el=$('panel2');
-  if(!ROWS.length){el.innerHTML=diagPanel();$('srcs2').innerHTML='';$('chips2').innerHTML='';$('canalbar').innerHTML='';return;}
-  if(!P2.loaded){$('srcs2').innerHTML=`<span class="src warn"><span class="d"></span>Página 2 não carregada${P2.err?' — '+esc(P2.err):''}</span>`;
-    $('chips2').innerHTML='';$('canalbar').innerHTML='';
-    el.innerHTML=`<div class="snode"><div class="empty"><b>Sem dados da Página 2</b>Verifique se a aba está publicada.</div></div>`;return;}
-  const matched=Object.keys(P2.map).length;
-  $('srcs2').innerHTML=`<span class="src live"><span class="d"></span>PROCV por <b style="margin-left:3px">${esc(P2.headers[P2.keyIdx]||'?')}</b> (${esc(P2.keyType)})</span>`+
-    `<span class="src snap"><span class="d"></span>${matched} de ${P2.rows.length} linha(s) casaram</span>`+
-    (P2.unmatched.length?`<span class="src warn"><span class="d"></span>${P2.unmatched.length} sem correspondência</span>`:'')+
-    (P2.dupes.length?`<span class="src warn"><span class="d"></span>${P2.dupes.length} duplicada(s): ${esc(P2.dupes.slice(0,6).map(d=>d.key).join(', '))}${P2.dupes.length>6?'…':''}</span>`:'');
-  const q=$('search2').value.trim();const nq=q?norm(q):null;const hl=nq?makeHL(nq):null;
-  const{m,ord}=supList();
-  // conta quantas pessoas de cada superintendência têm registro na Página 2
-  const cnt={};ord.forEach(su=>{cnt[su]=m[su].people.filter(p=>p2OfF(p)).length;});
-  const ordP2=ord.filter(su=>cnt[su]>0);
-  if(cur2>=ordP2.length)cur2=0;
-  $('chips2').innerHTML=`<button class="chip tree ${mode2==='tree'?'on':''}" data-tree><svg class="ci" viewBox="0 0 24 24"><path d="M9 5h11M9 12h11M9 19h11M4 5v14M4 12h5"/></svg>Visão geral</button>`+
-    ordP2.map((s,i)=>`<button class="chip ${mode2!=='tree'&&i===cur2?'on':''}" data-i="${i}">${esc(s)}<span class="c">${cnt[s]}</span></button>`).join('');
-  $('chips2').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{
-    if(b.hasAttribute('data-tree'))mode2='tree';else{mode2='sup';cur2=+b.getAttribute('data-i');}
-    $('search2').value='';drawP2();});
-  // ---- barra de filtro por Canal de Distribuição ----
-  const{lista,vazio}=todosCanais();
-  const allOn=canalSel.size===0;
-  let cb=`<div class="cl">Canal de distribuição</div><div class="chips">`+
-    `<button class="chip can all ${allOn?'on':''}" data-canal="__ALL__">Todos</button>`+
-    lista.map(([k,v])=>`<button class="chip can ${canalSel.has(k)?'on':''}" data-canal="${esc(k)}">${esc(v.label)}<span class="c">${v.n}</span></button>`).join('')+
-    (vazio?`<button class="chip can ${canalSel.has('__VAZIO__')?'on':''}" data-canal="__VAZIO__">(sem canal)<span class="c">${vazio}</span></button>`:'')+
-    `</div>`;
-  $('canalbar').innerHTML=cb;
-  $('canalbar').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{
-    const c=b.getAttribute('data-canal');
-    if(c==='__ALL__')canalSel.clear();
-    else{canalSel.has(c)?canalSel.delete(c):canalSel.add(c);}
-    drawP2();});
-
-  const list=(mode2==='tree'||nq)?ordP2:[ordP2[cur2]].filter(Boolean);
-  let cards='';
-  list.forEach(su=>{
-    let roots=buildSup(su,m[su].people).filter(hasP2);
-    if(nq)roots=roots.filter(r=>keepTreeP2(r,nq));
-    roots.sort(sortNodes);
-    if(!roots.length)return;
-    const own=m[su].own;
-    const sid2='P2S::'+su, scol2=!nq&&col2.has(sid2);
-    cards+=`<div class="snode ${scol2?'collapsed':''}" data-id="${esc(sid2)}"><div class="snode-head"><svg class="caret" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg><div class="sh-t"><div class="eb">Superintendência</div><h3>${esc(m[su].name)}</h3><div class="dir">${own&&own.nome?esc(own.nome)+' · ':''}Diretor(a): ${esc(m[su].dir||'—')}</div></div><div class="p-metrics"><div class="pm"><b>${cnt[su]}</b><span>Com canal</span></div></div></div><div class="schildren">${roots.map(r=>nodeP2(su,r,nq,hl)).join('')}</div></div>`;
-  });
-  let un='';
-  if(P2.unmatched.length&&(mode2==='tree'||nq)){
-    un=`<div class="nomatch"><h4>⚠ ${P2.unmatched.length} linha(s) da Página 2 sem correspondência na Página 1</h4>`+
-      P2.unmatched.slice(0,50).map(r=>`<div class="row">${P2.headers.map((h,i)=>`<b>${esc(h)}:</b> ${esc(r[i]||'—')}`).join(' · ')}</div>`).join('')+
-      (P2.unmatched.length>50?`<div class="row">…e mais ${P2.unmatched.length-50}</div>`:'')+`</div>`;
-  }
-  const totP2=list.reduce((a,su)=>a+cnt[su],0);
-  const bar=`<div class="treebar"><span class="tinfo">${nq?`${totP2} com canal no filtro`:`${totP2} pessoa(s) com canal · ${list.length} superintendência(s)`}</span><div class="tbtns"><button class="tbtn" id="exp2">Expandir tudo</button><button class="tbtn" id="col2b">Recolher tudo</button></div></div>`;
-  el.innerHTML=bar+(cards?`<div class="tree">${cards}</div>`:`<div class="snode"><div class="empty"><b>Nenhuma correspondência</b>Nenhuma pessoa desta seleção tem registro na Página 2.</div></div>`)+un;
-  $('exp2').onclick=()=>{col2.clear();drawP2();};
-  $('col2b').onclick=()=>{col2.clear();
-    ordP2.forEach(su=>{col2.add('P2S::'+su);
-      const walk=n=>{if(n.children.length){col2.add('P2::'+su+'::'+n.ap);n.children.forEach(walk);}};
-      buildSup(su,m[su].people).filter(hasP2).forEach(walk);});
-    drawP2();};
-  el.querySelectorAll('.snode-head').forEach(hd=>hd.onclick=()=>{const n=hd.parentElement,id=n.getAttribute('data-id');n.classList.toggle('collapsed');n.classList.contains('collapsed')?col2.add(id):col2.delete(id);});
-  el.querySelectorAll('.pnode.has > .pn-head').forEach(hd=>hd.onclick=()=>{const n=hd.parentElement,id=n.getAttribute('data-id');n.classList.toggle('collapsed');n.classList.contains('collapsed')?col2.add(id):col2.delete(id);});
+let CH={};
+function barChart(id,obj,label,color){
+  const c=$(id);if(!c)return;
+  if(typeof Chart==='undefined'){const box=c.closest('.chart-box');if(box)box.innerHTML='<div class="chart-na">Gráfico indisponível (sem conexão para carregar a biblioteca).</div>';return;}
+  const entries=Object.entries(obj).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'pt'));
+  const labels=entries.map(e=>e[0]),data=entries.map(e=>e[1]);
+  c.parentElement.style.height=Math.max(160,labels.length*28+28)+'px';
+  if(CH[id])CH[id].destroy();
+  try{CH[id]=new Chart(c,{type:'bar',data:{labels,datasets:[{label,data,backgroundColor:color,borderRadius:5,maxBarThickness:20}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,layout:{padding:{right:16}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+label+': '+ctx.parsed.x}}},
+      scales:{x:{beginAtZero:true,ticks:{precision:0,color:'#64748B'},grid:{color:'#EEF2F6'}},y:{ticks:{color:'#0F172A',font:{family:'Space Grotesk',size:11,weight:'600'}},grid:{display:false}}}}});}catch(e){}
+}
+function drawPainel(){
+  const roleR=r=>roleOf(r.fn).r;
+  const nDir=new Set(ROWS.filter(r=>roleR(r)===-1).map(r=>norm(r.ap))).size || [...new Set(ROWS.map(r=>norm(r.dir)).filter(Boolean))].length;
+  const nSup=ROWS.filter(r=>roleR(r)===0).length, nGer=ROWS.filter(r=>roleR(r)===1).length, nCons=ROWS.filter(r=>roleR(r)===3).length;
+  $('kpis').innerHTML=`
+    <div class="kpi"><div class="kl">Prestadores</div><div class="kv">${ROWS.length.toLocaleString('pt-BR')}</div></div>
+    <div class="kpi i-d"><div class="kl">Diretores</div><div class="kv">${nDir}</div></div>
+    <div class="kpi i-x"><div class="kl">Superintendentes</div><div class="kv">${nSup}</div></div>
+    <div class="kpi i-g"><div class="kl">Gerentes</div><div class="kv">${nGer}</div></div>
+    <div class="kpi i-v"><div class="kl">Consultores</div><div class="kv">${nCons}</div></div>`;
+  const supByDir={},gerBySup={},consByGer={};
+  ROWS.filter(r=>roleR(r)===0).forEach(r=>{const k=r.dir||'(sem diretor)';supByDir[k]=(supByDir[k]||0)+1;});
+  ROWS.filter(r=>roleR(r)===1).forEach(r=>{const k=r.su||'(sem superintendente)';gerBySup[k]=(gerBySup[k]||0)+1;});
+  ROWS.filter(r=>roleR(r)===3).forEach(r=>{const k=r.ge||'(sem gerente)';consByGer[k]=(consByGer[k]||0)+1;});
+  barChart('cSupDir',supByDir,'Superintendentes','#7C3AED');
+  barChart('cGerSup',gerBySup,'Gerentes','#2563EB');
+  barChart('cConsGer',consByGer,'Consultores','#4F46E5');
 }
 
-let tab='estrutura';
-function showTab(t){tab=t;
-  $('view-estrutura').style.display=t==='estrutura'?'block':'none';
-  $('view-p2').style.display=t==='p2'?'block':'none';
-  $('view-blip').style.display=t==='blip'?'block':'none';
-  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.getAttribute('data-t')===t));
-  if(t==='p2')drawP2();else if(t==='blip')drawBlip();else draw();}
-
-function render(){renderKPIs();renderSrc();const{m,ord}=supList();if(cur>=ord.length)cur=0;initCollapse(ord,m);
-  const treeChip=`<button class="chip tree ${mode==='tree'?'on':''}" data-tree><svg class="ci" viewBox="0 0 24 24"><path d="M9 5h11M9 12h11M9 19h11M4 5v14M4 12h5"/></svg>Visão geral</button>`;
-  $('chips').innerHTML=treeChip+ord.map((s,i)=>`<button class="chip ${mode!=='tree'&&i===cur?'on':''}" data-i="${i}">${esc(s)}<span class="c">${m[s].people.length}</span></button>`).join('');
-  $('chips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(b.hasAttribute('data-tree'))mode='tree';else{mode='sup';cur=+b.getAttribute('data-i');}$('search').value='';render();});
-  draw();}
-
-function draw(){if(!ROWS.length){$('panel').innerHTML=diagPanel();return;}const{m,ord}=supList();const q=$('search').value.trim();const nq=q?norm(q):null;const hl=nq?makeHL(nq):null;
-  const list=(mode==='tree'||nq)?ord:[ord[cur]];
-  const forceOpen=(mode==='sup'&&!nq); // aba única: expandida
-  let cards='',shownP=0,shownS=0;
-  list.forEach(su=>{const html=supCard(su,m[su],forceOpen,nq,hl);if(!html)return;cards+=html;shownS++;
-    let roots=buildSup(su,m[su].people);if(nq)roots=roots.filter(r=>keepTree(r,nq));shownP+=nq?roots.reduce((a,r)=>a+countShown(r,nq),0):m[su].people.length;});
-  const info=nq?`${shownP} resultado${shownP!==1?'s':''} para "${esc(q)}"`:`${ROWS.length} pessoas · ${ord.length} superintendências · ${ROWS.filter(r=>roleOf(r.fn).r===1).length} gerentes`;
-  const controls=(mode==='tree'||nq)?`<div class="treebar"><span class="tinfo">${info}</span><div class="tbtns"><button class="tbtn" id="expAll">Expandir tudo</button><button class="tbtn" id="colAll">Recolher tudo</button></div></div>`:'';
-  if(!cards){$('panel').innerHTML=controls+`<div class="snode"><div class="empty"><b>Nada encontrado</b>Tente outro apelido, e-mail, gerente ou superintendência.</div></div>`;wireControls();return;}
-  $('panel').innerHTML=controls+`<div class="tree">${cards}</div>`;wireControls();}
-
-function wireControls(){
-  const ea=$('expAll'),ca=$('colAll');
-  if(ea)ea.onclick=()=>{collapsed.clear();draw();};
-  if(ca)ca.onclick=()=>{const{m,ord}=supList();collapsed.clear();ord.forEach(su=>{collapsed.add('S::'+su);const walk=n=>{if(n.children.length){collapsed.add('N::'+su+'::'+n.ap);n.children.forEach(walk);}};buildSup(su,m[su].people).forEach(walk);});draw();};
-  $('panel').querySelectorAll('.snode-head').forEach(h=>h.onclick=()=>{const n=h.parentElement,id=n.getAttribute('data-id');n.classList.toggle('collapsed');n.classList.contains('collapsed')?collapsed.add(id):collapsed.delete(id);});
-  $('panel').querySelectorAll('.pnode.has > .pn-head').forEach(h=>h.onclick=()=>{const n=h.parentElement,id=n.getAttribute('data-id');n.classList.toggle('collapsed');n.classList.contains('collapsed')?collapsed.add(id):collapsed.delete(id);});
+function showView(v){
+  view=v;
+  document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.getAttribute('data-v')===v));
+  $('view-estrutura').classList.toggle('hidden',v!=='estrutura');
+  $('view-painel').classList.toggle('hidden',v!=='painel');
+  $('vTitle').textContent=v==='painel'?'Painel':'Estrutura';
+  $('vSub').textContent=v==='painel'?'contagem da hierarquia por nível':'Diretor › Superintendente › Gerente › Coordenador › Consultor';
+  if(v==='painel')drawPainel();else draw();
+  $('side').classList.remove('open');
 }
 
-async function fetchRows(url){const res=await fetch(url+'&_='+Date.now());if(!res.ok)throw 0;const txt=await res.text();if(txt.trim().startsWith('<'))throw 0;return fromGrid(parseCSV(txt));}
-async function loadLive(){$('btnRefresh').classList.add('spinning');
-  try{let rows=[];
-    try{rows=await fetchRows(PUB);}catch(e){rows=[];}
-    if(!rows.length&&!DIAG){try{rows=await fetchRows(GVIZ);}catch(e){rows=[];}}
-    if(rows.length){ROWS=rows;src={k:'live',t:'Ao vivo · '+rows.length+' registros'};treeInit=false;}else throw 0;}
-  catch(e){ROWS=[];treeInit=false;src=DIAG?{k:'warn',t:'Colunas não reconhecidas'}:{k:'warn',t:'Sem dados — verifique a publicação'};}
-  finally{$('btnRefresh').classList.remove('spinning');render();}}
+async function fetchGrid(){
+  try{const r=await fetch(CSV_URL+'&_='+Date.now());if(r.ok){const t=await r.text();if(!t.trim().startsWith('<')){const g=parseCSV(t);if(g.length>1)return g;}}}catch(e){}
+  try{const hurl=CSV_URL.replace('/pub?','/pubhtml?').replace('&output=csv','');const r=await fetch(hurl+'&_='+Date.now());if(r.ok){const html=await r.text();const doc=new DOMParser().parseFromString(html,'text/html');const t=[...doc.querySelectorAll('table')].sort((a,b)=>b.querySelectorAll('tr').length-a.querySelectorAll('tr').length)[0];if(t){const g=[];t.querySelectorAll('tr').forEach(tr=>{const cells=[...tr.children].filter(c=>c.tagName==='TD').map(c=>c.textContent.replace(/\u00a0/g,' ').trim());if(cells.length)g.push(cells);});if(g.length>1)return g;}}}catch(e){}
+  return null;
+}
+async function loadLive(){
+  $('btnRefresh').classList.add('spin');
+  const grid=await fetchGrid();
+  if(grid){const rows=fromGrid(grid);
+    if(rows.length){ROWS=rows;src={k:'ok',t:'Dados ao vivo'};}
+    else{ROWS=[];src={k:'warn',t:DIAG?'Colunas não reconhecidas':'Planilha sem linhas'};}}
+  else{ROWS=[];src={k:'warn',t:'Sem acesso à planilha — verifique a publicação em CSV'};}
+  $('btnRefresh').classList.remove('spin');
+  fillFilters();
+  if(view==='painel')drawPainel();else draw();
+}
 
-const mk=el=>{el.innerHTML=`<defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E2231A"/><stop offset="1" stop-color="#A50F12"/></linearGradient><mask id="lm"><rect width="512" height="512" fill="black"/><g fill="white"><rect x="134" y="360" width="244" height="22" rx="8"/><rect x="150" y="306" width="58" height="70" rx="9"/><rect x="227" y="256" width="58" height="120" rx="9"/><rect x="304" y="196" width="58" height="180" rx="9"/><rect x="322" y="144" width="22" height="56" rx="7"/><rect x="305" y="157" width="56" height="22" rx="7"/></g></mask></defs><rect width="512" height="512" rx="115" fill="url(#lg)"/><rect width="512" height="512" fill="white" mask="url(#lm)"/>`;};
-
-mk($('mk'));
-ROWS=[];
-render();
-$('search').addEventListener('input',()=>draw());
+document.querySelectorAll('.nav').forEach(n=>n.onclick=()=>showView(n.getAttribute('data-v')));
+$('menuBtn').onclick=()=>$('side').classList.toggle('open');
+$('fDir').onchange=e=>{fDir=e.target.value;fSup='';fGer='';fillFilters();draw();};
+$('fSup').onchange=e=>{fSup=e.target.value;fGer='';fillFilters();draw();};
+$('fGer').onchange=e=>{fGer=e.target.value;fillFilters();draw();};
+$('fClear').onclick=()=>{fDir='';fSup='';fGer='';fillFilters();draw();};
+$('expAll').onclick=()=>{collapsed.clear();draw();};
+$('colAll').onclick=()=>{const{m,ord}=supList();collapsed.clear();ord.forEach(su=>{collapsed.add('S::'+su);const walk=n=>{if(n.children.length){collapsed.add('N::'+su+'::'+n.ap);n.children.forEach(walk);}};buildSup(su,m[su].people).forEach(walk);});draw();};
 $('btnRefresh').onclick=loadLive;
-loadLive();
+draw();loadLive();
 setInterval(loadLive,POLL_MS);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadLive();});
+if(typeof Chart==='undefined'){const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';s.onload=()=>{if(view==='painel')drawPainel();};document.head.appendChild(s);}
 </script>
 </body>
 </html>
