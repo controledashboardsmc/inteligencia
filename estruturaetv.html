@@ -40,6 +40,11 @@
   .rbtn:hover{border-color:var(--indigo);color:var(--indigo)}
   .rbtn.spin svg{animation:sp .7s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
   .content{padding:22px 26px 60px;max-width:1240px;width:100%}
+  .searchbar{display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 15px;box-shadow:var(--shadow);margin-bottom:14px;height:50px}
+  .searchbar svg{width:19px;height:19px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;flex:0 0 auto}
+  .searchbar input{flex:1;border:none;outline:none;font-family:inherit;font-size:15px;background:transparent;color:var(--ink)}
+  .searchbar input::placeholder{color:var(--muted)}
+  .searchbar button{border:none;background:var(--line-2);color:var(--ink-2);width:26px;height:26px;border-radius:50%;font-size:17px;line-height:1;cursor:pointer;flex:0 0 auto;display:none}
   .filters{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:15px 16px;box-shadow:var(--shadow);margin-bottom:18px;display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}
   .fg{display:flex;flex-direction:column;gap:6px;flex:1 1 210px;min-width:180px}
   .fg label{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700}
@@ -133,6 +138,7 @@
 
     <div class="content">
       <div id="view-estrutura">
+        <div class="searchbar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="busca" type="text" placeholder="Buscar por nome, apelido ou e-mail…" autocomplete="off"><button id="buscaX" title="Limpar">×</button></div>
         <div class="filters">
           <div class="fg"><label>Diretor</label><select id="fDir"></select></div>
           <div class="fg"><label>Superintendente</label><select id="fSup"></select></div>
@@ -162,8 +168,9 @@ const EXCLUIR_N=new Set(EXCLUIR_SUP.map(s=>s.normalize('NFD').replace(/[\u0300-\
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+function makeHL(nq){return t=>{const i=norm(t).indexOf(nq);if(i<0)return esc(t);let raw=String(t||'');let acc=0,map=[];for(let k=0;k<raw.length;k++){const c=norm(raw[k]);map.push(acc);acc+=c.length;}let start=raw.length,end=raw.length;for(let k=0;k<raw.length;k++){if(map[k]<=i&&i<map[k]+Math.max(1,norm(raw[k]).length)){start=k;break;}}let ei=i+nq.length;for(let k=start;k<raw.length;k++){if(map[k]>=ei){end=k;break;}}return esc(raw.slice(0,start))+'<mark>'+esc(raw.slice(start,end))+'</mark>'+esc(raw.slice(end));};}
 let ROWS=[], DIAG=null, STATS={total:0,inativos:0,excluidos:0,semSit:false}, src={k:'warn',t:'Aguardando dados ao vivo'};
-let view='estrutura', fDir='', fSup='', fGer='';
+let view='estrutura', fDir='', fSup='', fGer='', fBusca='';
 const collapsed=new Set(); let treeInit=false;
 
 function parseCSV(t){const rows=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}else{if(c==='"')q=true;else if(c===','){row.push(f);f='';}else if(c==='\n'){row.push(f);rows.push(row);row=[];f='';}else if(c==='\r'){}else f+=c;}}if(f.length||row.length){row.push(f);rows.push(row);}return rows;}
@@ -222,23 +229,23 @@ function countPeople(n){let c=n.real?1:0;n.children.forEach(k=>c+=countPeople(k)
 function matchNode(n,nq){if(!nq)return true;if(n.real){const p=n.person;return[p.ap,p.nome,p.em,p.ge,p.su,p.fn,p.dir].some(v=>norm(v).includes(nq));}return norm(n.ap).includes(nq);}
 function keepTree(n,nq){if(!nq)return true;if(matchNode(n,nq))return true;return n.children.some(k=>keepTree(k,nq));}
 
-function nodeHTML(su,n,nq,forceOpen){
+function nodeHTML(su,n,nq,forceOpen,hl){
   const kids=n.children.filter(k=>!nq||keepTree(k,nq)).sort(sortNodes);
   const has=kids.length>0;
   const id='N::'+su+'::'+n.ap;
   const col=has&&!forceOpen&&!nq&&collapsed.has(id);
   const role=n.real?roleOf(n.person.fn):{t:'Gerente',c:'g'};
   let em;
-  if(n.real)em=n.person.em?`<a href="mailto:${esc(n.person.em)}">${esc(n.person.em)}</a>`:'—';
+  if(n.real)em=n.person.em?`<a href="mailto:${esc(n.person.em)}">${hl?hl(n.person.em):esc(n.person.em)}</a>`:'—';
   else em=`<span class="syn">líder sem cadastro na base ativa</span>`;
   const lead=has?`<svg class="caret" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>`:`<span class="leaf"></span>`;
   const cnt=has?`<span class="pn-count">${countPeople(n)-(n.real?1:0)}</span>`:'';
-  const nm=(n.real&&n.person.nome)?`<span class="full">${esc(n.person.nome)}</span>`:'';
-  const head=`<div class="pn-head">${lead}<span class="pn-name"><span class="ap">${esc(n.ap)}</span>${nm}</span><span class="role r-${role.c}">${esc(role.t)}</span><span class="pn-email">${em}</span>${cnt}</div>`;
-  const ch=has?`<div class="pn-children">${kids.map(k=>nodeHTML(su,k,nq,forceOpen)).join('')}</div>`:'';
+  const nm=(n.real&&n.person.nome)?`<span class="full">${hl?hl(n.person.nome):esc(n.person.nome)}</span>`:'';
+  const head=`<div class="pn-head">${lead}<span class="pn-name"><span class="ap">${hl?hl(n.ap):esc(n.ap)}</span>${nm}</span><span class="role r-${role.c}">${esc(role.t)}</span><span class="pn-email">${em}</span>${cnt}</div>`;
+  const ch=has?`<div class="pn-children">${kids.map(k=>nodeHTML(su,k,nq,forceOpen,hl)).join('')}</div>`:'';
   return `<div class="pnode ${has?'has':''} ${col?'collapsed':''}" data-id="${esc(id)}">${head}${ch}</div>`;
 }
-function supCard(su,data,forceOpen,nq){
+function supCard(su,data,forceOpen,nq,hl){
   let roots=buildSup(su,data.people);
   if(nq)roots=roots.filter(r=>keepTree(r,nq));
   roots.sort(sortNodes);
@@ -246,7 +253,7 @@ function supCard(su,data,forceOpen,nq){
   const gerCount=data.people.filter(p=>roleOf(p.fn).r===1).length;
   const shown=nq?roots.reduce((a,r)=>a+countShown(r,nq),0):data.people.length;
   const sid='S::'+su;const scol=!forceOpen&&!nq&&collapsed.has(sid);
-  const body=roots.length?roots.map(r=>nodeHTML(su,r,nq,forceOpen)).join(''):`<div class="empty" style="padding:18px;font-size:12.5px">Sem subordinados cadastrados nesta base.</div>`;
+  const body=roots.length?roots.map(r=>nodeHTML(su,r,nq,forceOpen,hl)).join(''):`<div class="empty" style="padding:18px;font-size:12.5px">Sem subordinados cadastrados nesta base.</div>`;
   const own=data.own;
   const sub=own
     ? `<div class="dir">${esc(own.nome||'')}${own.em?` · <a href="mailto:${esc(own.em)}">${esc(own.em)}</a>`:''}</div><div class="dir">Diretor(a): ${esc(data.dir||'—')}</div>`
@@ -285,15 +292,21 @@ function draw(){
   renderSrc();
   if(!ROWS.length){$('tree').innerHTML=diagPanel();$('treeInfo').textContent='';return;}
   const {m,ord}=supList();initCollapse(ord,m);
+  const nb=fBusca?norm(fBusca):'';           // termo de busca (nome/apelido/e-mail)
   const nqGer=fGer?norm(fGer):null;
+  // termo de filtro da árvore: busca tem prioridade; senão o gerente selecionado
+  const nq = nb || nqGer;
+  const forceOpen = !!nq;                     // abre os nós quando há busca/filtro de gerente
   let list=ord.slice();
   if(fDir)list=list.filter(su=>norm(m[su].dir)===norm(fDir));
   if(fSup)list=list.filter(su=>norm(su)===norm(fSup));
   if(fGer)list=list.filter(su=>m[su].people.some(p=>norm(p.ge)===nqGer||norm(p.ap)===nqGer));
+  const hl = nb ? makeHL(nb) : null;         // destaca só o termo de busca digitado
   let html='';
-  list.forEach(su=>{const c=supCard(su,m[su],!!nqGer,nqGer);if(c)html+=c;});
-  $('tree').innerHTML=html||'<div class="empty-card">Nenhum resultado para os filtros selecionados.</div>';
-  $('treeInfo').textContent=`${list.length} superintendência(s) · ${ROWS.length} prestadores no total`;
+  list.forEach(su=>{const c=supCard(su,m[su],forceOpen,nq,hl);if(c)html+=c;});
+  $('tree').innerHTML=html||`<div class="empty-card">Nenhum resultado${nb?` para "${esc(fBusca)}"`:' para os filtros selecionados'}.</div>`;
+  const n=list.length;
+  $('treeInfo').textContent = nb ? `Resultados para "${fBusca}"` : `${n} superintendência(s) · ${ROWS.length} prestadores no total`;
   wireTree();
 }
 function wireTree(){
@@ -367,6 +380,8 @@ $('fDir').onchange=e=>{fDir=e.target.value;fSup='';fGer='';fillFilters();draw();
 $('fSup').onchange=e=>{fSup=e.target.value;fGer='';fillFilters();draw();};
 $('fGer').onchange=e=>{fGer=e.target.value;fillFilters();draw();};
 $('fClear').onclick=()=>{fDir='';fSup='';fGer='';fillFilters();draw();};
+$('busca').addEventListener('input',e=>{fBusca=e.target.value;$('buscaX').style.display=fBusca?'block':'none';draw();});
+$('buscaX').onclick=()=>{fBusca='';$('busca').value='';$('buscaX').style.display='none';$('busca').focus();draw();};
 $('expAll').onclick=()=>{collapsed.clear();draw();};
 $('colAll').onclick=()=>{const{m,ord}=supList();collapsed.clear();ord.forEach(su=>{collapsed.add('S::'+su);const walk=n=>{if(n.children.length){collapsed.add('N::'+su+'::'+n.ap);n.children.forEach(walk);}};buildSup(su,m[su].people).forEach(walk);});draw();};
 $('btnRefresh').onclick=loadLive;
