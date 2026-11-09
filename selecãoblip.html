@@ -187,10 +187,16 @@
       </div>
 
       <div id="view-painel" class="hidden">
+        <div class="filters">
+          <div class="fg"><label>Diretor</label><select id="pDir"></select></div>
+          <div class="fg"><label>Superintendente</label><select id="pSup"></select></div>
+          <div class="fg"><label>Gerente</label><select id="pGer"></select></div>
+          <button class="fbtn" id="pClear">Limpar filtros</button>
+        </div>
         <div class="kpis" id="kpis"></div>
-        <div class="chart-card"><div class="cch"><h3>Superintendentes por diretor</h3><div class="csub">quantas superintendências cada diretor tem</div></div><div class="chart-wrap"><div class="chart-scroll"><div class="chart-box"><canvas id="cSupDir"></canvas></div></div></div></div>
-        <div class="chart-card"><div class="cch"><h3>Gerentes por superintendente</h3><div class="csub">quantos gerentes cada superintendência tem</div></div><div class="chart-wrap"><div class="chart-scroll"><div class="chart-box"><canvas id="cGerSup"></canvas></div></div></div></div>
-        <div class="chart-card"><div class="cch"><h3>Atendentes por superintendente</h3><div class="csub">quantos atendentes cada superintendência tem</div></div><div class="chart-wrap"><div class="chart-scroll"><div class="chart-box"><canvas id="cAtdSup"></canvas></div></div></div></div>
+        <div class="chart-card"><div class="cch"><h3>Consultores por diretor</h3><div class="csub">quantos consultores cada diretor tem</div></div><div class="chart-wrap"><div class="chart-scroll"><div class="chart-box"><canvas id="cConsDir"></canvas></div></div></div></div>
+        <div class="chart-card"><div class="cch"><h3>Consultores por superintendente</h3><div class="csub">quantos consultores cada superintendência tem</div></div><div class="chart-wrap"><div class="chart-scroll"><div class="chart-box"><canvas id="cConsSup"></canvas></div></div></div></div>
+        <div class="chart-card"><div class="cch"><h3>Consultores por gerente</h3><div class="csub">quantos consultores cada gerente tem</div></div><div class="chart-wrap"><div class="chart-scroll"><div class="chart-box"><canvas id="cConsGer"></canvas></div></div></div></div>
       </div>
     </div>
   </div>
@@ -244,6 +250,9 @@ function fillFilters(){
   fillSel('fDir',dirs,fDir,'Todos os diretores');
   fillSel('fSup',sups,fSup,'Todas as superintendências');
   fillSel('fGer',gers,fGer,'Todos os gerentes');
+  fillSel('pDir',dirs,fDir,'Todos os diretores');
+  fillSel('pSup',sups,fSup,'Todas as superintendências');
+  fillSel('pGer',gers,fGer,'Todos os gerentes');
 }
 
 function drawBlip(){
@@ -292,21 +301,24 @@ function barChart(id,obj,label,color){
 }
 function drawPainel(){
   if(!BLIP.loaded){$('kpis').innerHTML='<div class="empty-card" style="grid-column:1/-1">Sem dados do BLIP.</div>';return;}
-  const{S,ord}=blipGroups();
-  const nAtd=BLIP.rows.length;
-  const nDir=new Set(BLIP.rows.map(r=>norm(r.d)).filter(Boolean)).size;
-  const nSup=ord.length;
-  const nGer=new Set(BLIP.rows.map(r=>norm(r.s)+'||'+norm(r.g))).size;
+  const rows=BLIP.rows.filter(r=>(!fDir||norm(r.d)===norm(fDir))&&(!fSup||norm(r.s)===norm(fSup))&&(!fGer||norm(r.g)===norm(fGer)));
+  const nAtd=rows.length;
+  const nDir=new Set(rows.map(r=>norm(r.d)).filter(Boolean)).size;
+  const nSup=new Set(rows.map(r=>norm(r.s)).filter(Boolean)).size;
+  const nGer=new Set(rows.map(r=>norm(r.s)+'||'+norm(r.g))).size;
   $('kpis').innerHTML=`
-    <div class="kpi"><div class="kl">Atendentes</div><div class="kv">${nAtd.toLocaleString('pt-BR')}</div></div>
+    <div class="kpi"><div class="kl">Consultores</div><div class="kv">${nAtd.toLocaleString('pt-BR')}</div></div>
     <div class="kpi i-d"><div class="kl">Diretores</div><div class="kv">${nDir}</div></div>
     <div class="kpi i-x"><div class="kl">Superintendentes</div><div class="kv">${nSup}</div></div>
     <div class="kpi i-g"><div class="kl">Gerentes</div><div class="kv">${nGer}</div></div>`;
-  const supByDir={},gerBySup={},atdBySup={};
-  ord.forEach(su=>{const d=S[su].dir||'(sem diretor)';supByDir[d]=(supByDir[d]||0)+1;gerBySup[su]=S[su].go.length;atdBySup[su]=S[su].total;});
-  barChart('cSupDir',supByDir,'Superintendências','#E2231A');
-  barChart('cGerSup',gerBySup,'Gerentes','#16161A');
-  barChart('cAtdSup',atdBySup,'Atendentes','#A50F12');
+  const consByDir={},consBySup={},consByGer={};
+  rows.forEach(r=>{
+    const d=r.d||'(sem diretor)';consByDir[d]=(consByDir[d]||0)+1;
+    const s=r.s||'(sem superintendente)';consBySup[s]=(consBySup[s]||0)+1;
+    const g=r.g||'(sem gerente)';consByGer[g]=(consByGer[g]||0)+1;});
+  barChart('cConsDir',consByDir,'Consultores','#E2231A');
+  barChart('cConsSup',consBySup,'Consultores','#16161A');
+  barChart('cConsGer',consByGer,'Consultores','#A50F12');
 }
 
 function showView(v){
@@ -343,6 +355,10 @@ $('fDir').onchange=e=>{fDir=e.target.value;fSup='';fGer='';fillFilters();drawBli
 $('fSup').onchange=e=>{fSup=e.target.value;fGer='';fillFilters();drawBlip();};
 $('fGer').onchange=e=>{fGer=e.target.value;fillFilters();drawBlip();};
 $('fClear').onclick=()=>{fDir='';fSup='';fGer='';fillFilters();drawBlip();};
+$('pDir').onchange=e=>{fDir=e.target.value;fSup='';fGer='';fillFilters();drawPainel();};
+$('pSup').onchange=e=>{fSup=e.target.value;fGer='';fillFilters();drawPainel();};
+$('pGer').onchange=e=>{fGer=e.target.value;fillFilters();drawPainel();};
+$('pClear').onclick=()=>{fDir='';fSup='';fGer='';fillFilters();drawPainel();};
 $('expAll3').onclick=()=>{col3.clear();drawBlip();};
 $('colAll3').onclick=()=>{col3.clear();const{S,ord}=blipGroups();ord.forEach(su=>{col3.add('BS::'+su);S[su].go.forEach(g=>col3.add('B::'+su+'::'+g));});drawBlip();};
 $('btnRefresh').onclick=loadBlip;
