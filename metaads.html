@@ -338,7 +338,7 @@ const MET = {
   alcance:{rot:'Alcance', col:'C', tipo:'int', soma:true},
   impr:   {rot:'Impressões', col:'D', tipo:'int', soma:true},
   gasto:  {rot:'Valor gasto', col:'F', tipo:'brl', soma:true, neutro:true},
-  cpl:    {rot:'CPL', col:'H', tipo:'brl2', soma:false, inverso:true},
+  cpl:    {rot:'CPL', col:'H/I/J', tipo:'brl2', soma:false, inverso:true},
   leads:  {rot:'Leads gerados', col:'I', tipo:'int', soma:true},
   msg:    {rot:'Leads de mensageria', col:'J', tipo:'int', soma:true},
   ctr:    {rot:'CTR', col:'M', tipo:'pct', soma:false}
@@ -420,12 +420,16 @@ async function carregar(silencioso){
       const data = parseData(r[COLS.data]); const conta = (r[COLS.conta]||'').trim();
       if (!data || !conta) return;
       const leads = num(r[COLS.leads]) || 0;
-      let cpl = num(r[COLS.cpl]); if (!leads || !cpl) cpl = null; // sem lead não há CPL
+      const msg = num(r[COLS.msg]) || 0, gasto = num(r[COLS.gasto]) || 0;
+      // Leads que contam para o CPL: Parceria = col. I; Vendas, Contratação e T4 Invest = col. J; demais = col. I
+      const lc = /VENDAS|CONTRATA|INVEST/i.test(conta) ? msg : leads;
+      let cpl = /VENDAS|CONTRATA|INVEST/i.test(conta) ? (lc ? gasto/lc : null) : num(r[COLS.cpl]);
+      if (!lc || !cpl) cpl = null; // sem lead não há CPL
       linhas.push({
         conta, data, mes: data.slice(0,7),
         alcance: num(r[COLS.alcance]) || 0, impr: num(r[COLS.impr]) || 0,
-        gasto: num(r[COLS.gasto]) || 0, cpl, leads,
-        msg: num(r[COLS.msg]) || 0, ctr: num(r[COLS.ctr])
+        gasto, cpl, leads, lc,
+        msg, ctr: num(r[COLS.ctr])
       });
     });
     state.linhas = linhas;
@@ -470,15 +474,15 @@ function filtrar(semData){
   });
 }
 function agregar(ls){
-  const a = {alcance:0, impr:0, gasto:0, leads:0, msg:0, ctrPeso:0, ctrImpr:0, cplSoma:0, cplN:0, ctrSoma:0, ctrN:0, n:ls.length};
+  const a = {alcance:0, impr:0, gasto:0, leads:0, lc:0, msg:0, ctrPeso:0, ctrImpr:0, cplSoma:0, cplN:0, ctrSoma:0, ctrN:0, n:ls.length};
   const dias = new Set();
   ls.forEach(l => {
-    a.alcance+=l.alcance; a.impr+=l.impr; a.gasto+=l.gasto; a.leads+=l.leads; a.msg+=l.msg; dias.add(l.data);
+    a.alcance+=l.alcance; a.impr+=l.impr; a.gasto+=l.gasto; a.leads+=l.leads; a.lc+=l.lc; a.msg+=l.msg; dias.add(l.data);
     if (l.ctr !== null){ a.ctrPeso += l.ctr*l.impr; a.ctrImpr += l.impr; a.ctrSoma += l.ctr; a.ctrN++; }
     if (l.cpl !== null){ a.cplSoma += l.cpl; a.cplN++; }
   });
   a.dias = dias.size;
-  a.cpl = a.leads ? a.gasto/a.leads : null;          // CPL geral = gasto ÷ leads
+  a.cpl = a.lc ? a.gasto/a.lc : null;                 // CPL = gasto ÷ leads contabilizados (col. I; col. J em Vendas/Contratação/T4 Invest)
   a.ctr = a.ctrImpr ? a.ctrPeso/a.ctrImpr : null;     // CTR ponderado pelas impressões
   a.cplMedio = a.cplN ? a.cplSoma/a.cplN : null;      // média simples dos CPLs das linhas
   a.ctrMedio = a.ctrN ? a.ctrSoma/a.ctrN : null;
@@ -555,7 +559,7 @@ function renderResumo(ls){
   $('#kpis').innerHTML =
     somaCard('gasto', '', true) +
     somaCard('leads', '', true) +
-    card('cpl', fmt(a.cpl,'brl2'), 'Média simples (col. H)', fmt(a.cplMedio,'brl2'), 'Leads + mensageria', fmt(a.leads+a.msg ? a.gasto/(a.leads+a.msg) : null,'brl2'), 'CPL geral = valor gasto ÷ leads gerados. Inclui todas as contas filtradas.', true) +
+    card('cpl', fmt(a.cpl,'brl2'), 'Média simples dos CPLs diários', fmt(a.cplMedio,'brl2'), 'Leads contabilizados', fmt(a.lc,'int'), 'CPL geral = valor gasto ÷ leads contabilizados: col. I, exceto Vendas, Contratação e T4 Invest (col. J). Inclui todas as contas filtradas.', true) +
     cardGrupo('A', ls) + cardGrupo('B', ls) +
     somaCard('msg', '') +
     somaCard('alcance', 'Soma do alcance diário. A mesma pessoa pode ser contada em mais de um dia.') +
@@ -595,11 +599,20 @@ function cardGrupo(g, ls){
   const G = GRUPOS[g]; const sub = ls.filter(l => G.teste(l.conta)); const a = agregar(sub);
   const contas = [...new Set(sub.map(l => curtaConta(l.conta)))].join(', ');
   if (!sub.length) return `<div class="kpi destaque"><div class="rot">${G.rot}</div><div class="val">–</div><div class="nota">Nenhuma conta deste grupo no filtro atual.</div></div>`;
-  return `<div class="kpi destaque"><div class="rot">${G.rot}<span class="col">col. H</span></div>
+  let meio, nota;
+  if (g === 'A'){
+    meio = `<div><span>Leads gerados (col. I)</span><b>${fmt(a.leads,'int')}</b></div><div><span>Valor gasto</span><b>${fmt(a.gasto,'brl',true)}</b></div>`;
+    nota = `CPL = valor gasto ÷ leads da coluna I. ${esc(contas)}.`;
+  } else {
+    const par = agregar(sub.filter(l => /PARERIA|PARCERIA/i.test(l.conta))), dem = agregar(sub.filter(l => !/PARERIA|PARCERIA/i.test(l.conta)));
+    meio = `<div><span>Parceria · leads col. I</span><b>${fmt(par.leads,'int')}</b></div><div><span>Demais · leads col. J</span><b>${fmt(dem.msg,'int')}</b></div>`;
+    nota = `CPL = valor gasto ÷ (leads col. I da Parceria + mensageria col. J de Vendas, Contratação e T4 Invest). ${esc(contas)}.`;
+  }
+  return `<div class="kpi destaque"><div class="rot">${G.rot}<span class="col">${g==='A'?'col. I':'col. I + J'}</span></div>
     <div class="val">${fmt(a.cpl,'brl2')}</div>
-    <div class="sub"><div><span>Média simples dos CPLs</span><b>${fmt(a.cplMedio,'brl2')}</b></div><div><span>Gasto ÷ leads + msg</span><b>${fmt(a.leads+a.msg ? a.gasto/(a.leads+a.msg) : null,'brl2')}</b></div></div>
-    <div class="sub" style="margin-top:8px;border-top:0;padding-top:0"><div><span>Valor gasto</span><b>${fmt(a.gasto,'brl',true)}</b></div><div><span>Leads gerados</span><b>${fmt(a.leads,'int')}</b></div></div>
-    <div class="nota">Valor grande = gasto ÷ leads do grupo. ${esc(contas)}.</div></div>`;
+    <div class="sub"><div><span>Média simples dos CPLs diários</span><b>${fmt(a.cplMedio,'brl2')}</b></div><div><span>Leads contabilizados</span><b>${fmt(a.lc,'int')}</b></div></div>
+    <div class="sub" style="margin-top:8px;border-top:0;padding-top:0">${meio}</div>
+    <div class="nota">${nota}</div></div>`;
 }
 function valorDe(a, k){
   if (k === 'cpl') return a.cpl; if (k === 'ctr') return a.ctr; return a[k];
