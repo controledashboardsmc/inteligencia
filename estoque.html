@@ -6,110 +6,201 @@
 <title>Metrocasa · Estoque × Vendas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
-  :root{--red:#E2231A;--red-deep:#A50F12;--red-soft:#FCE9E8;--gold:#C9A227;--ink:#16161A;--ink-2:#3B3B42;--muted:#7A7A85;--line:#E7E7EC;--surface:#FFFFFF;--bg:#F4F4F6;--bg-2:#ECECEF;--good:#1B7A3D;--good-bg:#E7F6EC;--warn:#9A6212;--warn-bg:#FFF4E5;--shadow:0 1px 2px rgba(0,0,0,.04),0 12px 32px -12px rgba(20,20,26,.18);}
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
-  .wrap{max-width:1240px;margin:0 auto;padding:0 16px calc(env(safe-area-inset-bottom) + 48px)}
-  .logo{font-family:'Sora',sans-serif;font-weight:800;letter-spacing:-.03em;line-height:1}.logo .plus{color:var(--red)}
-  .topbar{background:linear-gradient(135deg,var(--ink),#26262E);color:#fff;position:relative;overflow:hidden;border-radius:0 0 22px 22px;padding:calc(env(safe-area-inset-top) + 20px) 22px 20px;box-shadow:var(--shadow);margin:0 -16px 20px}
-  .topbar::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--red)}
-  .tb-row{display:flex;align-items:center;gap:13px;max-width:1240px;margin:0 auto}
-  .tb-row .mark{width:44px;height:44px;border-radius:12px;flex:0 0 auto}
-  .tb-title .logo{font-size:21px}.tb-title .st{font-size:12px;color:rgba(255,255,255,.6);font-weight:500;margin-top:2px}
-  .tb-actions{margin-left:auto;display:flex;gap:8px}
-  .tb-btn{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;border-radius:10px;height:40px;padding:0 14px;font-family:'Sora',sans-serif;font-weight:600;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
-  .tb-btn svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .tb-btn.spinning svg{animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
-  .srcs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-  .src{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;border-radius:999px;padding:6px 12px}
-  .src .d{width:8px;height:8px;border-radius:50%}
-  .src.snap{background:var(--bg-2);color:var(--ink-2)}.src.snap .d{background:var(--muted)}
-  .src.live{background:var(--good-bg);color:var(--good)}.src.live .d{background:#27AE60}
-  .src.warn{background:var(--warn-bg);color:var(--warn)}.src.warn .d{background:#E0902F}
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-bottom:14px}
-  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
-  .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--red)}
-  .kpi.ink::before{background:var(--ink)}.kpi.gold::before{background:var(--gold)}.kpi.good::before{background:var(--good)}
-  .kpi .kl{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
-  .kpi .kv{font-family:'Sora',sans-serif;font-weight:700;font-size:24px;letter-spacing:-.02em;margin-top:6px;line-height:1}
-  .kpi .kv.sm{font-size:19px}
-  .kpi .ks{font-size:11.5px;color:var(--ink-2);margin-top:6px}.kpi .ks b{color:var(--red-deep)}
-  .searchbar{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 14px;box-shadow:var(--shadow);margin-bottom:12px;height:50px}
-  .searchbar svg{width:19px;height:19px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;flex:0 0 auto}
-  .searchbar input{flex:1;border:none;outline:none;font-family:inherit;font-size:15px;background:transparent;color:var(--ink)}
-  .searchbar input::placeholder{color:var(--muted)}
-  .searchbar button{border:none;background:var(--bg-2);color:var(--ink-2);width:26px;height:26px;border-radius:50%;font-size:17px;line-height:1;cursor:pointer;flex:0 0 auto}
-  .filters{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px;display:flex;gap:14px;flex-wrap:wrap}
-  .fg{flex:1 1 180px;min-width:150px;display:flex;flex-direction:column;gap:6px}
-  .fg label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
-  .fg select{width:100%;height:40px;border:1px solid var(--line);border-radius:10px;padding:0 11px;font-family:inherit;font-size:13.5px;background:var(--bg);cursor:pointer}
-  .sortbar{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  .sortbar .sortlabel{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;flex:0 0 auto}
-  .chips{display:flex;gap:6px;flex-wrap:wrap}
-  .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font-size:12px;font-weight:600;color:var(--ink-2);cursor:pointer;transition:.14s;font-family:'Sora',sans-serif}
-  .chip:hover{border-color:var(--red);color:var(--red)}.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}.chip.all.on{background:var(--red);border-color:var(--red)}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px}
-  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:15px}
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
-  .card-head{padding:15px 18px 2px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-  .card-head h3{font-family:'Sora',sans-serif;font-weight:700;font-size:14.5px}.card-head .sub{font-size:11px;color:var(--muted);font-weight:600}
-  .card-body{padding:12px 16px 16px}.span2{grid-column:1/-1}
-  .chart-h{position:relative;height:300px}.scroll{max-height:600px;overflow-y:auto;padding-right:6px;scrollbar-width:thin}
-  #barWrap{position:relative;min-height:240px}
-  .barhint{font-size:11px;color:var(--muted);margin-top:8px}.barhint b{color:var(--ink-2)}
-  table{width:100%;border-collapse:collapse}
-  thead th{text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;padding:9px 12px;border-bottom:1px solid var(--line);cursor:pointer;user-select:none;white-space:nowrap}
-  thead th:first-child{text-align:left}thead th:hover{color:var(--ink)}thead th .ar{opacity:.5;font-size:9px}
-  tbody td{padding:9px 12px;font-size:13px;border-top:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
-  tbody td:first-child{text-align:left;font-weight:600;font-family:'Sora',sans-serif}
-  tbody tr:hover{background:var(--red-soft)}
-  tfoot td{padding:10px 12px;font-size:13px;text-align:right;border-top:2px solid var(--ink);font-family:'Sora',sans-serif;font-weight:700}
-  tfoot td:first-child{text-align:left}
-  .pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif}
-  .pill.g{background:var(--good-bg);color:var(--good)}.pill.a{background:var(--warn-bg);color:var(--warn)}.pill.r{background:var(--red-soft);color:var(--red-deep)}
-  .tag{display:inline-block;background:var(--bg-2);color:var(--ink-2);border-radius:999px;padding:1px 8px;font-size:10.5px;font-weight:700;font-family:'Sora',sans-serif}
-  .tag.on{background:var(--good-bg);color:var(--good)}
-  .empty{padding:40px;text-align:center;color:var(--muted)}.empty b{display:block;color:var(--ink-2);font-family:'Sora',sans-serif;margin-bottom:5px;font-size:15px}
-  .note{background:var(--warn-bg);border:1px solid #F0C97A;border-radius:12px;padding:12px 15px;font-size:12.5px;color:#6b4a12;margin-bottom:16px;line-height:1.5}
-  footer{margin-top:22px;text-align:center;font-size:11px;color:var(--muted);line-height:1.7}footer b{color:var(--ink-2)}
-  @media (max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}}
+:root{
+  --bg:#FFFFFF;--surface:#F4F5F7;--line:#E2E4E9;--ink:#16181D;--muted:#626775;
+  --brand:#EC1D24;--brand-deep:#A50F12;--gold:#C9A227;
+  --ok:#1FA35B;--warn:#C98A00;--err:#D3262D;
+  --ok-bg:rgba(31,163,91,.14);--warn-bg:rgba(201,138,0,.16);--err-bg:rgba(236,29,36,.12);
+  --side-bg:#16181D;--side-ink:#8D93A1;--side-ativo:#FFFFFF;--side-w:96px;
+  --font:'Gellix','Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121317;--surface:#1B1D22;--line:#2C2F37;--ink:#F2F3F5;--muted:#9BA0AD;
+    --side-bg:#0B0C0F;--brand-deep:#F08A8E;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{--bg:#121317;--surface:#1B1D22;--line:#2C2F37;--ink:#F2F3F5;--muted:#9BA0AD;--side-bg:#0B0C0F;--brand-deep:#F08A8E;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+
+/* Navegação lateral */
+.side{position:fixed;left:0;top:0;bottom:0;width:var(--side-w);background:var(--side-bg);display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 0;z-index:20}
+.side-marca{width:18px;height:18px;border-radius:4px;background:var(--brand);margin-bottom:26px}
+.nav-btn{position:relative;width:76px;border:0;background:none;color:var(--side-ink);display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 0 10px;border-radius:14px;font-size:.74rem;font-weight:700;transition:color .15s,background-color .15s}
+.nav-btn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.nav-btn:hover{color:var(--side-ativo);background:rgba(255,255,255,.06)}
+.nav-btn[aria-current="page"]{color:var(--side-ativo);background:rgba(255,255,255,.1)}
+.nav-btn[aria-current="page"]::before{content:"";position:absolute;left:-10px;top:14px;bottom:14px;width:4px;border-radius:0 4px 4px 0;background:var(--brand)}
+.app{margin-left:var(--side-w);min-height:100vh;background:var(--surface)}
+
+/* Topo com a marca */
+.topo-marca{background:var(--side-bg);color:#fff}
+.top{display:flex;align-items:center;gap:16px;padding-top:calc(env(safe-area-inset-top) + 16px);padding-bottom:16px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.brand .mark{width:38px;height:38px;border-radius:11px;flex:0 0 auto}
+.logo{font-weight:800;letter-spacing:-.03em;line-height:1;font-size:20px;white-space:nowrap}.logo .plus{color:var(--brand)}
+.brand-div{width:1px;height:26px;background:rgba(255,255,255,.22);flex:0 0 auto}
+.brand h1{font-size:1rem;font-weight:700;line-height:1.2;letter-spacing:-.01em}
+.brand h1 span{display:block;font-size:.76rem;font-weight:500;color:rgba(255,255,255,.6)}
+.tb-actions{margin-left:auto;display:flex;gap:8px;flex:0 0 auto}
+.tb-btn{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;height:40px;padding:0 18px;font-weight:700;font-size:.85rem;display:inline-flex;align-items:center;gap:8px;transition:background-color .15s}
+.tb-btn:hover{background:rgba(255,255,255,.16)}
+.tb-btn svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tb-btn.spinning svg{animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+
+.pagina{padding-top:28px;padding-bottom:64px}
+.pagina-topo{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.pagina-topo h2{font-size:1.35rem;font-weight:800;letter-spacing:-.02em}
+.pagina-topo .sub{font-size:.8rem;color:var(--muted);font-weight:600}
+
+/* Status das fontes */
+.srcs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.src{display:inline-flex;align-items:center;gap:8px;font-size:.74rem;font-weight:700;border-radius:999px;padding:6px 13px;background:var(--bg);border:1px solid var(--line);color:var(--ink)}
+.src .d{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.src.live .d{background:var(--ok)}.src.warn .d{background:var(--warn)}
+
+/* Barra de filtros */
+.toolbar{background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:16px;display:flex;flex-direction:column;gap:14px}
+.searchbar{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:0 16px;height:46px}
+.searchbar svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;flex:0 0 auto}
+.searchbar input{flex:1;border:none;outline:none;background:transparent;font-size:.95rem;min-width:0}
+.searchbar input::placeholder{color:var(--muted)}
+.searchbar button{border:none;background:var(--line);color:var(--ink);width:26px;height:26px;border-radius:50%;font-size:17px;line-height:1;flex:0 0 auto}
+.filters{display:flex;gap:12px;flex-wrap:wrap}
+.fg{flex:1 1 180px;min-width:150px;display:flex;flex-direction:column;gap:6px}
+.fg label,.sortlabel{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.fg select{width:100%;height:42px;border:1px solid var(--line);border-radius:999px;padding:0 16px;background:var(--surface);cursor:pointer;font-size:.88rem;font-weight:600}
+.sortrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg button{white-space:nowrap;flex:0 0 auto;border:0;background:none;border-radius:999px;padding:8px 15px;font-size:.82rem;font-weight:700;color:var(--muted);transition:background-color .15s,color .15s}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+/* Cartões */
+.card{background:var(--bg);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.card-head{padding:18px 20px 0;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.card-head h3{font-size:1rem;font-weight:800;letter-spacing:-.01em}.card-head .sub{font-size:.76rem;color:var(--muted);font-weight:600}
+.card-body{padding:14px 20px 20px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.span2{grid-column:1/-1}
+.chart-h{position:relative;height:300px}
+.scroll{max-height:600px;overflow-y:auto;padding-right:6px;scrollbar-width:thin}
+#barWrap{position:relative;min-height:240px}
+.barhint{font-size:.76rem;color:var(--muted);margin-top:10px}.barhint b{color:var(--ink)}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:16px 18px}
+.kpi .kl{display:flex;align-items:center;gap:8px;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.kpi .kl::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--brand);flex:0 0 auto}
+.kpi.ink .kl::before{background:var(--ink)}.kpi.gold .kl::before{background:var(--gold)}.kpi.good .kl::before{background:var(--ok)}
+.kpi .kv{font-weight:800;font-size:1.75rem;letter-spacing:-.03em;margin-top:8px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi .ks{font-size:.78rem;color:var(--muted);margin-top:6px}.kpi .ks b{color:var(--ink)}
+
+/* Tabela */
+.tablewrap{overflow-x:auto}
+table{width:100%;min-width:920px;border-collapse:collapse}
+thead th{text-align:right;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer;user-select:none;white-space:nowrap}
+thead th:first-child{text-align:left}thead th:hover{color:var(--ink)}thead th .ar{color:var(--brand);font-size:9px}
+tbody td{padding:11px 12px;font-size:.86rem;border-top:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+tbody td:first-child{text-align:left;font-weight:700}
+tbody tr:hover{background:var(--surface)}
+tfoot td{padding:12px;font-size:.88rem;text-align:right;border-top:2px solid var(--ink);font-weight:800}
+tfoot td:first-child{text-align:left}
+.pill{display:inline-block;border-radius:999px;padding:3px 11px;font-size:.76rem;font-weight:800}
+.pill.g{background:var(--ok-bg);color:var(--ok)}.pill.a{background:var(--warn-bg);color:var(--warn)}.pill.r{background:var(--err-bg);color:var(--err)}
+.tag{display:inline-block;background:var(--surface);color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:.72rem;font-weight:700}
+.tag.on{background:var(--ok-bg);color:var(--ok);border-color:transparent}
+.empty{padding:40px;text-align:center;color:var(--muted)}.empty b{display:block;color:var(--ink);margin-bottom:5px;font-size:1rem}
+
+/* Aviso */
+.note{background:var(--warn-bg);border-radius:14px;padding:13px 16px;font-size:.84rem;color:var(--ink);margin-bottom:16px;line-height:1.55;border-left:4px solid var(--warn)}
+footer{margin-top:28px;text-align:center;font-size:.76rem;color:var(--muted);line-height:1.7}footer b{color:var(--ink)}
+
+/* Celular */
+@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+@media (max-width:760px){
+  .kpis{grid-template-columns:1fr 1fr}
+  :root{--side-w:0px}
+  .side{top:auto;right:0;width:auto;height:calc(68px + env(safe-area-inset-bottom));padding:0 8px env(safe-area-inset-bottom);flex-direction:row;justify-content:space-around;border-top:1px solid rgba(255,255,255,.08)}
+  .side-marca{display:none}
+  .nav-btn{flex:1;max-width:140px;padding:9px 0 8px}
+  .nav-btn[aria-current="page"]::before{left:28%;right:28%;top:-1px;bottom:auto;width:auto;height:3px;border-radius:0 0 3px 3px}
+  .app{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+  .wrap{padding:0 16px}
+  .brand-div,.brand h1 span{display:none}
+  .brand h1{font-size:.9rem}
+  .tb-btn{padding:0 14px}.tb-btn .tl{display:none}
+  .chart-h{height:260px}
+}
+@media (max-width:420px){.brand h1{display:none}.kpis{grid-template-columns:1fr 1fr}.kpi .kv{font-size:1.4rem}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="topbar"><div class="tb-row">
-    <svg class="mark" viewBox="0 0 512 512" id="mk"></svg>
-    <div class="tb-title"><div class="logo">metrocasa<span class="plus">+</span></div><div class="st">Análise de Estoque · por projeto</div></div>
-    <div class="tb-actions"><button class="tb-btn" id="btnRefresh"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>Atualizar</button></div>
-  </div></div>
 
-  <div class="srcs" id="srcs"></div>
-  <div id="note"></div>
+<nav class="side" aria-label="Navegação">
+  <div class="side-marca" aria-hidden="true"></div>
+  <button type="button" class="nav-btn" data-aba="painel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V12M12 20V5M19 20v-9"/><path d="M3 20.5h18"/></svg><span>Painel</span></button>
+  <button type="button" class="nav-btn" data-aba="detalhe"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><path d="M3.5 10h17M9 10v9.5"/></svg><span>Detalhe</span></button>
+</nav>
 
-  <div class="kpis" id="kpis"></div>
+<div class="app" id="app" data-aba="painel">
+  <header class="topo-marca">
+    <div class="wrap top">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 512 512" id="mk" aria-hidden="true"></svg>
+        <div class="logo">metrocasa<span class="plus">+</span></div>
+        <span class="brand-div" aria-hidden="true"></span>
+        <h1>Estoque × Vendas <span>Análise por projeto</span></h1>
+      </div>
+      <div class="tb-actions"><button class="tb-btn" id="btnRefresh"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span class="tl">Atualizar</span></button></div>
+    </div>
+  </header>
 
-  <div class="searchbar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="fBusca" placeholder="Buscar empreendimento pelo nome…" autocomplete="off"><button id="fBuscaX" title="Limpar" style="display:none">×</button></div>
+  <main>
+    <div class="wrap pagina">
+      <div class="srcs" id="srcs"></div>
 
-  <div class="filters">
-    <div class="fg"><label>Região</label><select id="fReg"><option value="">Todas</option></select></div>
-    <div class="fg"><label>Anúncio Ads</label><select id="fAds"><option value="">Todos</option></select></div>
-    <div class="fg"><label>Tipologia</label><select id="fTip"><option value="">Todas</option></select></div>
-  </div>
-  <div class="sortbar"><span class="sortlabel">Ordenar por</span><div class="chips" id="fSort"></div></div>
+      <div class="toolbar">
+        <div class="searchbar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="fBusca" placeholder="Buscar empreendimento pelo nome…" autocomplete="off"><button id="fBuscaX" title="Limpar" style="display:none">×</button></div>
+        <div class="filters">
+          <div class="fg"><label for="fReg">Região</label><select id="fReg"><option value="">Todas</option></select></div>
+          <div class="fg"><label for="fAds">Anúncio Ads</label><select id="fAds"><option value="">Todos</option></select></div>
+          <div class="fg"><label for="fTip">Tipologia</label><select id="fTip"><option value="">Todas</option></select></div>
+        </div>
+        <div class="sortrow"><span class="sortlabel">Ordenar por</span><div class="seg" id="fSort"></div></div>
+      </div>
 
-  <div class="grid2">
-    <div class="card span2"><div class="card-head"><h3 id="barTitle">Ranking</h3><span class="sub" id="barSub"></span></div><div class="card-body"><div class="scroll"><div id="barWrap"><canvas id="cBar"></canvas></div></div><div class="barhint">Dica: os botões <b>Ordenar por</b> acima trocam a métrica do ranking.</div></div></div>
-    <div class="card"><div class="card-head"><h3>Estoque por região</h3></div><div class="card-body"><div class="chart-h"><canvas id="cReg"></canvas></div></div></div>
-    <div class="card"><div class="card-head"><h3>Vendas mês anterior por região</h3></div><div class="card-body"><div class="chart-h"><canvas id="cRegV"></canvas></div></div></div>
-  </div>
+      <section class="aba" data-aba="painel" aria-label="Painel">
+        <div id="note"></div>
+        <div class="kpis" id="kpis"></div>
+        <div class="grid2">
+          <div class="card span2"><div class="card-head"><h3 id="barTitle">Ranking</h3><span class="sub" id="barSub"></span></div><div class="card-body"><div class="scroll"><div id="barWrap"><canvas id="cBar"></canvas></div></div><div class="barhint">Dica: os botões <b>Ordenar por</b> acima trocam a métrica do ranking.</div></div></div>
+          <div class="card"><div class="card-head"><h3>Estoque por região</h3></div><div class="card-body"><div class="chart-h"><canvas id="cReg"></canvas></div></div></div>
+          <div class="card"><div class="card-head"><h3>Vendas mês anterior por região</h3></div><div class="card-body"><div class="chart-h"><canvas id="cRegV"></canvas></div></div></div>
+        </div>
+      </section>
 
-  <div class="card"><div class="card-head"><h3>Detalhamento</h3><span class="sub" id="tblSub"></span></div><div class="card-body" id="tbl"></div></div>
+      <section class="aba" data-aba="detalhe" aria-label="Detalhamento" hidden>
+        <div class="card"><div class="card-head"><h3>Detalhamento</h3><span class="sub" id="tblSub"></span></div><div class="card-body"><div class="tablewrap" id="tbl"></div></div></div>
+      </section>
 
-  <footer><b>Metrocasa · Marketing</b> — Relatório Análise de Estoque · atualiza ao vivo</footer>
+      <footer><b>Metrocasa · Marketing</b> · Relatório Análise de Estoque · atualiza ao vivo</footer>
+    </div>
+  </main>
 </div>
 
 <script>
@@ -130,12 +221,11 @@ let sortKey='vendasJul', sortDir=-1, fReg='', fAds='', fBusca='', fTip='';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const num=n=>Math.round(n||0).toLocaleString('pt-BR');
-const pct=(n,t)=>t?(n/t*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%':'—';
+const pct=(n,t)=>t?(n/t*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%':'-';
 const fpct=r=>(r*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
 const LANCAMENTOS=0; // lançamentos no período — não há coluna na planilha; ajuste se passar a existir
-const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'');
 function brNum(s){if(typeof s==='number')return s;const m=String(s).replace(/[^\d,.-]/g,'').replace(/\.(?=\d{3}\b)/g,'').replace(',','.');const n=parseFloat(m);return isNaN(n)?0:n;}
-// extrai o TIPO da tipologia, removendo o número inicial (que é o estoque). "99 1D + OFFICE" -> "1D + OFFICE"
 // TIPOLOGIAS vem como "1D (98), 1D + OFFICE (10)": tipo + (quantidade), vários separados por vírgula.
 // Mantém o dígito inicial (1D = 1 dormitório) e remove só a quantidade entre parênteses.
 function tipoTipos(s){
@@ -146,10 +236,12 @@ function tipoTipos(s){
              .replace(/\s+/g,' ').trim().toUpperCase())
     .filter(Boolean);
 }
-function tipoTipo(s){return tipoTipos(s)[0]||'—';}
-const PAL=['#E2231A','#16161A','#C9A227','#6B7280','#A50F12','#E89A93','#3B3B42','#9AA0A6','#D65A52','#5C6470'];
+function tipoTipo(s){return tipoTipos(s)[0]||'-';}
+const cv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const PAL=['#EC1D24','#3B3F4A','#C9A227','#6B7280','#A50F12','#F08A8E','#8D93A1','#9AA0A6','#D65A52','#5C6470'];
 let CH={};
 if(window.ChartDataLabels){Chart.register(window.ChartDataLabels);Chart.defaults.set('plugins.datalabels',{display:false});}
+function chartBase(){if(typeof Chart!=='undefined'){Chart.defaults.font.family="'Gellix','Manrope',system-ui,sans-serif";}}
 function mkChart(id,cfg){const c=$(id);if(typeof Chart==='undefined'){if(c){c.style.display='none';let ph=c.parentElement.querySelector('.chph');if(!ph){ph=document.createElement('div');ph.className='empty chph';ph.style.padding='24px';ph.innerHTML='<b>Gráfico indisponível</b>Sem conexão para carregar o Chart.js.';c.parentElement.appendChild(ph);}}return;}try{if(CH[id])CH[id].destroy();CH[id]=new Chart(c,cfg);}catch(e){}}
 function parseCSV(t){const rows=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}else{if(c==='"')q=true;else if(c===','){row.push(f);f='';}else if(c==='\n'){row.push(f);rows.push(row);row=[];f='';}else if(c==='\r'){}else f+=c;}}if(f.length||row.length){row.push(f);rows.push(row);}return rows;}
 
@@ -207,7 +299,7 @@ function fromTable(grid){
   return clean;
 }
 
-const mk=el=>{el.innerHTML=`<defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E2231A"/><stop offset="1" stop-color="#A50F12"/></linearGradient><mask id="lm"><rect width="512" height="512" fill="black"/><g fill="white"><rect x="134" y="360" width="244" height="22" rx="8"/><rect x="150" y="306" width="58" height="70" rx="9"/><rect x="227" y="256" width="58" height="120" rx="9"/><rect x="304" y="196" width="58" height="180" rx="9"/><rect x="322" y="144" width="22" height="56" rx="7"/><rect x="305" y="157" width="56" height="22" rx="7"/></g></mask></defs><rect width="512" height="512" rx="115" fill="url(#lg)"/><rect width="512" height="512" fill="white" mask="url(#lm)"/>`;};
+const mk=el=>{el.innerHTML=`<defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EC1D24"/><stop offset="1" stop-color="#A50F12"/></linearGradient><mask id="lm"><rect width="512" height="512" fill="black"/><g fill="white"><rect x="134" y="360" width="244" height="22" rx="8"/><rect x="150" y="306" width="58" height="70" rx="9"/><rect x="227" y="256" width="58" height="120" rx="9"/><rect x="304" y="196" width="58" height="180" rx="9"/><rect x="322" y="144" width="22" height="56" rx="7"/><rect x="305" y="157" width="56" height="22" rx="7"/></g></mask></defs><rect width="512" height="512" rx="115" fill="url(#lg)"/><rect width="512" height="512" fill="white" mask="url(#lm)"/>`;};
 
 /* -------- filtros/ordenação -------- */
 const SORTS=[['vendasJul','Vd ant.'],['vendasAgo','Vd atual'],['estoque','Estoque'],['meta','Meta atual'],['vso','VSO'],['gap','Gap meta'],['emp','Nome']];
@@ -216,8 +308,9 @@ function withCalc(d){const oferta=(d.estoque||0)+(d.vendasJul||0)+LANCAMENTOS;co
 function sorted(){const arr=filtered().map(withCalc);arr.sort((a,b)=>{let x=a[sortKey],y=b[sortKey];if(sortKey==='emp'){return (''+x).localeCompare(''+y,'pt')*sortDir;}return ((x||0)-(y||0))*sortDir;});return arr;}
 
 function render(){
+  chartBase();
   $('srcs').innerHTML=`<span class="src ${src.k}"><span class="d"></span>${esc(src.t)}</span>`+
-    `<span class="src ${src.k==='live'&&DATA.length<ESPERADO?'warn':'snap'}"><span class="d"></span>${DATA.length}${src.k==='live'?' de '+ESPERADO:''} empreendimento(s)${src.k==='live'&&DATA.length<ESPERADO?' — faltam '+(ESPERADO-DATA.length):''}</span>`+
+    `<span class="src ${src.k==='live'&&DATA.length<ESPERADO?'warn':'snap'}"><span class="d"></span>${DATA.length}${src.k==='live'?' de '+ESPERADO:''} empreendimento(s)${src.k==='live'&&DATA.length<ESPERADO?' · faltam '+(ESPERADO-DATA.length):''}</span>`+
     (dataRef?`<span class="src snap"><span class="d"></span>Ref. ${esc(dataRef)}</span>`:'');
   $('note').innerHTML=partial?`<div class="note"><b>Vendas do mês atual ainda parciais.</b> O mês corrente sofre atraso de registro (as validadas chegam 5–7 dias depois). Por isso a leitura de velocidade usa o <b>${esc(mesAnt)}</b> (fechado); "Vendas ${esc(mesAtu)}" e "Gap meta" ainda vão subir.</div>`:'';
   // popular selects
@@ -227,8 +320,8 @@ function render(){
   $('fReg').innerHTML='<option value="">Todas</option>'+regs.map(r=>`<option ${r===fReg?'selected':''}>${esc(r)}</option>`).join('');
   $('fAds').innerHTML='<option value="">Todos</option>'+ads.map(a=>`<option ${a===fAds?'selected':''}>${esc(a)}</option>`).join('');
   $('fTip').innerHTML='<option value="">Todas</option>'+tips.map(t=>`<option ${t===fTip?'selected':''}>${esc(t)}</option>`).join('');
-  $('fSort').innerHTML=SORTS.map(([k,l])=>`<button class="chip ${sortKey===k?'on':''}" data-k="${k}">${esc(l)}</button>`).join('');
-  $('fSort').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const k=b.getAttribute('data-k');if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=(k==='emp')?1:-1;}render();});
+  $('fSort').innerHTML=SORTS.map(([k,l])=>`<button type="button" aria-pressed="${sortKey===k}" data-k="${k}">${esc(l)}</button>`).join('');
+  $('fSort').querySelectorAll('button').forEach(b=>b.onclick=()=>{const k=b.getAttribute('data-k');if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=(k==='emp')?1:-1;}render();});
 
   const rows=sorted();
   const tEst=rows.reduce((a,d)=>a+d.estoque,0);
@@ -249,19 +342,21 @@ function render(){
   // TABELA primeiro (nunca depende do Chart.js)
   const th=(k,l,r=true)=>`<th data-k="${k}" style="${r?'':'text-align:left'}">${esc(l)} ${sortKey===k?`<span class="ar">${sortDir<0?'▼':'▲'}</span>`:''}</th>`;
   let body='';rows.forEach(d=>{const vso=d.vso, cls=vso>=0.2?'g':vso>=0.1?'a':'r';
-    body+=`<tr><td>${esc(d.emp)}</td><td>${num(d.estoque)}</td><td>${esc(d.regiao||'—')}</td><td style="text-align:left">${esc(d.tipologia||'—')}</td><td>${num(d.vendasJul)}</td><td><span class="pill ${cls}">${fpct(d.vso)}</span></td><td>${num(d.meta)}</td><td>${num(d.vendasAgo)}</td><td>${num(d.gap)}</td><td><span class="tag ${/PRODUC|SIM|ATIVO/i.test(d.ads)?'on':''}">${esc(d.ads||'—')}</span></td></tr>`;});
+    body+=`<tr><td>${esc(d.emp)}</td><td>${num(d.estoque)}</td><td style="text-align:left">${esc(d.regiao||'-')}</td><td style="text-align:left">${esc(d.tipologia||'-')}</td><td>${num(d.vendasJul)}</td><td><span class="pill ${cls}">${fpct(d.vso)}</span></td><td>${num(d.meta)}</td><td>${num(d.vendasAgo)}</td><td>${num(d.gap)}</td><td style="text-align:left"><span class="tag ${/PRODUC|SIM|ATIVO/i.test(d.ads)?'on':''}">${esc(d.ads||'-')}</span></td></tr>`;});
+  if(!rows.length)body=`<tr><td colspan="10"><div class="empty"><b>Nenhum empreendimento encontrado</b>Ajuste a busca ou os filtros.</div></td></tr>`;
   $('tblSub').textContent=`${rows.length} de ${DATA.length}`;
   $('tbl').innerHTML=`<table><thead><tr>${th('emp','Empreendimento',false)}${th('estoque','Estoque')}<th style="text-align:left">Região</th><th style="text-align:left">Tipologia</th>${th('vendasJul','Vd ant.')}${th('vso','VSO')}${th('meta','Meta atual')}${th('vendasAgo','Vd atual')}${th('gap','Gap')}<th style="text-align:left">Ads</th></tr></thead><tbody>${body}</tbody><tfoot><tr><td>Total</td><td>${num(tEst)}</td><td></td><td></td><td>${num(tJul)}</td><td>${fpct(vsoTot)}</td><td>${num(tMeta)}</td><td>${num(tAgo)}</td><td>${num(tMeta-tAgo)}</td><td></td></tr></tfoot></table>`;
   $('tbl').querySelectorAll('th[data-k]').forEach(h=>h.onclick=()=>{const k=h.getAttribute('data-k');if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=(k==='emp')?1:-1;}render();});
 
   // GRÁFICOS (isolados)
   try{
+  const INK=cv('--ink'),MUTED=cv('--muted'),LINE=cv('--line'),BG=cv('--bg');
   // GRÁFICO: ranking por 1 métrica (a que está ordenada) — legível com muitos projetos
   const MET={
-    vendasJul:{label:'Vendas '+mesAnt,color:'#E2231A',get:d=>d.vendasJul,fmt:v=>num(v)},
-    vendasAgo:{label:'Vendas '+mesAtu,color:'#16161A',get:d=>d.vendasAgo,fmt:v=>num(v)},
+    vendasJul:{label:'Vendas '+mesAnt,color:'#EC1D24',get:d=>d.vendasJul,fmt:v=>num(v)},
+    vendasAgo:{label:'Vendas '+mesAtu,color:INK,get:d=>d.vendasAgo,fmt:v=>num(v)},
     estoque:{label:'Estoque',color:'#9AA0A6',get:d=>d.estoque,fmt:v=>num(v)},
-    meta:{label:'Meta '+mesAtu,color:'#1B7A3D',get:d=>d.meta,fmt:v=>num(v)},
+    meta:{label:'Meta '+mesAtu,color:'#1FA35B',get:d=>d.meta,fmt:v=>num(v)},
     vso:{label:'VSO '+mesAnt,color:'#C9A227',get:d=>d.vso,fmt:v=>(v*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%'},
     gap:{label:'Gap meta',color:'#A50F12',get:d=>d.gap,fmt:v=>num(v)}
   };
@@ -270,23 +365,37 @@ function render(){
   $('barSub').textContent=`${rows.length} projeto(s)`;
   const bw=$('barWrap');if(bw)bw.style.height=Math.max(240,rows.length*26+34)+'px';
   mkChart('cBar',{type:'bar',data:{labels:rows.map(d=>d.emp),datasets:[{
-    label:cm.label,data:rows.map(cm.get),backgroundColor:cm.color,borderRadius:4,barPercentage:0.74,categoryPercentage:0.86,
-    datalabels:{display:true,anchor:'end',align:'end',color:cm.color,font:{family:'Sora',weight:'700',size:10},formatter:v=>v?cm.fmt(v):''}
+    label:cm.label,data:rows.map(cm.get),backgroundColor:cm.color,borderRadius:6,barPercentage:0.74,categoryPercentage:0.86,
+    datalabels:{display:true,anchor:'end',align:'end',color:cm.color===INK?INK:cm.color,font:{weight:'700',size:10},formatter:v=>v?cm.fmt(v):''}
   }]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,layout:{padding:{right:48}},
     plugins:{legend:{display:false},tooltip:{callbacks:{
       title:c=>c[0].label,
       label:c=>cm.label+': '+cm.fmt(c.raw),
-      afterBody:c=>{const d=rows[c[0].dataIndex];return ['','Tipologia: '+(d.tipologia||'—'),'Cat. uso: '+(d.categoria||'—'),'Estoque: '+num(d.estoque),'Vd '+mesAnt+': '+num(d.vendasJul),'Vd '+mesAtu+': '+num(d.vendasAgo),'Meta '+mesAtu+': '+num(d.meta),'VSO: '+fpct(d.vso!=null?d.vso:0)];}
+      afterBody:c=>{const d=rows[c[0].dataIndex];return ['','Tipologia: '+(d.tipologia||'-'),'Cat. uso: '+(d.categoria||'-'),'Estoque: '+num(d.estoque),'Vd '+mesAnt+': '+num(d.vendasJul),'Vd '+mesAtu+': '+num(d.vendasAgo),'Meta '+mesAtu+': '+num(d.meta),'VSO: '+fpct(d.vso!=null?d.vso:0)];}
     }}},
-    scales:{x:{beginAtZero:true,grid:{color:'#EEE'},ticks:{color:'#7A7A85'},grace:'8%'},
-      y:{grid:{display:false},ticks:{font:{family:'Sora',size:10.5,weight:'600'},color:'#16161A',autoSkip:false,crossAlign:'far'}}}}});
+    scales:{x:{beginAtZero:true,grid:{color:LINE},border:{display:false},ticks:{color:MUTED},grace:'8%'},
+      y:{grid:{display:false},border:{display:false},ticks:{font:{size:10.5,weight:'600'},color:INK,autoSkip:false,crossAlign:'far'}}}}});
   const byReg={},byRegV={};rows.forEach(d=>{byReg[d.regiao]=(byReg[d.regiao]||0)+d.estoque;byRegV[d.regiao]=(byRegV[d.regiao]||0)+d.vendasJul;});
   const regL=Object.keys(byReg);
-  donut('cReg',regL,regL.map(r=>byReg[r]));
-  donut('cRegV',regL,regL.map(r=>byRegV[r]));
+  donut('cReg',regL,regL.map(r=>byReg[r]),INK,BG);
+  donut('cRegV',regL,regL.map(r=>byRegV[r]),INK,BG);
   }catch(e){}
 }
-function donut(id,labels,data){const T=data.reduce((a,b)=>a+b,0);mkChart(id,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:PAL,borderColor:'#fff',borderWidth:2,datalabels:{display:true,color:'#fff',font:{family:'Sora',weight:'700',size:11},formatter:v=>v>=(T*0.05)?v:''}}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{font:{size:11},color:'#3B3B42',boxWidth:10,usePointStyle:true,padding:8}},tooltip:{callbacks:{label:c=>' '+c.label+': '+num(c.parsed)+' · '+pct(c.parsed,T)}}}}});}
+function donut(id,labels,data,ink,bg){const T=data.reduce((a,b)=>a+b,0);mkChart(id,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:PAL,borderColor:bg,borderWidth:2,datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:v=>v>=(T*0.05)?v:''}}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{font:{size:11},color:ink,boxWidth:10,usePointStyle:true,padding:10}},tooltip:{callbacks:{label:c=>' '+c.label+': '+num(c.parsed)+' · '+pct(c.parsed,T)}}}}});}
+
+/* -------- abas -------- */
+const ABAS=['painel','detalhe'];
+function mostrarAba(nome,rolar){
+  if(!ABAS.includes(nome))nome='painel';
+  document.querySelectorAll('.aba').forEach(sec=>sec.hidden=sec.dataset.aba!==nome);
+  document.querySelectorAll('.nav-btn').forEach(b=>b.setAttribute('aria-current',b.dataset.aba===nome?'page':'false'));
+  $('app').dataset.aba=nome;
+  if(location.hash.slice(1)!==nome){try{history.replaceState(null,'','#'+nome);}catch(_){}}
+  if(rolar)window.scrollTo(0,0);
+  if(nome==='painel'){Object.values(CH).forEach(c=>{try{c.resize();}catch(_){}});}
+}
+document.querySelector('.side').addEventListener('click',e=>{const b=e.target.closest('.nav-btn');if(b)mostrarAba(b.dataset.aba,true);});
+window.addEventListener('hashchange',()=>mostrarAba(location.hash.slice(1),true));
 
 $('fReg').onchange=e=>{fReg=e.target.value;render();};
 $('fAds').onchange=e=>{fAds=e.target.value;render();};
@@ -302,12 +411,13 @@ async function loadLive(){$('btnRefresh').classList.add('spinning');
       const tA=recs.reduce((a,d)=>a+(d.vendasAgo||0),0),tM=recs.reduce((a,d)=>a+(d.meta||0),0);
       partial=tA< tM*0.5;
     } else throw 0;}
-  catch(e){if(src.k!=='live')src={k:'warn',t:'Snapshot da imagem — sem acesso ao vivo'};}
+  catch(e){if(src.k!=='live')src={k:'warn',t:'Snapshot da imagem · sem acesso ao vivo'};}
   finally{$('btnRefresh').classList.remove('spinning');render();}}
 
-mk($('mk'));render();$('btnRefresh').onclick=loadLive;loadLive();
+mk($('mk'));mostrarAba(location.hash.slice(1),false);render();$('btnRefresh').onclick=loadLive;loadLive();
 setInterval(loadLive,POLL_MS);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadLive();});
+try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>render());}catch(_){}
 // Se o Chart.js não carregou pela CDN principal, tenta uma reserva e re-renderiza
 if(typeof Chart==='undefined'){
   const s=document.createElement('script');
