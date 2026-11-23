@@ -93,7 +93,10 @@ input[type=date].inp{width:148px}
 .filtro-info b{color:var(--ink)}
 
 /* Cards */
-.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-bottom:18px}
+.kpis{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+.kpis-linha{display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
+.kpis-linha .kpi,.kpis-linha .card{flex:0 0 calc((100% - 56px)/5);min-width:235px}
+@media (max-width:760px){.kpis-linha .kpi{flex:1 1 100%;min-width:0}}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;position:relative;overflow:hidden}
 .kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--line)}
 .kpi.destaque::before{background:var(--red)}
@@ -557,7 +560,7 @@ function render(){
 /* ================= ABA 1 · RESUMO ================= */
 function renderResumo(ls){
   const a = agregar(ls);
-  if (!ls.length){ $('#kpis').innerHTML = '<div class="card vazio" style="grid-column:1/-1">Nenhuma linha com os filtros atuais.</div>'; $('#grafDiario').innerHTML=''; $('#tabContas').innerHTML=''; return; }
+  if (!ls.length){ $('#kpis').innerHTML = '<div class="card vazio">Nenhuma linha com os filtros atuais.</div>'; $('#grafDiario').innerHTML=''; $('#tabContas').innerHTML=''; return; }
   const linhaN = a.n;
   const card = (k, val, s1r, s1v, s2r, s2v, nota, dest) => `
     <div class="kpi ${dest?'destaque':''}"><div class="rot">${MET[k].rot}<span class="col">col. ${MET[k].col}</span></div>
@@ -565,14 +568,11 @@ function renderResumo(ls){
     <div class="sub"><div><span>${s1r}</span><b>${s1v}</b></div><div><span>${s2r}</span><b>${s2v}</b></div></div>
     ${nota?`<div class="nota">${nota}</div>`:''}</div>`;
   const somaCard = (k, nota, dest) => card(k, fmt(a[k], MET[k].tipo), 'Média diária', fmt(porDia(a,k), MET[k].tipo), 'Média por conta/dia', fmt(a[k]/linhaN, MET[k].tipo), nota, dest);
-  $('#kpis').innerHTML =
-    somaCard('gasto', '', true) +
-    cardLeads('A', ls) +
-    cardGrupo('A', ls) + cardGrupo('B', ls) +
-    cardLeads('B', ls) +
-    somaCard('alcance', 'Soma do alcance diário. A mesma pessoa pode ser contada em mais de um dia.') +
+  const linha1 = somaCard('gasto', '', true) + cardLeads('A', ls) + cardLeads('B', ls) + cardGrupo('A', ls) + cardGrupo('B', ls);
+  const linha2 = somaCard('alcance', 'Soma do alcance diário. A mesma pessoa pode ser contada em mais de um dia.') +
     somaCard('impr', '') +
     card('ctr', fmt(a.ctr,'pct'), 'Média simples (col. M)', fmt(a.ctrMedio,'pct'), 'Linhas consideradas', nf0.format(a.ctrN), 'Valor grande = CTR ponderado pelas impressões.');
+  $('#kpis').innerHTML = `<div class="kpis-linha">${linha1}</div><div class="kpis-linha">${linha2}</div>`;
 
   const sel = $('#selDiaria');
   if (!sel.options.length) sel.innerHTML = ORDEM_COMP.map(k => `<option value="${k}">${MET[k].rot}</option>`).join('');
