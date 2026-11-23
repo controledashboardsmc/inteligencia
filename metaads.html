@@ -260,7 +260,7 @@ svg.graf{width:100%;height:auto;display:block;overflow:visible}
     </div>
     <div class="card">
       <div class="card-topo">
-        <div><h3>Totais e médias por conta</h3><div class="desc">Média = média diária da conta no período. CPL e CTR da conta são calculados sobre os totais.</div></div>
+        <div><h3>Totais e médias por conta</h3><div class="desc">Média = média diária da conta no período. CPL e CTR da conta são calculados sobre os totais. O CPL do total não inclui Branding nem T2 Mensageria.</div></div>
       </div>
       <div class="tabela-wrap" id="tabContas"></div>
     </div>
@@ -341,8 +341,14 @@ const MET = {
   cpl:    {rot:'CPL', col:'H/I/J', tipo:'brl2', soma:false, inverso:true},
   leads:  {rot:'Leads gerados', col:'I', tipo:'int', soma:true},
   msg:    {rot:'Leads de mensageria', col:'J', tipo:'int', soma:true},
-  ctr:    {rot:'CTR', col:'M', tipo:'pct', soma:false}
+  ctr:    {rot:'CTR', col:'M', tipo:'pct', soma:false},
+  lc:     {rot:'Leads contabilizados', col:'', tipo:'int', soma:true},
+  cplA:   {rot:'CPL Cadastro + T5', col:'I', tipo:'brl2', soma:false, inverso:true, grupo:'A', base:'cpl'},
+  cplB:   {rot:'CPL Contratação, Parceria, T4 Invest e Vendas', col:'I + J', tipo:'brl2', soma:false, inverso:true, grupo:'B', base:'cpl'},
+  leadsA: {rot:'Leads Cadastro + T5', col:'I', tipo:'int', soma:true, grupo:'A', base:'lc'},
+  leadsB: {rot:'Leads Mensageria', col:'I + J', tipo:'int', soma:true, grupo:'B', base:'lc'}
 };
+const ORDEM_COMP = ['gasto','cplA','cplB','leadsA','leadsB','alcance','impr','ctr'];
 const ORDEM = ['alcance','impr','gasto','cpl','leads','msg','ctr'];
 const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
@@ -419,16 +425,19 @@ async function carregar(silencioso){
     rows.slice(1).forEach(r => {
       const data = parseData(r[COLS.data]); const conta = (r[COLS.conta]||'').trim();
       if (!data || !conta) return;
-      const leads = num(r[COLS.leads]) || 0;
-      const msg = num(r[COLS.msg]) || 0, gasto = num(r[COLS.gasto]) || 0;
+      // T2 Mensageria não entra em nenhuma contagem de leads (o gasto continua somando)
+      const semLead = /T2/i.test(conta) && /MENSAGERIA/i.test(conta);
+      const semCpl = /BREANDING|BRANDING/i.test(conta); // Branding fica fora do cálculo do CPL (gasto e leads)
+      const leads = semLead ? 0 : (num(r[COLS.leads]) || 0);
+      const msg = semLead ? 0 : (num(r[COLS.msg]) || 0), gasto = num(r[COLS.gasto]) || 0;
       // Leads que contam para o CPL: Parceria = col. I; Vendas, Contratação e T4 Invest = col. J; demais = col. I
-      const lc = /VENDAS|CONTRATA|INVEST/i.test(conta) ? msg : leads;
+      const lc = semLead ? 0 : /VENDAS|CONTRATA|INVEST/i.test(conta) ? msg : leads;
       let cpl = /VENDAS|CONTRATA|INVEST/i.test(conta) ? (lc ? gasto/lc : null) : num(r[COLS.cpl]);
-      if (!lc || !cpl) cpl = null; // sem lead não há CPL
+      if (!lc || !cpl || semCpl) cpl = null; // sem lead não há CPL
       linhas.push({
         conta, data, mes: data.slice(0,7),
         alcance: num(r[COLS.alcance]) || 0, impr: num(r[COLS.impr]) || 0,
-        gasto, cpl, leads, lc,
+        gasto, cpl, leads, lc, semLead, semCpl,
         msg, ctr: num(r[COLS.ctr])
       });
     });
@@ -474,15 +483,15 @@ function filtrar(semData){
   });
 }
 function agregar(ls){
-  const a = {alcance:0, impr:0, gasto:0, leads:0, lc:0, msg:0, ctrPeso:0, ctrImpr:0, cplSoma:0, cplN:0, ctrSoma:0, ctrN:0, n:ls.length};
+  const a = {alcance:0, impr:0, gasto:0, gastoCpl:0, lcCpl:0, leads:0, lc:0, msg:0, ctrPeso:0, ctrImpr:0, cplSoma:0, cplN:0, ctrSoma:0, ctrN:0, n:ls.length};
   const dias = new Set();
   ls.forEach(l => {
-    a.alcance+=l.alcance; a.impr+=l.impr; a.gasto+=l.gasto; a.leads+=l.leads; a.lc+=l.lc; a.msg+=l.msg; dias.add(l.data);
+    a.alcance+=l.alcance; a.impr+=l.impr; a.gasto+=l.gasto; a.leads+=l.leads; a.lc+=l.lc; if (!l.semLead && !l.semCpl){ a.gastoCpl+=l.gasto; a.lcCpl+=l.lc; } a.msg+=l.msg; dias.add(l.data);
     if (l.ctr !== null){ a.ctrPeso += l.ctr*l.impr; a.ctrImpr += l.impr; a.ctrSoma += l.ctr; a.ctrN++; }
     if (l.cpl !== null){ a.cplSoma += l.cpl; a.cplN++; }
   });
   a.dias = dias.size;
-  a.cpl = a.lc ? a.gasto/a.lc : null;                 // CPL = gasto ÷ leads contabilizados (col. I; col. J em Vendas/Contratação/T4 Invest)
+  a.cpl = a.lcCpl ? a.gastoCpl/a.lcCpl : null;                 // CPL = gasto ÷ leads contabilizados (col. I; col. J em Vendas/Contratação/T4 Invest)
   a.ctr = a.ctrImpr ? a.ctrPeso/a.ctrImpr : null;     // CTR ponderado pelas impressões
   a.cplMedio = a.cplN ? a.cplSoma/a.cplN : null;      // média simples dos CPLs das linhas
   a.ctrMedio = a.ctrN ? a.ctrSoma/a.ctrN : null;
@@ -558,19 +567,20 @@ function renderResumo(ls){
   const somaCard = (k, nota, dest) => card(k, fmt(a[k], MET[k].tipo), 'Média diária', fmt(porDia(a,k), MET[k].tipo), 'Média por conta/dia', fmt(a[k]/linhaN, MET[k].tipo), nota, dest);
   $('#kpis').innerHTML =
     somaCard('gasto', '', true) +
-    somaCard('leads', '', true) +
+    cardLeads('A', ls) +
     cardGrupo('A', ls) + cardGrupo('B', ls) +
-    somaCard('msg', '') +
+    cardLeads('B', ls) +
     somaCard('alcance', 'Soma do alcance diário. A mesma pessoa pode ser contada em mais de um dia.') +
     somaCard('impr', '') +
     card('ctr', fmt(a.ctr,'pct'), 'Média simples (col. M)', fmt(a.ctrMedio,'pct'), 'Linhas consideradas', nf0.format(a.ctrN), 'Valor grande = CTR ponderado pelas impressões.');
 
   const sel = $('#selDiaria');
-  if (!sel.options.length) sel.innerHTML = ORDEM.map(k => `<option value="${k}">${MET[k].rot}</option>`).join('');
+  if (!sel.options.length) sel.innerHTML = ORDEM_COMP.map(k => `<option value="${k}">${MET[k].rot}</option>`).join('');
   sel.value = state.metDiaria;
   const dias = [...new Set(ls.map(l=>l.data))].sort();
-  const g = {}; ls.forEach(l => (g[l.data] = g[l.data] || []).push(l));
-  const serie = dias.map(d => ({x:d, y: valorDe(agregar(g[d]), state.metDiaria)}));
+  const md = MET[state.metDiaria], lsD = md.grupo ? ls.filter(l => GRUPOS[md.grupo].teste(l.conta)) : ls;
+  const g = {}; lsD.forEach(l => (g[l.data] = g[l.data] || []).push(l));
+  const serie = dias.map(d => ({x:d, y: g[d] ? valorDe(agregar(g[d]), md.base || state.metDiaria) : null}));
   $('#grafDiario').innerHTML = grafLinhas([{nome: MET[state.metDiaria].rot, cor:'var(--m3)', pts: serie.map((p,i)=>({i, x:p.x, y:p.y}))}],
     dias.map(dBR).map(s=>s.slice(0,5)), MET[state.metDiaria].tipo, {area:true, W: $('#grafDiario').clientWidth});
 
@@ -613,6 +623,28 @@ function cardGrupo(g, ls){
     <div class="sub" style="margin-top:8px;border-top:0;padding-top:0">${meio}</div>
     <div class="nota">${nota}</div></div>`;
 }
+function cardLeads(g, ls){
+  const sub = ls.filter(l => GRUPOS[g].teste(l.conta));
+  const tit = g==='A' ? 'Leads Cadastro + T5' : 'Leads Mensageria';
+  const col = g==='A' ? 'col. I' : 'col. I + J';
+  if (!sub.length) return `<div class="kpi destaque"><div class="rot">${tit}<span class="col">${col}</span></div><div class="val">–</div><div class="nota">Nenhuma conta deste grupo no filtro atual.</div></div>`;
+  const a = agregar(sub);
+  const contas = [...new Set(sub.map(l => curtaConta(l.conta)))].join(', ');
+  let extra, nota;
+  if (g==='A'){
+    extra = `<div><span>Média diária</span><b>${fmt(porDia(a,'lc'),'int')}</b></div><div><span>Média por conta/dia</span><b>${fmt(a.lc/a.n,'int')}</b></div>`;
+    nota = `Soma da coluna I (Leads na Meta). ${esc(contas)}.`;
+  } else {
+    const par = agregar(sub.filter(l => /PARERIA|PARCERIA/i.test(l.conta))), dem = agregar(sub.filter(l => !/PARERIA|PARCERIA/i.test(l.conta)));
+    extra = `<div><span>Parceria · col. I</span><b>${fmt(par.leads,'int')}</b></div><div><span>Vendas, Contr., T4 Invest · col. J</span><b>${fmt(dem.msg,'int')}</b></div>`;
+    nota = `Parceria pela coluna I; Vendas, Contratação e T4 Invest pela coluna J. ${esc(contas)}.`;
+  }
+  return `<div class="kpi destaque"><div class="rot">${tit}<span class="col">${col}</span></div>
+    <div class="val">${fmt(a.lc,'int')}</div>
+    <div class="sub"><div><span>Média diária</span><b>${fmt(porDia(a,'lc'),'int')}</b></div><div><span>Média por conta/dia</span><b>${fmt(a.lc/a.n,'int')}</b></div></div>
+    ${g==='B'?`<div class="sub" style="margin-top:8px;border-top:0;padding-top:0">${extra}</div>`:''}
+    <div class="nota">${nota}</div></div>`;
+}
 function valorDe(a, k){
   if (k === 'cpl') return a.cpl; if (k === 'ctr') return a.ctr; return a[k];
 }
@@ -620,9 +652,9 @@ function valorDe(a, k){
 /* ================= ABA 2 · COMPARATIVO ================= */
 function renderComparativo(ls){
   const sel = $('#selMetrica');
-  if (!sel.options.length) sel.innerHTML = ORDEM.map(k => `<option value="${k}">${MET[k].rot} (col. ${MET[k].col})</option>`).join('');
+  if (!sel.options.length) sel.innerHTML = ORDEM_COMP.map(k => `<option value="${k}">${MET[k].rot}${MET[k].col ? ` (col. ${MET[k].col})` : ''}</option>`).join('');
   sel.value = state.metComp;
-  const k = state.metComp, m = MET[k];
+  const k = state.metComp, m = MET[k], kb = m.base || k;
   if (!ls.length){ $('#meses').innerHTML='<div class="card vazio" style="grid-column:1/-1">Nenhuma linha com os filtros atuais.</div>'; ['#grafMeses','#grafEvol','#tabContaMes'].forEach(s=>$(s).innerHTML=''); $('#avisoComp').hidden=true; return; }
   const meses = [...new Set(ls.map(l=>l.mes))].sort();
   const ultDia = ls.reduce((x,l) => l.data > x ? l.data : x, '');
@@ -630,7 +662,8 @@ function renderComparativo(ls){
   const corte = +ultDia.slice(8,10);
   const parcial = corte < diasNoMes(mesAtual);
   const modo = state.modo;
-  const base = modo === 'periodo' ? ls.filter(l => +l.data.slice(8,10) <= corte) : ls;
+  let base = modo === 'periodo' ? ls.filter(l => +l.data.slice(8,10) <= corte) : ls;
+  if (m.grupo) base = base.filter(l => GRUPOS[m.grupo].teste(l.conta));
 
   const av = $('#avisoComp'); av.hidden = false;
   av.innerHTML = modo === 'periodo'
@@ -642,7 +675,7 @@ function renderComparativo(ls){
 
   const gm = {}; base.forEach(l => (gm[l.mes] = gm[l.mes] || []).push(l));
   const ag = meses.map(ym => ({ym, a: agregar(gm[ym] || [])}));
-  const valor = a => (!m.soma || modo !== 'media') ? valorDe(a,k) : porDia(a,k);
+  const valor = a => (!m.soma || modo !== 'media') ? valorDe(a,kb) : porDia(a,kb);
   const vals = ag.map(x => valor(x.a));
   const delta = (cur, ant) => {
     if (cur===null || ant===null || !ant) return '<span class="d-neu">sem base</span>';
@@ -652,7 +685,7 @@ function renderComparativo(ls){
   };
   $('#meses').innerHTML = ag.map((x,i) => {
     const eAtual = x.ym === mesAtual;
-    const extra = ['gasto','leads','cpl','ctr'].filter(j => j!==k).slice(0,4).map(j => {
+    const extra = (m.grupo ? ['gasto','lc','cpl','ctr'] : ['gasto','alcance','impr','ctr']).filter(j => j!==kb).slice(0,4).map(j => {
       const v = (!MET[j].soma || modo !== 'media') ? valorDe(x.a,j) : porDia(x.a,j);
       return `<span>${MET[j].rot}${MET[j].soma && modo==='media' ? '/dia' : ''}</span><b>${fmt(v, MET[j].tipo, true)}</b>`;
     }).join('');
@@ -670,7 +703,7 @@ function renderComparativo(ls){
   // Evolutiva: um traço por mês, alinhado pelo dia do mês
   const series = meses.map((ym,i) => {
     const g = {}; (gm[ym]||[]).forEach(l => (g[l.data] = g[l.data] || []).push(l));
-    const pts = Object.keys(g).sort().map(d => ({i: +d.slice(8,10)-1, x: dBR(d), y: valorDe(agregar(g[d]), k)}));
+    const pts = Object.keys(g).sort().map(d => ({i: +d.slice(8,10)-1, x: dBR(d), y: valorDe(agregar(g[d]), kb)}));
     return {nome: nomeMes(ym), cor: corMes(i, meses.length), pts, grossa: ym === mesAtual};
   });
   const maxDia = modo==='periodo' ? corte : 31;
