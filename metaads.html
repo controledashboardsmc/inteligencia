@@ -559,7 +559,6 @@ function renderResumo(ls){
   $('#kpis').innerHTML =
     somaCard('gasto', '', true) +
     somaCard('leads', '', true) +
-    card('cpl', fmt(a.cpl,'brl2'), 'Média simples dos CPLs diários', fmt(a.cplMedio,'brl2'), 'Leads contabilizados', fmt(a.lc,'int'), 'CPL geral = valor gasto ÷ leads contabilizados: col. I, exceto Vendas, Contratação e T4 Invest (col. J). Inclui todas as contas filtradas.', true) +
     cardGrupo('A', ls) + cardGrupo('B', ls) +
     somaCard('msg', '') +
     somaCard('alcance', 'Soma do alcance diário. A mesma pessoa pode ser contada em mais de um dia.') +
