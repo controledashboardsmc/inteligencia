@@ -50,7 +50,7 @@ button{cursor:pointer}
 .logo-mark{width:36px;height:36px;border-radius:10px;background:var(--brand);display:grid;place-items:center}
 .logo-mark svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .logo-img{height:30px;width:auto;display:block}
-.login-brand .logo-img{height:40px}
+.login-brand .logo-img{height:40px;width:auto;max-width:100%;align-self:flex-start;object-fit:contain}
 .wordmark{font-weight:800;font-size:1.25rem;letter-spacing:-.03em;color:#fff}
 .wordmark b{color:var(--brand)}
 
@@ -313,6 +313,7 @@ dialog .acoes{margin-top:18px}
             <select class="inp" id="selFec" aria-label="Fechamento"></select>
             <button class="btn brand sm" id="btnRelatorio">Exportar relatório (Excel)</button>
             <button class="btn ghost sm" id="btnExport">Só vendas (CSV)</button>
+            <button class="btn danger sm" id="btnExcluirBase">Excluir esta base</button>
           </div>
           <div id="painelBody"><div class="load"><div class="spin"></div></div></div>
         </div>
@@ -609,7 +610,7 @@ async function carregarPainel(fid) {
     FEC_SEL = PAINEL.fechamento || '';
     const sel = $('#selFec'); sel.replaceChildren();
     PAINEL.fechamentos.forEach(f => sel.append(h('option', { value: f.id, selected: f.id === FEC_SEL }, f.id + ' · importado em ' + f.importadoEm + (f.ativo ? ' (ativo)' : ''))));
-    sel.hidden = !PAINEL.fechamentos.length; $('#btnExport').hidden = $('#btnRelatorio').hidden = !PAINEL.fechamentos.length;
+    sel.hidden = !PAINEL.fechamentos.length; $('#btnExport').hidden = $('#btnRelatorio').hidden = $('#btnExcluirBase').hidden = !PAINEL.fechamentos.length;
     renderPainel();
   } catch (e) { $('#painelBody').replaceChildren(h('div', { class: 'alert err', text: e.message })); }
 }
@@ -683,6 +684,17 @@ $('#btnRelatorio').addEventListener('click', async () => {
     toast('Relatório da base ' + pn.fechamento + ' gerado');
   } catch (e) { toast(e.message, true); }
   finally { btn.disabled = false; btn.textContent = 'Exportar relatório (Excel)'; }
+});
+
+$('#btnExcluirBase').addEventListener('click', async () => {
+  const f = PAINEL && PAINEL.fechamentos.find(x => x.id === FEC_SEL); if (!f) return;
+  const inp = h('input', { class: 'inp', placeholder: 'Digite ' + f.id + ' para confirmar', autocomplete: 'off', 'aria-label': 'Confirmação' });
+  const ok = await modal({ titulo: 'Excluir a base ' + f.id + '?', corpo: inp, ok: 'Excluir de vez',
+    msg: 'Isso apaga as ' + f.corridas + ' corridas desta base e tudo o que os usuários preencheram nela. Não dá para desfazer.' + (f.ativo ? ' Ela é a base ativa: os usuários ficarão sem corridas até você importar outra.' : '') });
+  if (!ok) return;
+  if (inp.value.trim().toUpperCase() !== f.id) { toast('Confirmação não confere. Nada foi excluído.', true); return; }
+  try { const j = await api('excluirBase', { fechamento: f.id }); toast('Base ' + f.id + ' excluída (' + j.removidas + ' corridas)'); carregarPainel(); }
+  catch (e) { toast(e.message, true); }
 });
 
 /* ---------- Importar ---------- */
