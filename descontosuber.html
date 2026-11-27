@@ -148,6 +148,7 @@ main.wrap{padding-top:30px;padding-bottom:110px}
 
 /* ---------- CONFIG ---------- */
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.kpis.k3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .kpi{background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:16px 18px}
 .kpi .l{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
 .kpi .n{font-size:1.55rem;font-weight:800;letter-spacing:-.03em;margin-top:4px;line-height:1.15}
@@ -226,6 +227,7 @@ dialog .acoes{margin-top:18px}
   .ride-form{grid-template-columns:1fr}
   .ride-form .btn{width:100%}
 }
+@media (max-width:620px){.kpis,.kpis.k3{grid-template-columns:1fr}}
 @media (max-width:520px){.kpis{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
 </style>
 </head>
@@ -264,6 +266,9 @@ dialog .acoes{margin-top:18px}
     <button class="nav-btn" id="navCorridas" data-view="corridas" hidden>
       <svg viewBox="0 0 24 24"><path d="M5 17h14M6 17l1.5-6h9L18 17"/><circle cx="8" cy="17.5" r="1.5"/><circle cx="16" cy="17.5" r="1.5"/><path d="M9 11l1-3h4l1 3"/></svg>Corridas
     </button>
+    <button class="nav-btn" id="navGastos" data-view="gastos" hidden>
+      <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M16 15h2"/><path d="M7 6V4.5A1.5 1.5 0 0 1 8.5 3h9A1.5 1.5 0 0 1 19 4.5V6"/></svg>Gastos
+    </button>
     <button class="nav-btn" id="navConfig" data-view="config" hidden>
       <svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></svg>ADM
     </button>
@@ -294,6 +299,15 @@ dialog .acoes{margin-top:18px}
           <span class="muted" id="bulkTxt"></span>
           <button class="btn brand" id="btnSalvarTodas" disabled>Salvar tudo</button>
         </div>
+      </section>
+
+      <!-- ===== GASTOS ===== -->
+      <section id="vGastos" hidden>
+        <div class="page-head">
+          <div><h1>Gastos</h1><p>Histórico das suas corridas de Uber.</p></div>
+          <select class="inp" id="selMes" aria-label="Mês" style="max-width:240px"></select>
+        </div>
+        <div id="gasBody"><div class="load"><div class="spin"></div></div></div>
       </section>
 
       <!-- ===== CONFIG ===== -->
@@ -454,7 +468,7 @@ $('#formLogin').addEventListener('submit', async ev => {
 function sair(expirou) {
   $('#toast').className = 'toast'; TOKEN = ''; store.del('uber-token'); SESSAO = null;
   $('#tela').hidden = true; $('#telaLogin').hidden = false;
-  $('#vCorridas').hidden = true; $('#vConfig').hidden = true;
+  $('#vCorridas').hidden = true; $('#vConfig').hidden = true; $('#vGastos').hidden = true; GASTOS = null;
   if (expirou) $('#lgErr').textContent = 'Sua sessão terminou. Entre de novo.';
 }
 $('#navSair').addEventListener('click', () => sair(false));
@@ -470,13 +484,13 @@ function iniciar(u) {
   $('#nomeUser').textContent = u.nome; $('#perfilUser').textContent = u.perfil === 'ADM' ? 'ADM' : 'USUÁRIO';
   $('#avatar').textContent = (u.nome.trim()[0] || '?').toUpperCase();
   const adm = u.perfil === 'ADM';
-  $('#navConfig').hidden = !adm; $('#navCorridas').hidden = adm;
+  $('#navConfig').hidden = !adm; $('#navCorridas').hidden = adm; $('#navGastos').hidden = adm;
   mostrar(adm ? 'config' : 'corridas');
 }
 function mostrar(v) {
-  $('#vCorridas').hidden = v !== 'corridas'; $('#vConfig').hidden = v !== 'config';
+  $('#vCorridas').hidden = v !== 'corridas'; $('#vConfig').hidden = v !== 'config'; $('#vGastos').hidden = v !== 'gastos';
   $$('.nav-btn[data-view]').forEach(b => b.setAttribute('aria-current', b.dataset.view === v ? 'page' : 'false'));
-  if (v === 'corridas') carregarCorridas(); else subir('paineis');
+  if (v === 'corridas') carregarCorridas(); else if (v === 'gastos') carregarGastos(); else subir('paineis');
 }
 $$('.nav-btn[data-view]').forEach(b => b.addEventListener('click', () => mostrar(b.dataset.view)));
 
@@ -589,6 +603,39 @@ async function salvarCorridas(lote) {
     const res = await api('salvar', { itens: lote.map(R => ({ chave: R.d.chave, venda: R.ui.venda, cliente: R.ui.cliente.trim(), processo: R.ui.processo.trim() })) });
     renderCorridas(res); toast(res.concluido ? 'Tudo preenchido. Obrigado!' : (lote.length > 1 ? lote.length + ' corridas salvas' : 'Corrida salva'));
   } catch (e) { toast(e.message, true); RIDES.forEach(atualizarCorrida); atualizarBulk(); }
+}
+
+/* ============================================================
+   GASTOS (usuário)
+   ============================================================ */
+let GASTOS = null;
+const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+const nomeMes = k => { const [y, m] = k.split('-'); return MESES[+m - 1] + ' de ' + y; };
+async function carregarGastos() {
+  const b = $('#gasBody'); b.replaceChildren(carregando());
+  try {
+    GASTOS = await api('gastos');
+    const meses = [...new Set(GASTOS.rows.map(r => r.mes).filter(Boolean))].sort().reverse();
+    const sel = $('#selMes'), atual = sel.value; sel.replaceChildren(h('option', { value: '' }, 'Todos os meses'), ...meses.map(m => h('option', { value: m, selected: m === atual }, nomeMes(m))));
+    sel.hidden = !meses.length; renderGastos();
+  } catch (e) { b.replaceChildren(h('div', { class: 'alert err', text: e.message })); }
+}
+$('#selMes').addEventListener('change', () => GASTOS && renderGastos());
+function renderGastos() {
+  const b = $('#gasBody'), mes = $('#selMes').value, G = GASTOS;
+  const lista = G.rows.filter(r => !mes || r.mes === mes);
+  const total = lista.reduce((a, r) => a + r.valor, 0);
+  b.replaceChildren(h('div', { class: 'kpis k3' },
+    h('div', { class: 'kpi dest' }, h('div', { class: 'l', text: 'Valor total' }), h('div', { class: 'n', text: brl(total) }), h('div', { class: 's', text: mes ? nomeMes(mes) : 'todos os meses' })),
+    h('div', { class: 'kpi' }, h('div', { class: 'l', text: 'Viagens' }), h('div', { class: 'n', text: lista.length }), h('div', { class: 's', text: lista.length === 1 ? 'corrida' : 'corridas' })),
+    h('div', { class: 'kpi' }, h('div', { class: 'l', text: 'Valor médio' }), h('div', { class: 'n', text: brl(lista.length ? total / lista.length : 0) }), h('div', { class: 's', text: 'por viagem' }))));
+  if (!lista.length) { b.append(vazio('Nenhuma corrida encontrada', G.rows.length ? 'Não há corridas suas neste mês.' : 'Não encontramos corridas com o seu nome no histórico. Se isso estiver errado, avise o Marketing.', false)); return; }
+  const vi = G.mapa.valor, ni = G.mapa.nome;
+  const cols = G.cab.map((c, i) => i).filter(i => i !== ni && G.cab[i]);
+  b.append(h('div', { class: 'tbl-wrap' }, h('table', {},
+    h('thead', {}, h('tr', {}, cols.map(i => h('th', { class: i === vi ? 'r' : '', text: G.cab[i] })))),
+    h('tbody', {}, lista.map(r => h('tr', {}, cols.map(i => h('td', { class: i === vi ? 'r' : '', text: i === vi ? brl(r.valor) : r.c[i] })))),
+      h('tr', { class: 'tot' }, cols.map((i, n) => h('td', { class: i === vi ? 'r' : '', text: i === vi ? brl(total) : (n === 0 ? 'Total' : '') })))))));
 }
 
 /* ============================================================
@@ -798,7 +845,7 @@ function renderImport() {
   const b = $('#impBody'); b.replaceChildren(); const I = IMP;
   const total = I.linhas.reduce((a, l) => a + l.valor, 0), sol = new Set(I.linhas.map(l => l.solicitante.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').toUpperCase())).size;
   b.append(h('div', { class: 'maps' }, CAMPOS.map(([c, nome]) => h('span', { class: 'chip ' + (I.mapa[c] !== undefined ? 'ok' : 'warn'), text: nome + (I.mapa[c] !== undefined ? '' : ' (não achei)') }))));
-  b.append(h('div', { class: 'kpis', style: 'grid-template-columns:repeat(3,minmax(0,1fr))' },
+  b.append(h('div', { class: 'kpis k3' },
     h('div', { class: 'kpi' }, h('div', { class: 'l', text: 'Corridas' }), h('div', { class: 'n', text: I.linhas.length })),
     h('div', { class: 'kpi' }, h('div', { class: 'l', text: 'Solicitantes' }), h('div', { class: 'n', text: sol })),
     h('div', { class: 'kpi' }, h('div', { class: 'l', text: 'Valor total da base' }), h('div', { class: 'n', text: brl(total) }))));
