@@ -80,7 +80,7 @@ button{cursor:pointer}
 
 /* ---------- Navegação lateral ---------- */
 .side{position:fixed;left:0;top:0;bottom:0;width:var(--side-w);background:var(--side-bg);display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 0;z-index:20}
-.side-marca{width:18px;height:18px;border-radius:4px;background:var(--brand);margin-bottom:26px}
+.side-marca{width:44px;height:auto;display:block;margin-bottom:24px}
 .nav-btn{position:relative;width:76px;border:0;background:none;color:var(--side-ink);display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 0 10px;border-radius:14px;font-size:.74rem;font-weight:700;transition:color .15s,background-color .15s}
 .nav-btn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .nav-btn:hover{color:var(--side-ativo);background:rgba(255,255,255,.06)}
@@ -260,12 +260,12 @@ dialog .acoes{margin-top:18px}
 <!-- ================= APP ================= -->
 <div id="tela" hidden>
   <nav class="side" aria-label="Navegação">
-    <div class="side-marca" aria-hidden="true"></div>
+    <img class="side-marca" src="data:image/png;base64,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" alt="Metrocasa">
     <button class="nav-btn" id="navCorridas" data-view="corridas" hidden>
       <svg viewBox="0 0 24 24"><path d="M5 17h14M6 17l1.5-6h9L18 17"/><circle cx="8" cy="17.5" r="1.5"/><circle cx="16" cy="17.5" r="1.5"/><path d="M9 11l1-3h4l1 3"/></svg>Corridas
     </button>
     <button class="nav-btn" id="navConfig" data-view="config" hidden>
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5h0a1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>CONFIG
+      <svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></svg>ADM
     </button>
     <div class="side-sp"></div>
     <button class="nav-btn" id="navSair">
@@ -299,8 +299,8 @@ dialog .acoes{margin-top:18px}
       <!-- ===== CONFIG ===== -->
       <section id="vConfig" hidden>
         <div class="page-head">
-          <div><h1>CONFIG</h1><p>Área restrita ao ADM: painéis, importação da base e acessos.</p></div>
-          <div class="pills" role="tablist" aria-label="Seções do CONFIG">
+          <div><h1>ADM</h1><p>Área restrita ao ADM: painéis, importação da base e acessos.</p></div>
+          <div class="pills" role="tablist" aria-label="Seções do ADM">
             <button class="pill" role="tab" data-sub="paineis" aria-selected="true">Painéis</button>
             <button class="pill" role="tab" data-sub="importar" aria-selected="false">Importar base</button>
             <button class="pill" role="tab" data-sub="usuarios" aria-selected="false">Usuários</button>
@@ -632,25 +632,48 @@ function renderPainel() {
   busca.addEventListener('input', () => { BUSCA = busca.value; desenharTabela(); });
   b.append(h('div', { class: 'tools' }, pills, busca));
   const tb = h('div', { id: 'tabPainel' }); b.append(tb);
-  b.append(h('p', { class: 'nota', text: 'Corridas marcadas como "não foi venda" ficam fora de todos os valores. Corridas ainda sem resposta aparecem na coluna "Aguardando" e não entram no valor confirmado.' }));
-  desenharTabela();
+  b.append(h('div', { id: 'boxPend', style: 'margin-top:28px' }));
+  b.append(h('p', { class: 'nota', text: 'Corridas marcadas como "não foi venda" ficam fora de todos os valores. Corridas ainda sem resposta aparecem na tabela "Corridas sem preenchimento" e não entram no valor confirmado.' }));
+  desenharTabela(); desenharPend();
+}
+let PF = { q: '', sup: '', dir: '' };
+function desenharPend() {
+  const box = $('#boxPend'); if (!box) return;
+  const all = PAINEL.pendentes || [];
+  const sups = [...new Set(all.flatMap(p => p.sups))].sort(), dirs = [...new Set(all.flatMap(p => p.dirs))].sort();
+  const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const lista = all.filter(p => (!PF.q || norm(p.nome).includes(norm(PF.q))) && (!PF.sup || p.sups.includes(PF.sup)) && (!PF.dir || p.dirs.includes(PF.dir)));
+  const sel = (rot, ops, chave) => { const e = h('select', { class: 'inp', 'aria-label': rot }, h('option', { value: '' }, rot + ': todos'), ops.map(o => h('option', { value: o, selected: PF[chave] === o }, o))); e.addEventListener('change', () => { PF[chave] = e.value; desenharPend(); }); return e; };
+  const q = h('input', { class: 'inp', type: 'search', placeholder: 'Buscar solicitante', value: PF.q, 'aria-label': 'Buscar solicitante' });
+  q.addEventListener('input', () => { PF.q = q.value; clearTimeout(desenharPend.t); desenharPend.t = setTimeout(() => { desenharPend(); const n = $('#boxPend input[type=search]'); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } }, 250); });
+  const totalPend = lista.reduce((a, p) => a + p.pendQtd, 0);
+  const rows = lista.map(p => h('tr', {}, h('td', {}, h('b', { text: p.nome }), !p.temAcesso && h('span', { class: 'chip warn', style: 'margin-left:8px', text: 'sem login' })),
+    h('td', { text: p.sups.join(', ') || '-' }), h('td', { text: p.dirs.join(', ') || '-' }),
+    h('td', { class: 'r', text: p.pendQtd + ' de ' + p.total }), h('td', { class: 'r muted', text: brl(p.pendValor) })));
+  if (!rows.length) rows.push(h('tr', {}, h('td', { colspan: '5', class: 'muted', text: all.length ? 'Nenhum solicitante com esses filtros.' : 'Todos os solicitantes preencheram as corridas.' })));
+  box.replaceChildren(h('h3', { style: 'margin:0 0 4px', text: 'Quem ainda não preencheu' }),
+    h('p', { class: 'nota', style: 'margin:0 0 12px', text: lista.length + ' solicitante' + (lista.length === 1 ? '' : 's') + ' com ' + totalPend + ' corrida' + (totalPend === 1 ? '' : 's') + ' sem resposta nesta base.' }),
+    h('div', { class: 'tools' }, q, sel('Superintendente', sups, 'sup'), sel('Diretor', dirs, 'dir')),
+    h('div', { class: 'tbl-wrap' }, h('table', {}, h('thead', {}, h('tr', {}, h('th', { text: 'Solicitante' }), h('th', { text: 'Superintendente' }), h('th', { text: 'Diretor' }), h('th', { class: 'r', text: 'Sem resposta' }), h('th', { class: 'r', text: 'Valor aguardando' }))), h('tbody', {}, rows))));
 }
 function desenharTabela() {
   const el = $('#tabPainel'); if (!el) return;
-  const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-  const q = norm(BUSCA.trim());
-  const lista = PAINEL.grupos[DIM].filter(g => !q || norm(g.nome).includes(q));
-  const max = Math.max(1, ...lista.map(g => g.valor));
-  const tot = lista.reduce((a, g) => ({ q: a.q + g.qtd, v: a.v + g.valor, pq: a.pq + g.pendQtd, pv: a.pv + g.pendValor }), { q: 0, v: 0, pq: 0, pv: 0 });
-  const rows = lista.map(g => h('tr', {},
-    h('td', { text: g.nome }), h('td', { class: 'r', text: g.qtd }),
-    h('td', { class: 'r' }, h('div', { class: 'mini' }, h('div', { class: 'b' }, h('i', { style: 'width:' + Math.round(g.valor / max * 100) + '%' })), h('b', { text: brl(g.valor) }))),
-    h('td', { class: 'r muted', text: g.pendQtd ? brl(g.pendValor) + ' (' + g.pendQtd + ')' : '-' })));
-  if (!rows.length) rows.push(h('tr', {}, h('td', { colspan: '4', class: 'muted', text: 'Nada encontrado.' })));
-  else rows.push(h('tr', { class: 'tot' }, h('td', { text: 'Total' }), h('td', { class: 'r', text: tot.q }), h('td', { class: 'r', text: brl(tot.v) }), h('td', { class: 'r', text: tot.pq ? brl(tot.pv) + ' (' + tot.pq + ')' : '-' })));
-  el.replaceChildren(h('div', { class: 'tbl-wrap' }, h('table', {},
-    h('thead', {}, h('tr', {}, h('th', { text: { solicitante: 'Solicitante', superintendente: 'Superintendente', diretor: 'Diretor' }[DIM] }), h('th', { class: 'r', text: 'Vendas' }), h('th', { class: 'r', text: 'Valor confirmado' }), h('th', { class: 'r', text: 'Aguardando' }))),
-    h('tbody', {}, rows))));
+  const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const q = norm(BUSCA.trim()), rot = { solicitante: 'Solicitante', superintendente: 'Superintendente', diretor: 'Diretor' }[DIM];
+  const base = PAINEL.grupos[DIM].filter(g => !q || norm(g.nome).includes(q));
+  function tabela(titulo, sub, lista, qk, vk, vazioTxt, destaque) {
+    const max = Math.max(1, ...lista.map(g => g[vk]));
+    const tot = lista.reduce((a, g) => ({ q: a.q + g[qk], v: a.v + g[vk] }), { q: 0, v: 0 });
+    const rows = lista.map(g => h('tr', {}, h('td', { text: g.nome }), h('td', { class: 'r', text: g[qk] }),
+      h('td', { class: 'r' }, h('div', { class: 'mini' }, h('div', { class: 'b' }, h('i', { style: 'width:' + Math.round(g[vk] / max * 100) + '%' + (destaque ? ';background:#C98A00' : '') })), h('b', { text: brl(g[vk]) })))));
+    if (!rows.length) rows.push(h('tr', {}, h('td', { colspan: '3', class: 'muted', text: vazioTxt })));
+    else rows.push(h('tr', { class: 'tot' }, h('td', { text: 'Total' }), h('td', { class: 'r', text: tot.q }), h('td', { class: 'r', text: brl(tot.v) })));
+    return h('div', { style: 'margin-bottom:22px' }, h('h3', { style: 'margin:0 0 2px', text: titulo }), h('p', { class: 'nota', style: 'margin:0 0 10px', text: sub }),
+      h('div', { class: 'tbl-wrap' }, h('table', {}, h('thead', {}, h('tr', {}, h('th', { text: rot }), h('th', { class: 'r', text: 'Corridas' }), h('th', { class: 'r', text: 'Valor' }))), h('tbody', {}, rows))));
+  }
+  el.replaceChildren(
+    tabela('Vendas confirmadas', 'Só corridas marcadas como "foi venda".', base.filter(g => g.qtd > 0).sort((a, b) => b.valor - a.valor), 'qtd', 'valor', 'Nenhuma venda confirmada ainda.', false),
+    tabela('Corridas sem preenchimento', 'Valor das corridas que os usuários ainda não responderam. Não entra no total confirmado.', base.filter(g => g.pendQtd > 0).sort((a, b) => b.pendValor - a.pendValor), 'pendQtd', 'pendValor', 'Nenhuma corrida pendente.', true));
 }
 $('#btnExport').addEventListener('click', async () => {
   try {
